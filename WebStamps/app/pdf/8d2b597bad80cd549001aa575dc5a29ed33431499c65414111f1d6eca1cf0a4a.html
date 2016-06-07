@@ -34,7 +34,7 @@ from app import views
 <p>Now we will create a login form that users will use to identify with the system. The login mechanism that we will support in our app is not the standard username/password type, we will have our users login using their <a href="http://openid.net">OpenID</a>. OpenIDs have the benefit that the authentication is done by the provider of the OpenID, so we don't have to validate passwords, which makes our site more secure to our users.</p>
 <p>The OpenID login only requires one string, the so called OpenID. We will also throw a 'remember me' checkbox in the form, so that users can choose to have a cookie installed in their browsers that remembers their login when they come back.</p>
 <p>Let's write our first form (file <code>app/forms.py</code>):</p>
-<pre><code>from flask.ext.wtf import Form
+<pre><code>from flask_wtf import Form
 from wtforms import StringField, BooleanField
 from wtforms.validators import DataRequired
 

@@ -1,9 +1,9 @@
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
     SubmitField,RadioField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError,validators
-from flask.ext.pagedown.fields import PageDownField
+from flask_pagedown.fields import PageDownField
 from flask_wtf.file import FileField
 from ..models import Role, User
 from wtforms.fields.html5 import URLField,IntegerField,EmailField
