@@ -1,0 +1,68 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>The equivalent of a GOTO in python - Stack Overflow</h1><html><body><div><div class="post-text" itemprop="text">&#13;
+<p><code>Goto</code>s are universally reviled in computer science and programming as they lead to very unstructured code.</p>
+
+<p>Python (like almost every programming language today) supports <a href="http://en.wikipedia.org/wiki/Structured_programming">structured programming</a> which controls flow using if/then/else, loop and subroutines.</p>
+
+<p>The key to thinking in a structured way is to understand how and why you are branching on code.</p>
+
+<p>For example, lets pretend Python had a <code>goto</code> and corresponding <code>label</code> statement <em>shudder</em>. Look at the following code. In it if a number is greater than or equal to 0 we print if it </p>
+
+<pre><code>number = input()
+if number &lt; 0: goto negative
+if number % 2 == 0:
+   print "even"
+else:
+   print "odd"
+goto end
+label: negative
+print "negative"
+label: end
+print "all done"
+</code></pre>
+
+<p>If we want to know when a piece of code is executed, we need to carefully traceback in the program, and examine how a label was arrived at - which is something that can't really be done.</p>
+
+<p>For example, we can rewrite the above as:</p>
+
+<pre><code>number = input()
+goto check
+
+label: negative
+print "negative"
+goto end
+
+label: check
+if number &lt; 0: goto negative
+if number % 2 == 0:
+   print "even"
+else:
+   print "odd"
+goto end
+
+label: end
+print "all done"
+</code></pre>
+
+<p>Here, there are two possible ways to arrive at the "end", and we can't know which one was chosen. As programs get large this kind of problem gets worse and results in <a href="http://en.wikipedia.org/wiki/Spaghetti_code">spaghetti code</a></p>
+
+<p>In comparison, below is how you <em>would</em> write this program in Python:</p>
+
+<pre><code>number = input()
+if number &gt;= 0:
+   if number % 2 == 0:
+       print "even"
+   else:
+       print "odd"
+else:
+   print "negative"
+print "all done"
+</code></pre>
+
+<p>I can look at a particular line of code, and know under what conditions it is met by tracing back the tree of <code>if/then/else</code> blocks it is in. For example, I know that the line <code>print "odd"</code> will be run when a <code>((number &gt;= 0) == True) and ((number % 2 == 0) == False)</code>.</p>
+    </div>&#13;
+    </div></body></html></body>
