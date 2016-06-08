@@ -35,9 +35,10 @@ def clever_function(str,domain):
 
 
 def create_app(config_name):
-    app = Flask(__name__,static_folder='pdf') #working
+    app = Flask(__name__, static_folder='pdf') #working
     #app = Flask(__name__, static_url_path='')
     app.config.from_object(config[config_name])
+    app.config.setdefault('SQLALCHEMY_TRACK_MODIFICATIONS', True)
     config[config_name].init_app(app)
     app.config['UPLOAD_FOLDER'] = 'pdf/' #working
     #app.config['SERVER_NAME'] = 'http://127.0.0.1:5000'
