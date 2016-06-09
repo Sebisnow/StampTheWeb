@@ -1,0 +1,10 @@
+<p>Dear {{ user.username }},</p>
+<p>You are receiving this email, since you have created a regular stamps. We would like to inform you that
+    we found a change in your timestamped page. To view your changed post. <a href="{{ url_for('main.post',id=post.id, _external=True) }}">click here</a>.</p>
+<p>To Compare your previous post with the changed post <a href="{{ url_for('main.verify_two',ids=ids, _external=True) }}">click here</a>.</p>
+<p>Alternatively, you can paste the following links in your browser's address bar:</p>
+<p>{{ url_for('main.post',id=post.id, _external=True) }}</p>
+<p>{{ url_for('main.verify_two',ids=ids, _external=True) }}</p>
+<p>Sincerely,</p>
+<p>The WEB Stamps Team</p>
+<p><small>Note: replies to this email address are not monitored.</small></p>
