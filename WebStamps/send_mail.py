@@ -48,21 +48,23 @@ def get_pages_send_email(post,task):
         proxy = None
         if update_and_send(proxy,post,url,'UK',False):
             return True
-def update_and_send(proxy,post,url,country,is_proxy):
+
+
+def update_and_send(proxy, post, url, country, is_proxy):
     user = post.author
     if is_proxy:
         try:
             r = requests.get(url, proxies={"http":proxy})
         except:
-            email.send_email_normal(user.email, 'Your requested web Article Blocked in '+country,
-                               'main/block_mail', user=user,post=post)
+            email.send_email_normal(user.email, 'Your requested web article is blocked in '+country,
+                                    'main/block_mail', user=user, post=post)
             return True
     else:
         try:
             r = requests.get(url)
         except:
-            email.send_email_normal(user.email, 'Your requested web Article Blocked',
-                               'main/block_mail', user=user,post=post)
+            email.send_email_normal(user.email, 'Your requested web article is blocked',
+                                    'main/block_mail', user=user,post=post)
             return True
     if r:
         doc = Document(r.text)
@@ -70,29 +72,31 @@ def update_and_send(proxy,post,url,country,is_proxy):
         if sha256 == post.hashVal:
             return True
         else:
-
+            origin_stamp_result = requests.Response()
             try:
-                originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
+                origin_stamp_result = save_render_zip_submit(html_text, sha256, url, doc.title())
             except:
-                app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+                app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
 
-            app.logger.error('Hash: '+ sha256 +' submitted to originstamp' )
-            dateTimeGMT=originStampResult.headers['Date']
-            post_new = Post(body=doc.title(),urlSite=url,hashVal=sha256,webTitl=doc.title(),origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z"),
-                author=user)
+            app.logger.error('Hash: ' + sha256 + ' submitted to originstamp')
+            date_time_gmt = origin_stamp_result.headers['Date']
+            post_new = Post(body=doc.title(), urlSite=url, hashVal=sha256, webTitl=doc.title(), origStampTime=datetime.strptime(date_time_gmt, "%a, %d %b %Y %H:%M:%S %Z"),
+                            author=user)
             db.session.add(post_new)
             db.session.commit()
             post_created = Post.query.filter(and_(Post.urlSite.like(url),
-                                            Post.hashVal.like(sha256))).first()
-            ids = str(post.id) +':'+ str(post_created.id)
+                                                  Post.hashVal.like(sha256))).first()
+            ids = str(post.id) + ':' + str(post_created.id)
             if post_created:
                 email.send_email_normal(user.email, 'Change in the requested Article found',
-                           'main/normal_email', user=user,post=post_created,ids=ids)
+                                        'main/normal_email', user=user, post=post_created, ids=ids)
             return True
     else:
         email.send_email_normal(user.email, 'Your requested web Article Blocked in '+country,
-                           'main/block_email', user=user,post=post)
+                                'main/block_email', user=user, post=post)
         return True
+
+
 def calculate_hash_for_html_doc(doc):
     """
     Calculate hash for given html document.
