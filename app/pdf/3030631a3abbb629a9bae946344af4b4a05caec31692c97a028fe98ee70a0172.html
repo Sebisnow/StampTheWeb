@@ -1,0 +1,64 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>python - How can I profile a SQLAlchemy powered application? - Stack Overflow</h1><html><body><div><div class="post-text" itemprop="text">&#13;
+<p>Sometimes just plain SQL logging (enabled via python's logging module or via the <code>echo=True</code> argument on <code>create_engine()</code>) can give you an idea how long things are taking. For example if you log something right after a SQL operation, you'd see something like this in your log:</p>
+
+<pre><code>17:37:48,325 INFO  [sqlalchemy.engine.base.Engine.0x...048c] SELECT ...
+17:37:48,326 INFO  [sqlalchemy.engine.base.Engine.0x...048c] {&lt;params&gt;}
+17:37:48,660 DEBUG [myapp.somemessage]
+</code></pre>
+
+<p>if you logged <code>myapp.somemessage</code> right after the operation, you know it took 334ms to complete the SQL part of things.   </p>
+
+<p>Logging SQL will also illustrate if dozens/hundreds of queries are being issued which could be better organized into much fewer queries via joins.    When using the SQLAlchemy ORM, the "eager loading" feature is provided to partially (<code>contains_eager()</code>) or fully (<code>eagerload()</code>, <code>eagerload_all()</code>) automate this activity, but without the ORM it just means to use joins so that results across multiple tables can be loaded in one result set instead of multiplying numbers of queries as more depth is added (i.e. <code>r + r*r2 + r*r2*r3</code> ...)</p>
+
+<p>If logging reveals that individual queries are taking too long, you'd need a breakdown of how much time was spent within the database processing the query, sending results over the network, being handled by the DBAPI, and finally being received by SQLAlchemy's result set and/or ORM layer.   Each of these stages can present their own individual bottlenecks, depending on specifics.</p>
+
+<p>For that you need to use profiling, such as cProfile or hotshot.  Here is a decorator I use:</p>
+
+<pre><code>import cProfile as profiler
+import gc, pstats, time
+
+def profile(fn):
+    def wrapper(*args, **kw):
+        elapsed, stat_loader, result = _profile("foo.txt", fn, *args, **kw)
+        stats = stat_loader()
+        stats.sort_stats('cumulative')
+        stats.print_stats()
+        # uncomment this to see who's calling what
+        # stats.print_callers()
+        return result
+    return wrapper
+
+def _profile(filename, fn, *args, **kw):
+    load_stats = lambda: pstats.Stats(filename)
+    gc.collect()
+
+    began = time.time()
+    profiler.runctx('result = fn(*args, **kw)', globals(), locals(),
+                    filename=filename)
+    ended = time.time()
+
+    return ended - began, load_stats, locals()['result']
+</code></pre>
+
+<p>To profile a section of code, place it in a function with the decorator:</p>
+
+<pre><code>@profile
+def go():
+    return Session.query(FooClass).filter(FooClass.somevalue==8).all()
+myfoos = go()
+</code></pre>
+
+<p>The output of profiling can be used to give an idea where time is being spent.  If for example you see all the time being spent within <code>cursor.execute()</code>, that's the low level DBAPI call to the database, and it means your query should be optimized, either by adding indexes or restructuring the query and/or underlying schema.  For that task I would recommend using pgadmin along with its graphical EXPLAIN utility to see what kind of work the query is doing.</p>
+
+<p>If you see many thousands of calls related to fetching rows, it may mean your query is returning more rows than expected - a cartesian product as a result of an incomplete join can cause this issue.   Yet another issue is time spent within type handling - a SQLAlchemy type such as <code>Unicode</code> will perform string encoding/decoding on bind parameters and result columns, which may not be needed in all cases.</p>
+
+<p>The output of a profile can be a little daunting but after some practice they are very easy to read.   There was once someone on the mailing list claiming slowness, and after having him post the results of profile, I was able to demonstrate that the speed problems were due to network latency - the time spent within cursor.execute() as well as all Python methods was very fast, whereas the majority of time was spent on socket.receive().</p>
+
+<p>If you're feeling ambitious, there's also a more involved example of SQLAlchemy profiling within the SQLAlchemy unit tests, if you poke around <a href="http://www.sqlalchemy.org/trac/browser/sqlalchemy/trunk/test/aaa_profiling">http://www.sqlalchemy.org/trac/browser/sqlalchemy/trunk/test/aaa_profiling</a> .   There, we have tests using decorators that assert a maximum number of method calls being used for particular operations, so that if something inefficient gets checked in, the tests will reveal it (it is important to note that in Python, function calls have the highest overhead of any operation, and the count of calls is more often than not nearly proportional to time spent).   Of note are the the "zoomark" tests which use a fancy "SQL capturing" scheme which cuts out the overhead of the DBAPI from the equation - although that technique isn't really necessary for garden-variety profiling.</p>
+    </div>&#13;
+    </div></body></html></body>
