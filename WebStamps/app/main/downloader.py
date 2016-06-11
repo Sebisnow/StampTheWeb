@@ -386,8 +386,8 @@ def load_zip_submit(url, soup, enc):
 def save_render_zip_submit(doc, sha256, url, title):
 
     create_png_from_html(url, sha256)
-    create_pdf_from_url(url,sha256)
-    create_html_from_url(doc,sha256,url)
+    create_pdf_from_url(url, sha256)
+    create_html_from_url(doc, sha256, url)
     #archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
     #archive.write(basePath + sha256 + '.html')
     #os.remove(basePath + sha256 + '.html')
