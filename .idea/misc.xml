@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+<<<<<<< HEAD
+=======
   <component name="ProjectDictionaryState">
     <dictionary name="sebastian" />
   </component>
@@ -22,6 +24,7 @@
       </profile-state>
     </entry>
   </component>
+>>>>>>> 5146bf1a6857b69dde211f809e7ad28564261ab8
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
@@ -32,6 +35,9 @@
     <ConfirmationsSetting value="0" id="Add" />
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
+<<<<<<< HEAD
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.4.2 (C:\Python34\python.exe)" project-jdk-type="Python SDK" />
+=======
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.4.3 (/usr/bin/python3.4)" project-jdk-type="Python SDK" />
   <component name="masterDetails">
     <states>
@@ -48,4 +54,5 @@
       </state>
     </states>
   </component>
+>>>>>>> 5146bf1a6857b69dde211f809e7ad28564261ab8
 </project>

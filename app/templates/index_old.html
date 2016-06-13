@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}WEB Stamps{% endblock %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <h6 class="text-right">Hello, <mark>{% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</mark></h6>
+</div>
+<h2>Free trusted timestamping</h2>
+<p lingdex="0">
+WEB Stamp is a trusted timestamping service that can be used free of charge. The service enables you to create Timestamps for online or offline content. This enables you to prove/verify/compare certain information timestamped.
+</p>
+<div class="container">
+  <ul class="nav nav-tabs">
+    <li class="active"></span>
+        <a data-toggle="tab" href="#home">URL <span class="glyphicon glyphicon-link" id="linkIcon"></a></li>
+
+    <li><a data-toggle="tab" href="#menu1">Hash <span class="glyphicon glyphicon-compressed" id="hashIcon"></a></li>
+    <li><a data-toggle="tab" href="#menu2">Text <span class="glyphicon glyphicon-font" id="textIcon"></a></li>
+    <li><a data-toggle="tab" href="#menu3">File <span class="glyphicon glyphicon-file" id="fileIcon"></a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div id="home" class="tab-pane fade in active">
+      <h3>Submit URL</h3>
+        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        {{ wtf.quick_form(form) }}
+        {% endif %}
+    </div>
+    <div id="menu1" class="tab-pane fade">
+      <h3>Hash</h3>
+        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        {{ wtf.quick_form(formHash) }}
+        {% endif %}
+    </div>
+    <div id="menu2" class="tab-pane fade">
+      <h3>Text</h3>
+        {% if current_user.can(Permission.WRITE_ARTICLES) %}
+        {{ wtf.quick_form(formText) }}
+        {% endif %}
+    </div>
+    <div id="menu3" class="tab-pane fade">
+      <h3>File</h3>
+        <p>Please choose a file to create Timestamp.</p>
+        <form action="" method="post" name="simple"  enctype="multipart/form-data">
+            {{ formFile.csrf_token }}
+        <p>
+           Upload a file
+             {{formFile.fileName()}}
+         </p>
+        <p><input type="submit" value="Submit"></p>
+        </form>
+
+    </div>
+  </div>
+</div>
+{% set alphabets ='abcdefghijklmnopqrstuvwxyz' %}
+<div class="container">
+  <h3> Or select a Domain</h3>
+  <ul class="nav nav-tabs">
+      {% for c in alphabets %}
+    <li><a data-toggle="tab" href=#{{c}}>{{c.upper()}}</a></li>
+      {% endfor %}
+
+    <li><a data-toggle="tab" href="#0">0-9 </a></li>
+  </ul>
+  <div class="tab-content">
+
+  {% for c in alphabets %}
+
+    <div id={{c}} class="tab-pane fade">
+      {% for name in doman_name %}
+          {% if name.startswith(c) %}
+            {% set list = name.split(';') %}
+            <a class="btn btn-primary" href="{{ url_for('.verifyDomain', domain=list[0]) }}" target="_blank"> {{list[0]}}<span class="badge"> {{list[1]}}</span></a>
+
+          {% endif %}
+      {% endfor %}
+
+    </div>
+  {% endfor %}
+
+    <div id="0" class="tab-pane fade">
+    {% for name in doman_name %}
+      {% if name[0].isdigit() %}
+          {% set list = name.split(';') %}
+                <a class="btn btn-primary" href="{{ url_for('.verifyDomain', domain=list[0]) }}" target="_blank"> {{list[0]}}<span class="badge"> {{list[1]}}</span></a>
+
+      {% endif %}
+    {% endfor %}
+    </div>
+  </div>
+</div>
+{% include '_posts.html' %}
+{% if pagination %}
+<div class="pagination">
+    {{ macros.pagination_widget(pagination, '.index') }}
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}

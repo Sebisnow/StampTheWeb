@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>python - Doing DateTime Comparisons in Filter SQLAlchemy - Stack Overflow</h1><html><body><div><div class="post-text" itemprop="text">&#13;
+&#13;
+<p>I'm a bit confused about filtering in SQLAlchemy.</p>
+
+<p>I currently am trying to filter out entries greater than 10 weeks, so I have</p>
+
+<pre><code>current_time = datetime.datetime.utcnow()
+
+potential = session.query(Subject).filter(Subject.time &lt; current_time - datetime.timedelta(weeks=10))
+</code></pre>
+
+<p>However, the <code>potential.count()</code> always returns <code>0</code>.</p>
+
+<p>My theory is that I am not using the filter statement correctly because when I try to use a column that is not of type <code>Column(DateTime())</code> but instead </p>
+
+<blockquote>
+  <p>Column(String(250))</p>
+</blockquote>
+
+<p>like</p>
+
+<pre><code> potential = session.query(Subject).filter(Subject.string_field &lt; current_time - datetime.timedelta(weeks=10))
+</code></pre>
+
+<p>SQLAlchemy will still not complain.</p>
+
+<p>Also, when I do a manual check with</p>
+
+<pre><code>curr_time - session.query(Subject).first().time &gt; datetime.timedelta(weeks=10)
+</code></pre>
+
+<p>I get <code>True</code> which implies that the count should not be <code>0</code>.</p>
+
+<p>Am I missing something obvious? Any help would be appreciated.</p>
+    </div>&#13;
+    </div></body></html></body>
