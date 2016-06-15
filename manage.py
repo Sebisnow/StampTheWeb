@@ -9,8 +9,9 @@ import schedule
 import time
 import datetime
 import send_mail
+from sqlite3 import dbapi2
 
-
+times = dbapi2.Time
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
