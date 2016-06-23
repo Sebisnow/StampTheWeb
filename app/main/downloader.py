@@ -378,24 +378,20 @@ def get_url_history(url):
         sha256, html_text = calculate_hash_for_html_doc(doc)
         #if check_database_for_hash(sha256) < 1:
         originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
-    except FileNotFoundError as fileError:
-        # can only occur if data was submitted successfully but png or pdf creation failed
-        flash(u'Internal System Error: ' + fileError.strerror,'error')
-        app.logger.error('Internal System Error: ' + fileError.strerror)
 
-        # TODO OriginstampError is never set anything but none
+
+    except Exception as e:
+         # TODO OriginstampError is never set anything but none
         '''
         if OriginstampError is not None:
             return ReturnResults(originStampResult, sha256, doc.title())
         else:
             return ReturnResults(None, sha256, doc.title())
         '''
-        return ReturnResults(originStampResult, sha256, doc.title())
-    except Exception as e:
         # can only occur if data was submitted successfully but png or pdf creation failed
         flash(u'Internal System Error: ' + e.strerror,'error')
         app.logger.error('Internal System Error: ' + e.strerror + '\n' + e.with_traceback())
-        return ReturnResults(originStampResult, sha256, doc.title())
+        return ReturnResults(None, sha256, doc.title())
 
     #return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originStampResult, sha256, doc.title())
