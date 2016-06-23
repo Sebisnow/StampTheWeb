@@ -437,8 +437,17 @@ def save_render_zip_submit(doc, sha256, url, title):
 
     # moved image creation behind Timestamping so images are only created for new Stamps if no eror occurred
     if originStampResult.status_code == 200:
-        create_png_from_url(url, sha256)
-        create_pdf_from_url(url, sha256)
+        try:
+            create_png_from_url(url, sha256)
+            create_pdf_from_url(url, sha256)
+        except FileNotFoundError as fileError:
+            # can only occur if data was submitted successfully but png or pdf creation failed
+            flash(u'Internal System Error while creating image and pdf: ' + fileError.strerror +
+                  '\n Originstamp Result was: ' + str(originStampResult.status_code),'error')
+            app.logger.error('Internal System Error while creating image and pdf: ' +
+                             fileError.strerror + '\n Originstamp Result was: ' + str(originStampResult.status_code))
+            originStampResult.error = fileError
+            return originStampResult
     return originStampResult
 
 
