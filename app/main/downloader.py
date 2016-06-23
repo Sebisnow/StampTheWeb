@@ -378,7 +378,7 @@ def get_url_history(url):
         sha256, html_text = calculate_hash_for_html_doc(doc)
         #if check_database_for_hash(sha256) < 1:
         originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
-    except Error as e:
+    except Exception as e:
         # can only occur if data was submitted successfully but png or pdf creation failed
         flash(u'Internal System Error: ' + e + '\n Originstamp Result was: ' +
               str(originStampResult.status_code),'error')
