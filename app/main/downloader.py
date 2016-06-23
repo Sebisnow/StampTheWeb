@@ -290,7 +290,7 @@ def compress_files(files, js_files):
         os.rename(filename, sha256 + ".zip")
     return sha256
 
-
+"""
 def check_database_for_hash(sha256):
     query = 'SELECT COUNT(*) AS c FROM posts WHERE posts.hashVal = '+sha256+';'
     from sqlalchemy import text
@@ -302,6 +302,7 @@ def check_database_for_hash(sha256):
 def check_database_for_url(url):
     query = 'SELECT * FROM stampedSites WHERE stampedSites.url = %s ORDER BY datetime ASC;'
     return db.execute_on_database(query, url)
+"""
 
 
 def submitHash(hash):
@@ -389,8 +390,8 @@ def get_url_history(url):
             return ReturnResults(None, sha256, doc.title())
         '''
         # can only occur if data was submitted successfully but png or pdf creation failed
-        flash(u'Internal System Error: ' + e.strerror,'error')
-        app.logger.error('Internal System Error: ' + e.strerror + '\n' + e.with_traceback())
+        flash(u'Internal System Error: ' + e.args, 'error')
+        app.logger.error('Internal System Error: ' + e.args)
         return ReturnResults(None, sha256, doc.title())
 
     #return json.dumps(check_database_for_url(url), default=date_handler)
