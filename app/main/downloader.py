@@ -7,6 +7,7 @@ import uuid
 import shutil
 import zipfile
 import traceback
+import ipfsApi as ipfs
 from readability.readability import Document
 from subprocess import call, DEVNULL
 from app import db
@@ -18,14 +19,12 @@ import logging
 from flask import current_app as app
 
 
-
-
-
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
 urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 #nullDevice = open(os.devnull, 'w')
 basePath = 'app/pdf/'
 errorCaught = ""
+ipfs_Client = ipfs.Client('127.0.0.1', 5001)
 
 apiPostUrl = 'http://www.originstamp.org/api/stamps'
 # other apiKey:
@@ -37,10 +36,10 @@ options = {'quiet': ''}
 
 
 class ReturnResults(object):
-  def __init__(self, originStampResult, hashValue, webTitle):
-     self.originStampResult = originStampResult
-     self.hashValue = hashValue
-     self.webTitle = webTitle
+    def __init__(self, originStampResult, hashValue, webTitle):
+        self.originStampResult = originStampResult
+        self.hashValue = hashValue
+        self.webTitle = webTitle
 
 
 class DownloadError(Exception):
@@ -61,27 +60,29 @@ class RequestError(Exception):
         super(RequestError, self).__init__(message)
         request = req
 
+
 def get_text_from_other_country(china, usa, uk, url):
     if china is True:
         proxy = current_app.config['FLASKY_CHINA_PROXY']
-        hash,text= update_and_send(proxy,url)
-        return hash,text
+        hash, text = update_and_send(proxy, url)
+        return hash, text
 
     if usa is True:
         proxy = current_app.config['FLASKY_USA_PROXY']
-        hash,text= update_and_send(proxy,url)
-        return hash,text
+        hash,text = update_and_send(proxy, url)
+        return hash, text
     if uk:
         proxy = current_app.config['FLASKY_UK_PROXY']
-        hash,text= update_and_send(proxy,url)
-        return hash,text
+        hash,text = update_and_send(proxy, url)
+        return hash, text
 
-def update_and_send(proxy,url):
+
+def update_and_send(proxy, url):
 
     try:
-        r = requests.get(url, proxies={"http":proxy})
+        r = requests.get(url, proxies={"http": proxy})
     except:
-        return None,None
+        return None, None
 
     if r:
         return calculate_hash_for_html_doc(Document(r.text))
@@ -95,7 +96,6 @@ class OriginstampError(Exception):
     def __init__(self, message, req):
         super(OriginstampError, self).__init__(message)
         request = req
-
 
 
 def create_png_from_html(url, sha256):
@@ -114,24 +114,27 @@ def create_png_from_html(url, sha256):
     #subprocess.Popen(['wget', '-O', path, 'http://images.websnapr.com/?url='+url+'&size=s&nocache=82']).wait()
     if os.path.isfile(path):
         return
-    flash(u'Could not create PNG from '+ url, 'error')
+    flash(u'Could not create PNG from ' + url, 'error')
     app.logger.error('Could not create PNG from the: '+url)
     return
 
-def create_html_from_url(doc,hash,url):
+
+def create_html_from_url(doc, hash, url):
     path = basePath + hash + '.html'
-    with open(path,'w' ) as file:
+    with open(path, 'w') as file:
         file.write(doc)
     if os.path.isfile(path):
         return
-    flash(u'Could not create HTML from '+ url, 'error')
-    app.logger.error('Could not create HTML from the: '+url)
+    flash(u'Could not create HTML from ' + url, 'error')
+    app.logger.error('Could not create HTML from the: ' + url)
     return
+
+
 def create_pdf_from_url(url,sha256):
     #:param url: url to retrieve
     #method to write pdf file
-    app.logger.info('Creating PDF from URL:'+url)
-    path = basePath +sha256+'.pdf'
+    app.logger.info('Creating PDF from URL:' + url)
+    path = basePath + sha256 + '.pdf'
     app.logger.info('PDF Path:'+path)
     try:
         pdfkit.from_url(url, path)
@@ -143,6 +146,7 @@ def create_pdf_from_url(url,sha256):
         app.logger.error('Could not create PDF from the: '+url)
         app.logger.error(traceback.format_exc(),e)
     return
+
 
 def calculate_hash_for_html_doc(doc):
     """
@@ -168,8 +172,8 @@ def calculate_hash_for_html_doc(doc):
     calc_hash = hashlib.sha256()
     calc_hash.update(doc.summary().encode(encoding))
     sha256 = calc_hash.hexdigest()
-    app.logger.info('Hash:' +sha256)
-    app.logger.info('HTML:' +text)
+    app.logger.info('Hash:' + sha256)
+    app.logger.info('HTML:' + text)
     return sha256, text
 
 
@@ -196,7 +200,7 @@ def submit_add_to_db(url, sha256, title):
     """
     originStampResult = submit(sha256, title)
     app.logger.info(originStampResult.text)
-    app.logger.info('Origin Stamp Response:' +originStampResult.text)
+    app.logger.info('Origin Stamp Response:' + originStampResult.text)
     if originStampResult.status_code >= 300 :
         flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
         app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
@@ -288,25 +292,27 @@ def check_database_for_url(url):
     query = 'SELECT * FROM stampedSites WHERE stampedSites.url = %s ORDER BY datetime ASC;'
     return db.execute_on_database(query, url)
 
+
 def submitHash(hash):
     originStampResult = submit(hash, "")
     app.logger.info(originStampResult.text)
-    app.logger.info('Origin Stamp Response:' +originStampResult.text)
-    if originStampResult.status_code >= 300 :
+    app.logger.info('Origin Stamp Response:' + originStampResult.text)
+    if originStampResult.status_code >= 300 and app.config['TESTING'] == False:
         flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
         app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
         return ReturnResults(None, hash, "None")
-    elif originStampResult.status_code == 200:
+    elif originStampResult.status_code == 200 and app.config['TESTING'] == False:
         flash(u'Hash already submitted to OriginStamp' + ' Hash '+hash)
         app.logger.error('Hash already submitted to OriginStamp' )
         return ReturnResults(originStampResult, hash, "")
         #raise OriginstampError('Could not submit hash to Originstamp', r)
-    elif "errors" in originStampResult.json():
+    elif "errors" in originStampResult.json() and app.config['TESTING'] == False:
         flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
         app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
         return ReturnResults(None, hash, "None")
     else:
         return ReturnResults(originStampResult, hash, "")
+
 
 def getHashOfFile(fname):
     hash_sha265 = hashlib.sha256()
@@ -315,17 +321,22 @@ def getHashOfFile(fname):
             hash_sha265.update(chunk)
     return hash_sha265.hexdigest()
 
+
 def get_text_timestamp(text):
-    hash_object = hashlib.sha256(text)
-    hex_dig = hash_object.hexdigest()
-    results = submitHash(hex_dig)
+    ipfs_hash = ipfs_Client.add_str(text)
+    # hash_object = hashlib.sha256(text)
+    # hex_dig = hash_object.hexdigest()
+    results = submitHash(ipfs_hash)
     return results
+
+
 def get_hash_history(hash):
     """
     :parm hash: the hash which needs to verify from OriginStamps
     """
     results = submitHash(hash)
     return results
+
 
 def get_url_history(url):
     """
@@ -335,17 +346,17 @@ def get_url_history(url):
     """
     # validate URL
     OriginstampError = None
-    sha256=None
+    sha256 = None
     if not re.match(urlPattern, url):
-        flash('100'+'Bad URL'+'URL needs to be valid to create timestamp for it:'+url,'error')
-        app.logger.error('100'+'Bad URL'+'URL needs to be valid to create timestamp for it:' + url)
-        return ReturnResults(None,None,None)
+        flash('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url, 'error')
+        app.logger.error('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url)
+        return ReturnResults(None, None, None)
 
     res = requests.get(url)
     if res.status_code >= 300:
-        flash('100 Bad URL Could not retrieve URL to create timestamp for it.'+url,'error')
+        flash('100 Bad URL Could not retrieve URL to create timestamp for it.' + url, 'error')
         app.logger.error('100 Bad URL Could not retrieve URL to create timestamp for it:' + url)
-        return ReturnResults(None,None,None)
+        return ReturnResults(None, None, None)
     #soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
     doc = Document(res.text)
     #encoding = chardet.detect(res.text.encode()).get('encoding')
@@ -364,6 +375,7 @@ def get_url_history(url):
 
     #return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originStampResult, sha256, doc.title())
+
 
 def load_zip_submit(url, soup, enc):
     old_path = os.getcwd()
@@ -396,6 +408,7 @@ def save_render_zip_submit(doc, sha256, url, title):
     originStampResult = submit_add_to_db(url, sha256, title)
     return originStampResult
 
+
 def main():
     # url = 'http://www.theverge.com/2015/12/11/9891068/oneplus-x-review-android'
     # url = 'http://www.theverge.com/2016/1/29/10868232/starry-high-speed-internet-millimeter-wave'
@@ -424,6 +437,7 @@ def json_error(code, title, detail):
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
+
 def execute_on_database(query, args):
     connection = db.session.connection()
     try:
@@ -436,6 +450,7 @@ def execute_on_database(query, args):
     finally:
         connection.close()
     return result
+
 
 if __name__ == '__main__':
     main()

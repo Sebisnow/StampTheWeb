@@ -146,6 +146,7 @@ def create_png_from_html(url, sha256):
     app.logger.error('Could not create PNG from the: '+url)
     return
 
+
 def create_html_from_url(doc,hash,url):
     path = basePath + hash + '.html'
     with open(path,'w' ) as file:
@@ -202,6 +203,6 @@ def submit(sha256, title=None):
     :param title: title of the hashed document
     :returns: resulting request object
     """
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="' + apiKey + '"'}
     data = {'hash_sha256': sha256, 'title': title}
     return requests.post(apiPostUrl, json=data, headers=headers)
