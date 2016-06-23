@@ -27,6 +27,7 @@ def index():
             form.validate_on_submit() and not formFreq.frequency.data:
         sha256=None
         dateTimeGMT=None
+        post_new = None
         urlSite=form.urlSite.data
         if form.urlSite.data != None:
             results = downloader.get_url_history(urlSite)
@@ -46,8 +47,9 @@ def index():
             post_old = Post.query.get_or_404(already_exist.id)
             return render_template('post.html', posts=[post_old],single=True)
         else:
-            db.session.add(post_new)
-            db.session.commit()
+            if post_new is not None:
+                db.session.add(post_new)
+                db.session.commit()
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             formFreq.validate_on_submit() and formFreq.frequency.data > 0:

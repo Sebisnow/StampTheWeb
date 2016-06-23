@@ -98,7 +98,7 @@ class OriginstampError(Exception):
         request = req
 
 
-def create_png_from_html(url, sha256):
+def create_png_from_url(url, sha256):
     """
     Create png from URL. Returns path to file.
 
@@ -131,8 +131,11 @@ def create_html_from_url(doc, hash, url):
 
 
 def create_pdf_from_url(url,sha256):
-    #:param url: url to retrieve
-    #method to write pdf file
+    '''
+    :param url: url to retrieve
+    :param sha256: the hash of the url which is important for the filename
+    method to write pdf file
+    '''
     app.logger.info('Creating PDF from URL:' + url)
     path = basePath + sha256 + '.pdf'
     app.logger.info('PDF Path:'+path)
@@ -201,18 +204,27 @@ def submit_add_to_db(url, sha256, title):
     originStampResult = submit(sha256, title)
     app.logger.info(originStampResult.text)
     app.logger.info('Origin Stamp Response:' + originStampResult.text)
-    if originStampResult.status_code >= 300 :
-        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+    if originStampResult.status_code >= 400 :
+        flash(u'Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
+              '\n ErrorMessage: ' + originStampResult.text,'error')
+        app.logger.error('Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
+                         '\n ErrorMessage: ' + originStampResult.text)
         return originStampResult
         #raise OriginstampError('Could not submit hash to Originstamp', r)
+    elif originStampResult.status_code >= 300 :
+        flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
+              '\n ErrorMessage: ' + originStampResult.text,'error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+        return originStampResult
     elif originStampResult.status_code == 200:
         #flash(u'URL already submitted to OriginStamp'+ url + ' Hash '+sha256)
         #app.logger.error('URL already submitted to OriginStamp' )
         return originStampResult
     elif "errors" in originStampResult.json():
-        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+        flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
+              '\n ErrorMessage: ' + originStampResult.text,'error')
+        app.logger.error('An Error occurred. Error Code: ' + originStampResult.status_code +
+                         '\n ErrorMessage: ' + originStampResult.text)
         return originStampResult
 
     #date = parser.parse(r.json()['created_at'])
@@ -275,8 +287,6 @@ def compress_files(files, js_files):
         # is needed on on windows, where os.rename can't override existing files.
         os.remove(sha256 + ".zip")
         os.rename(filename, sha256 + ".zip")
-        flash("Could not Compress file:"+filename,'error')
-        app.logger.error("Could not Compress file:"+filename)
     return sha256
 
 
@@ -315,12 +325,15 @@ def submitHash(hash):
 
 
 def getHashOfFile(fname):
+    res = ipfs_Client.add(fname)
+    """
     hash_sha265 = hashlib.sha256()
     with open(fname, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_sha265.update(chunk)
     return hash_sha265.hexdigest()
-
+    """
+    return res['Hash']
 
 def get_text_timestamp(text):
     ipfs_hash = ipfs_Client.add_str(text)
@@ -365,17 +378,23 @@ def get_url_history(url):
         #if check_database_for_hash(sha256) < 1:
         originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
     except:
-
-        flash(u'300 Internal System Error. Could not submit hash to originstamp:'+url,'error')
+        # TODO needs a better description of what errors could occur and need catching
+        flash(u'300 Internal System Error. Could not submit hash to originstamp:' + url,'error')
         app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+
+        # TODO OriginstampError is never set anything but none
+        '''
         if OriginstampError is not None:
             return ReturnResults(originStampResult, sha256, doc.title())
         else:
             return ReturnResults(None, sha256, doc.title())
-
+        '''
+        return ReturnResults(None, sha256, doc.title())
     #return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originStampResult, sha256, doc.title())
 
+'''
+# Deprecated Method of old STW
 
 def load_zip_submit(url, soup, enc):
     old_path = os.getcwd()
@@ -393,12 +412,10 @@ def load_zip_submit(url, soup, enc):
         os.rename(sha256 + '.zip', '../' + sha256 + '.zip')
     os.chdir(old_path)
     shutil.rmtree(tmp_dir)
-
+'''
 
 def save_render_zip_submit(doc, sha256, url, title):
 
-    create_png_from_html(url, sha256)
-    create_pdf_from_url(url, sha256)
     create_html_from_url(doc, sha256, url)
     #archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
     #archive.write(basePath + sha256 + '.html')
@@ -406,6 +423,11 @@ def save_render_zip_submit(doc, sha256, url, title):
     #archive.write(basePath + sha256 + '.png')
     #os.remove(basePath + sha256 + '.png')
     originStampResult = submit_add_to_db(url, sha256, title)
+
+    # moved image creation behind Timestamping so images are only created for new Stamps if no eror occurred
+    if originStampResult.status_code == 200:
+        create_png_from_url(url, sha256)
+        create_pdf_from_url(url, sha256)
     return originStampResult
 
 
