@@ -36,10 +36,11 @@ options = {'quiet': ''}
 
 
 class ReturnResults(object):
-    def __init__(self, originStampResult, hashValue, webTitle):
+    def __init__(self, originStampResult, hashValue, webTitle, errors=None):
         self.originStampResult = originStampResult
         self.hashValue = hashValue
         self.webTitle = webTitle
+        self.errors = errors
 
 
 class DownloadError(Exception):
@@ -377,10 +378,12 @@ def get_url_history(url):
         sha256, html_text = calculate_hash_for_html_doc(doc)
         #if check_database_for_hash(sha256) < 1:
         originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
-    except:
-        # TODO needs a better description of what errors could occur and need catching
-        flash(u'300 Internal System Error. Could not submit hash to originstamp:' + url,'error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+    except Error as e:
+        # can only occur if data was submitted successfully but png or pdf creation failed
+        flash(u'Internal System Error: ' + e + '\n Originstamp Result was: ' +
+              str(originStampResult.status_code),'error')
+        app.logger.error('Internal System Error: ' + e + '\n Originstamp Result was: ' +
+              str(originStampResult.status_code))
 
         # TODO OriginstampError is never set anything but none
         '''
@@ -389,7 +392,7 @@ def get_url_history(url):
         else:
             return ReturnResults(None, sha256, doc.title())
         '''
-        return ReturnResults(None, sha256, doc.title())
+        return ReturnResults(originStampResult, sha256, doc.title())
     #return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originStampResult, sha256, doc.title())
 

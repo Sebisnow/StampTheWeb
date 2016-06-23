@@ -34,12 +34,13 @@ def index():
             originStampResult = results.originStampResult
             sha256 = results.hashValue
             title = results.webTitle
-            if originStampResult is not None and originStampResult.headers['Date'] is not None:
+            if originStampResult.status_code == 200 and originStampResult.headers['Date'] is not None:
                 dateTimeGMT=originStampResult.headers['Date']
                 post_new = Post(body=form.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title, origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z"),
                                 author=current_user._get_current_object())
             else:
-                flash('Could not submit to Originstamp')
+                flash('Could not submit to Originstamp because of a mysterious error.')
+
         already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
                                             Post.hashVal.like(sha256))).first()
         if already_exist is not None:
