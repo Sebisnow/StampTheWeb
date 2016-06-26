@@ -22,62 +22,65 @@ from sqlalchemy import or_,and_
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
-    formFreq = PostFreq()
+    form_freq = PostFreq()
     if current_user.can(Permission.WRITE_ARTICLES) and \
-            form.validate_on_submit() and not formFreq.frequency.data:
+            form.validate_on_submit() and not form_freq.frequency.data:
         sha256 = None
-        dateTimeGMT = None
+        date_time_gmt = None
         post_new = None
-        urlSite=form.urlSite.data
-        if form.urlSite.data is not None:
-            results = downloader.get_url_history(urlSite)
-            originStampResult = results.originStampResult
+        url_site = form.urlSite.data
+        if url_site is not None:
+            results = downloader.get_url_history(url_site)
+            originstamp_result = results.originStampResult
             sha256 = results.hashValue
             title = results.webTitle
-            if originStampResult.status_code == 200 and originStampResult.headers['Date'] is not None:
-                dateTimeGMT=originStampResult.headers['Date']
-                post_new = Post(body=form.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title, origStampTime=
-                                datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z"),
+            if not originstamp_result:
+                flash('Could not submit to Originstamp because of a mysterious error.')
+                return redirect(url_for('.index'))
+            elif originstamp_result.status_code == 200 and originstamp_result.headers['Date'] is not None:
+                date_time_gmt = originstamp_result.headers['Date']
+                post_new = Post(body=form.body.data, urlSite=url_site, hashVal=sha256, webTitl=title, origStampTime=
+                                datetime.strptime(date_time_gmt, "%a, %d %b %Y %H:%M:%S %Z"),
                                 author=current_user._get_current_object())
             else:
                 flash('Could not submit to Originstamp because of a mysterious error.')
 
-        already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
-                                            Post.hashVal.like(sha256))).first()
+        already_exist = Post.query.filter(and_(Post.urlSite.like(url_site),
+                                               Post.hashVal.like(sha256))).first()
         if already_exist is not None:
             flash('The URL was already submitted')
             post_old = Post.query.get_or_404(already_exist.id)
-            return render_template('post.html', posts=[post_old],single=True)
+            return render_template('post.html', posts=[post_old], single=True)
         else:
             if post_new is not None:
                 db.session.add(post_new)
                 db.session.commit()
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
-            formFreq.validate_on_submit() and formFreq.frequency.data > 0:
-        sha256=None
-        dateTimeGMT=None
-        urlSite=formFreq.urlSite.data
-        freq = formFreq.frequency.data
-        china = formFreq.china.data
-        usa = formFreq.usa.data
-        uk = formFreq.uk.data
-        email = formFreq.email.data
+            form_freq.validate_on_submit() and form_freq.frequency.data > 0:
+        sha256 = None
+        date_time_gmt = None
+        url_site = form_freq.urlSite.data
+        freq = form_freq.frequency.data
+        china = form_freq.china.data
+        usa = form_freq.usa.data
+        uk = form_freq.uk.data
+        email = form_freq.email.data
 
-        if formFreq.urlSite.data != None:
-            results = downloader.get_url_history(urlSite)
-            originStampResult = results.originStampResult
+        if form_freq.urlSite.data is not None:
+            results = downloader.get_url_history(url_site)
+            originstamp_result = results.originStampResult
             sha256 = results.hashValue
             title = results.webTitle
-            if originStampResult is not None:
-                dateTimeGMT=originStampResult.headers['Date']
-                origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z")
+            if originstamp_result is not None:
+                date_time_gmt = originstamp_result.headers['Date']
+                originstamp_time = datetime.strptime(date_time_gmt, "%a, %d %b %Y %H:%M:%S %Z")
             else:
-                origStampTime = datetime.now()
-        post_new = Post(body=formFreq.body.data,urlSite=urlSite,hashVal=sha256,webTitl=title,origStampTime=origStampTime,
-                    author=current_user._get_current_object())
-        already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
-                                            Post.hashVal.like(sha256))).first()
+                originstamp_time = datetime.now()
+        post_new = Post(body=form_freq.body.data, urlSite=url_site, hashVal=sha256,webTitl=title,
+                        origStampTime=originstamp_time, author=current_user._get_current_object())
+        already_exist = Post.query.filter(and_(Post.urlSite.like(url_site),
+                                               Post.hashVal.like(sha256))).first()
         if already_exist is not None:
             flash('The URL Already Submitted')
             post_old = Post.query.get_or_404(already_exist.id)
@@ -85,7 +88,7 @@ def index():
         else:
             db.session.add(post_new)
             db.session.commit()
-            post_found = Post.query.filter(and_(Post.urlSite.like(urlSite),
+            post_found = Post.query.filter(and_(Post.urlSite.like(url_site),
                                                 Post.hashVal.like(sha256))).first()
 
             regular_new = Regular(frequency=freq,china=china,uk=uk,usa=usa,postID=post_found,email=email)
@@ -96,7 +99,7 @@ def index():
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
-        return render_template('regular.html', form=formFreq, posts=posts,
+        return render_template('regular.html', form=form_freq, posts=posts,
                                pagination=pagination)
 
     else:
@@ -125,7 +128,7 @@ def index():
             error_out=False)
         posts = pagination.items
         return render_template('index.html', form=form, posts=posts,
-                               pagination=pagination,doman_name=domain_name_unique,formFreq=formFreq)
+                               pagination=pagination,doman_name=domain_name_unique,formFreq=form_freq)
 
 
 @main.route('/compare', methods=['GET', 'POST'])
