@@ -35,7 +35,7 @@ def index():
             sha256 = results.hashValue
             title = results.webTitle
             if not originstamp_result:
-                flash('Could not submit to Originstamp because of a mysterious error.')
+
                 return redirect(url_for('.index'))
             elif originstamp_result.status_code == 200 and originstamp_result.headers['Date'] is not None:
                 date_time_gmt = originstamp_result.headers['Date']

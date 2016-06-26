@@ -441,7 +441,14 @@ def load_zip_submit(url, soup, enc):
 
 def save_render_zip_submit(doc, sha256, url, title):
 
-    create_html_from_url(doc, sha256, url)
+    try:
+        create_html_from_url(doc, sha256, url)
+    except FileNotFoundError as fileError:
+            # can only occur if data was submitted successfully but png or pdf creation failed
+            if not app.config["TESTING"]:
+                flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
+            app.logger.error('Internal System Error while creating HTML,: ' +
+                             fileError.strerror + "\n Maybe chack the path, current base path: " + basePath)
     #archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
     #archive.write(basePath + sha256 + '.html')
     #os.remove(basePath + sha256 + '.html')
@@ -457,11 +464,20 @@ def save_render_zip_submit(doc, sha256, url, title):
         except FileNotFoundError as fileError:
             # can only occur if data was submitted successfully but png or pdf creation failed
             if not app.config["TESTING"]:
-                flash(u'Internal System Error while creating image and pdf: ' + fileError.strerror +
+                flash(u'FileNotFoundError while creating image and pdf: ' + fileError.strerror +
                       '\n Originstamp Result was: ' + str(originStampResult.status_code), 'error')
-            app.logger.error('Internal System Error while creating image and pdf: ' +
+            app.logger.error('FileNotFoundError while creating image and pdf: ' +
                              fileError.strerror + '\n Originstamp Result was: ' + str(originStampResult.status_code))
             originStampResult.error = fileError
+            return originStampResult
+        except Exception as e:
+            # can only occur if data was submitted successfully but png or pdf creation failed
+            if not app.config["TESTING"]:
+                flash(u'Internal System Error while creating image and pdf: ' + e.args +
+                      '\n Originstamp Result was: ' + str(originStampResult.status_code), 'error')
+            app.logger.error('Internal System Error while creating image and pdf: ' +
+                             e.args + '\n Originstamp Result was: ' + str(originStampResult.status_code))
+            originStampResult.error = e
             return originStampResult
     return originStampResult
 
