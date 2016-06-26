@@ -141,11 +141,11 @@ def create_html_from_url(doc, hash, url):
 
 
 def create_pdf_from_url(url,sha256):
-    '''
+    """
     :param url: url to retrieve
     :param sha256: the hash of the url which is important for the filename
     method to write pdf file
-    '''
+    """
     app.logger.info('Creating PDF from URL:' + url)
     path = basePath + sha256 + '.pdf'
     app.logger.info('PDF Path:'+path)
@@ -153,12 +153,13 @@ def create_pdf_from_url(url,sha256):
         pdfkit.from_url(url, path)
     except Exception as e:
         # is needed on on windows, where os.rename can't override existing files.
-        if os.path.isfile(path):
-            return
+
         if not app.config["TESTING"]:
             flash(u'Could not create PDF from ' + url, 'error')
         app.logger.error('Could not create PDF from the: ' + url)
         app.logger.error(traceback.format_exc(), e)
+        if os.path.isfile(path):
+            return
     return
 
 
