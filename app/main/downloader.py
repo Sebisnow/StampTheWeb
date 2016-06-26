@@ -377,7 +377,6 @@ def get_url_history(url):
     :return: history of the URL in the system
     """
     # validate URL
-    OriginstampError = None
     sha256 = None
     if not re.match(urlPattern, url):
         if not app.config["TESTING"]:
@@ -400,14 +399,8 @@ def get_url_history(url):
         originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
 
     except Exception as e:
-        # TODO OriginstampError is never set anything but none
-        '''
-        if OriginstampError is not None:
-            return ReturnResults(originStampResult, sha256, doc.title())
-        else:
-            return ReturnResults(None, sha256, doc.title())
-        '''
-        # can only occur if data was submitted successfully but png or pdf creation failed
+
+        # should only occur if data was submitted successfully but png or pdf creation failed
         if not app.config["TESTING"]:
             flash(u'Internal System Error: ' + str(e.args), 'error')
         app.logger.error('Internal System Error: ' + str(e.args))
@@ -460,6 +453,7 @@ def save_render_zip_submit(doc, sha256, url, title):
     if originStampResult.status_code == 200:
         try:
             create_png_from_url(url, sha256)
+            # TODO  pdf creation throws error on server - check
             create_pdf_from_url(url, sha256)
         except FileNotFoundError as fileError:
             # can only occur if data was submitted successfully but png or pdf creation failed
