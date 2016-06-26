@@ -79,7 +79,6 @@ def get_text_from_other_country(china, usa, uk, url):
 
 
 def update_and_send(proxy, url):
-
     try:
         r = requests.get(url, proxies={"http": proxy})
     except:
@@ -115,20 +114,30 @@ def create_png_from_url(url, sha256):
     #subprocess.Popen(['wget', '-O', path, 'http://images.websnapr.com/?url='+url+'&size=s&nocache=82']).wait()
     if os.path.isfile(path):
         return
-    flash(u'Could not create PNG from ' + url, 'error')
+    if not app.config["TESTING"]:
+        flash(u'Could not create PNG from ' + url, 'error')
     app.logger.error('Could not create PNG from the: '+url)
     return
 
 
 def create_html_from_url(doc, hash, url):
+
     path = basePath + hash + '.html'
-    with open(path, 'w') as file:
-        file.write(doc)
-    if os.path.isfile(path):
+    try:
+        with open(path, 'w+') as file:
+            file.write(doc)
+        if os.path.isfile(path):
+            return
+    except FileNotFoundError as e:
+        if not app.config["TESTING"]:
+            flash(u'Could not create HTML from ' + url, 'error')
+        app.logger.error('Could not create HTML from the: ' + url + '\n' + e.characters_written)
         return
-    flash(u'Could not create HTML from ' + url, 'error')
-    app.logger.error('Could not create HTML from the: ' + url)
-    return
+    except AttributeError as att:
+        if not app.config["TESTING"]:
+            flash(u'Due to attribute error I could not create HTML from ' + url, 'error')
+        app.logger.error('Due to attribute error I could not create HTML from the: ' + url + '\n' + att.args)
+        return
 
 
 def create_pdf_from_url(url,sha256):
@@ -146,9 +155,10 @@ def create_pdf_from_url(url,sha256):
         # is needed on on windows, where os.rename can't override existing files.
         if os.path.isfile(path):
             return
-        flash(u'Could not create PDF from '+ url, 'error')
-        app.logger.error('Could not create PDF from the: '+url)
-        app.logger.error(traceback.format_exc(),e)
+        if not app.config["TESTING"]:
+            flash(u'Could not create PDF from ' + url, 'error')
+        app.logger.error('Could not create PDF from the: ' + url)
+        app.logger.error(traceback.format_exc(), e)
     return
 
 
@@ -205,25 +215,28 @@ def submit_add_to_db(url, sha256, title):
     originStampResult = submit(sha256, title)
     app.logger.info(originStampResult.text)
     app.logger.info('Origin Stamp Response:' + originStampResult.text)
-    if originStampResult.status_code >= 400 :
-        flash(u'Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
-              '\n ErrorMessage: ' + originStampResult.text,'error')
+    if originStampResult.status_code >= 400:
+        if not app.config["TESTING"]:
+            flash(u'Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
+                  '\n ErrorMessage: ' + originStampResult.text, 'error')
         app.logger.error('Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
                          '\n ErrorMessage: ' + originStampResult.text)
         return originStampResult
-        #raise OriginstampError('Could not submit hash to Originstamp', r)
-    elif originStampResult.status_code >= 300 :
-        flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
-              '\n ErrorMessage: ' + originStampResult.text,'error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+        # raise OriginstampError('Could not submit hash to Originstamp', r)
+    elif originStampResult.status_code >= 300:
+        if not app.config["TESTING"]:
+            flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
+                  '\n ErrorMessage: ' + originStampResult.text, 'error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return originStampResult
     elif originStampResult.status_code == 200:
-        #flash(u'URL already submitted to OriginStamp'+ url + ' Hash '+sha256)
-        #app.logger.error('URL already submitted to OriginStamp' )
+        # if not app.config["TESTING"]: flash(u'URL already submitted to OriginStamp'+ url + ' Hash '+sha256)
+        # app.logger.error('URL already submitted to OriginStamp')
         return originStampResult
     elif "errors" in originStampResult.json():
-        flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
-              '\n ErrorMessage: ' + originStampResult.text,'error')
+        if not app.config["TESTING"]:
+            flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
+                  '\n ErrorMessage: ' + originStampResult.text, 'error')
         app.logger.error('An Error occurred. Error Code: ' + originStampResult.status_code +
                          '\n ErrorMessage: ' + originStampResult.text)
         return originStampResult
@@ -309,18 +322,21 @@ def submitHash(hash):
     originStampResult = submit(hash, "")
     app.logger.info(originStampResult.text)
     app.logger.info('Origin Stamp Response:' + originStampResult.text)
-    if originStampResult.status_code >= 300 and app.config['TESTING'] == False:
-        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+    if originStampResult.status_code >= 300:
+        if not app.config["TESTING"]:
+            flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return ReturnResults(None, hash, "None")
-    elif originStampResult.status_code == 200 and app.config['TESTING'] == False:
-        flash(u'Hash already submitted to OriginStamp' + ' Hash '+hash)
-        app.logger.error('Hash already submitted to OriginStamp' )
+    elif originStampResult.status_code == 200:
+        if not app.config["TESTING"]:
+            flash(u'Hash already submitted to OriginStamp' + ' Hash '+hash)
+        app.logger.error('Hash already submitted to OriginStamp')
         return ReturnResults(originStampResult, hash, "")
         #raise OriginstampError('Could not submit hash to Originstamp', r)
-    elif "errors" in originStampResult.json() and app.config['TESTING'] == False:
-        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+    elif "errors" in originStampResult.json():
+        if not app.config["TESTING"]:
+            flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return ReturnResults(None, hash, "None")
     else:
         return ReturnResults(originStampResult, hash, "")
@@ -336,6 +352,7 @@ def getHashOfFile(fname):
     return hash_sha265.hexdigest()
     """
     return res['Hash']
+
 
 def get_text_timestamp(text):
     ipfs_hash = ipfs_Client.add_str(text)
@@ -363,26 +380,27 @@ def get_url_history(url):
     OriginstampError = None
     sha256 = None
     if not re.match(urlPattern, url):
-        flash('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url, 'error')
+        if not app.config["TESTING"]:
+            flash('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url, 'error')
         app.logger.error('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url)
         return ReturnResults(None, None, None)
 
     res = requests.get(url)
     if res.status_code >= 300:
-        flash('100 Bad URL Could not retrieve URL to create timestamp for it.' + url, 'error')
+        if not app.config["TESTING"]:
+            flash('100 Bad URL Could not retrieve URL to create timestamp for it.' + url, 'error')
         app.logger.error('100 Bad URL Could not retrieve URL to create timestamp for it:' + url)
         return ReturnResults(None, None, None)
-    #soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
+    # soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
     doc = Document(res.text)
-    #encoding = chardet.detect(res.text.encode()).get('encoding')
+    # encoding = chardet.detect(res.text.encode()).get('encoding')
     try:
         sha256, html_text = calculate_hash_for_html_doc(doc)
-        #if check_database_for_hash(sha256) < 1:
+        # if check_database_for_hash(sha256) < 1:
         originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
 
-
     except Exception as e:
-         # TODO OriginstampError is never set anything but none
+        # TODO OriginstampError is never set anything but none
         '''
         if OriginstampError is not None:
             return ReturnResults(originStampResult, sha256, doc.title())
@@ -390,11 +408,13 @@ def get_url_history(url):
             return ReturnResults(None, sha256, doc.title())
         '''
         # can only occur if data was submitted successfully but png or pdf creation failed
-        flash(u'Internal System Error: ' + e.args, 'error')
-        app.logger.error('Internal System Error: ' + e.args)
+        if not app.config["TESTING"]:
+            flash(u'Internal System Error: ' + str(e.args), 'error')
+        app.logger.error('Internal System Error: ' + str(e.args))
+        traceback.print_exc()
         return ReturnResults(None, sha256, doc.title())
 
-    #return json.dumps(check_database_for_url(url), default=date_handler)
+    # return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originStampResult, sha256, doc.title())
 
 '''
@@ -418,6 +438,7 @@ def load_zip_submit(url, soup, enc):
     shutil.rmtree(tmp_dir)
 '''
 
+
 def save_render_zip_submit(doc, sha256, url, title):
 
     create_html_from_url(doc, sha256, url)
@@ -435,8 +456,9 @@ def save_render_zip_submit(doc, sha256, url, title):
             create_pdf_from_url(url, sha256)
         except FileNotFoundError as fileError:
             # can only occur if data was submitted successfully but png or pdf creation failed
-            flash(u'Internal System Error while creating image and pdf: ' + fileError.strerror +
-                  '\n Originstamp Result was: ' + str(originStampResult.status_code),'error')
+            if not app.config["TESTING"]:
+                flash(u'Internal System Error while creating image and pdf: ' + fileError.strerror +
+                      '\n Originstamp Result was: ' + str(originStampResult.status_code), 'error')
             app.logger.error('Internal System Error while creating image and pdf: ' +
                              fileError.strerror + '\n Originstamp Result was: ' + str(originStampResult.status_code))
             originStampResult.error = fileError

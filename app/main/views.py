@@ -25,18 +25,19 @@ def index():
     formFreq = PostFreq()
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit() and not formFreq.frequency.data:
-        sha256=None
-        dateTimeGMT=None
+        sha256 = None
+        dateTimeGMT = None
         post_new = None
         urlSite=form.urlSite.data
-        if form.urlSite.data != None:
+        if form.urlSite.data is not None:
             results = downloader.get_url_history(urlSite)
             originStampResult = results.originStampResult
             sha256 = results.hashValue
             title = results.webTitle
             if originStampResult.status_code == 200 and originStampResult.headers['Date'] is not None:
                 dateTimeGMT=originStampResult.headers['Date']
-                post_new = Post(body=form.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title, origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z"),
+                post_new = Post(body=form.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title, origStampTime=
+                                datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z"),
                                 author=current_user._get_current_object())
             else:
                 flash('Could not submit to Originstamp because of a mysterious error.')
@@ -450,7 +451,6 @@ def verifyDomain(domain):
     posts = pagination.items
     return render_template('search_domains.html', verify=posts,
                            pagination=pagination,domain=domain)
-
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])

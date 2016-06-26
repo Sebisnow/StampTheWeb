@@ -1,26 +1,3 @@
-300 Internal System Error. A problem occur in verification
-Creating HTML and Hash
-Hash:8294b2606f500dac72b18dca54f51ba395e2711a9491914a8f945bf187f9eee3
-HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-</head>
-<body>
-<h1>Rolls-Royce backs remain in EU vote </h1><html><body><div><div class="content__article-body from-content-api js-article__body" itemprop="articleBody" data-test-id="article-review-body">
-<p><a href="https://www.theguardian.com/business/rollsroycegroup" data-link-name="in body link" class="u-underline">Rolls-Royce</a> has written to staff to say the company wants Britain to stay in the European Union.</p>
-<p>The aircraft engine maker told employees that Brexit would put the company’s future investment plans in the UK at risk and hand its American rivals a competitive advantage.</p>
-<p>Warren East, the chief executive, said a planned new £65m engine testing plant was a “good example” of the kind of investment that might be put at risk if Britain voted to leave the EU on 23 June.</p>
-<p>He told BBC Radio 4’s Today programme: “We believe it is much better for our employees, our customers and our suppliers if Britain remains part of Europe. </p>
-<p>“This is because we are a very interconnected operation across Europe. If Brexit occurs there will almost inevitably be a period of uncertainty and uncertainty is what we can’t cope with.</p>
-<p>“We’re making investment decisions all the time about where to place different parts of our operation, and uncertainty created by Brexit puts a lot of those decisions on hold and that pause is something that our US competitors don’t have to cope with. That’s why it’s not so good for us.”</p>
-<p><a href="https://www.theguardian.com/business/rollsroycegroup" data-link-name="auto-linked-tag" data-component="auto-linked-tag" class="u-underline">Rolls-Royce</a> employs more than 50,000 people around the world, with three-quarters of the workforce based in the EU. Major customers include the European aircraft maker Airbus.</p>
-<p><a href="https://www.theguardian.com/business/2016/mar/21/rolls-royce-to-create-hundreds-of-jobs-in-derby" data-link-name="in body link" class="u-underline">Its largest UK plant is in Derby</a>, where it designs, tests and assembles Trent jet engines.</p>
-<p>“We have to deal with whatever the outcome happens to be,” East said. “All we’re saying today is, a Brexit result would likely lead to a period of uncertainty.<br/></p>
-<p>“We need to make investment decisions throughout that period, we’re going to be held back by uncertainty, and we could do without that. But we’re going to continue to be a global leader no matter what.”<br/></p>
-</div>
-</div></body></html></body>
-Creating PNG from URL:https://www.theguardian.com/business/2016/jun/15/rolls-royce-backs-remain-in-eu-vote
-PNG Path:app/pdf/8294b2606f500dac72b18dca54f51ba395e2711a9491914a8f945bf187f9eee3.png
-Creating PDF from URL:https://www.theguardian.com/business/2016/jun/15/rolls-royce-backs-remain-in-eu-vote
-PDF Path:app/pdf/8294b2606f500dac72b18dca54f51ba395e2711a9491914a8f945bf187f9eee3.pdf
-300 Internal System Error. Could not submit hash to originstamp
+PDF Path:app/pdf/16d7f8fb789ad109a2952211c50d7664b9632571be1450c4bf20a43b7a0e9910.pdf
+{"hash_sha256":"16d7f8fb789ad109a2952211c50d7664b9632571be1450c4bf20a43b7a0e9910","created_at":"2016-06-23T10:27:43.615Z","updated_at":"2016-06-23T10:27:43.615Z","submitted_at":null,"title":"Innenstadt: Der Einzelhandel stirbt und das ist gut so - Wirtschaft - Süddeutsche.de"}
+Origin Stamp Response:{"hash_sha256":"16d7f8fb789ad109a2952211c50d7664b9632571be1450c4bf20a43b7a0e9910","created_at":"2016-06-23T10:27:43.615Z","updated_at":"2016-06-23T10:27:43.615Z","submitted_at":null,"title":"Innenstadt: Der Einzelhandel stirbt und das ist gut so - Wirtschaft - Süddeutsche.de"}
