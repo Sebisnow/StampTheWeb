@@ -1,0 +1,1669 @@
+Initializing daemon...
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
+Swarm listening on /ip4/127.0.0.1/tcp/4001
+Swarm listening on /ip4/172.31.18.66/tcp/4001
+Swarm listening on /ip4/52.31.205.105/tcp/4001
+Swarm listening on /ip6/::1/tcp/4001
+API server listening on /ip4/127.0.0.1/tcp/5001
+Gateway (readonly) server listening on /ip4/127.0.0.1/tcp/8080
+Daemon is ready
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Saudischer Öl-Minister: Die Ölflut ist zu Ende - Wirtschaft - Süddeutsche.de</h1><html><body><div><section class="body" id="article-body">
+                                                            
+
+        
+        
+            
+                    
+        
+            
+                                    <ul>
+ <li>Der neue Ölminister Saudi-Arabiens ist überzeugt: Die Ölflut ist vorbei.</li>
+ <li>Das Königreich werde künftig wieder die Kontrolle über Angebot und Nachfrage erlangen. Die Förderung dürfte das Land aber nicht einschränken.</li>
+ <li>Der Forschungschef des zweitgrößten Staatsfonds der Welt sieht die Zukunft des Ölmarkts weniger optimistisch: Ein Ende der Ölschwemme sei frühestens Mitte 2017 realistisch.</li>
+</ul>
+                    
+            
+                    <section class="authors">
+                      
+            </section>
+        
+            
+
+            
+            <span class="opc-anchor opc-anchor-short"/>
+        
+
+<span id="sharingbaranchor"/>
+
+
+  
+
+
+  
+  
+  <p>Ende, aus, vorbei. Das war's mit der Ölkrise, mit der Ölflut, mit der Ölschwemme - kündigt zumindest der neue saudische Ölminister Khalid Al-Falih an. "Wir sind raus. Das Überangebot ist verschwunden", sagt er <a href="http://www.houstonchronicle.com/business/article/Saudi-energy-minister-says-oil-glut-has-vanished-8317909.php" target="_blank">in einem Interview</a> mit der amerikanischen Zeitung <i>Houston Chronicle</i>. Ab sofort werde sich <a href="http://www.sueddeutsche.de/thema/Saudi-Arabien" data-pagetype="THEME" class="themelink">Saudi-Arabien</a> wieder anschicken, die Kontrolle über den Ölmarkt zu erlangen, sagt Al-Falih. Es würde von dem Königreich "erwartet", für den Ausgleich von Angebot und Nachfrage zu sorgen, sobald sich der Markt erholt habe. Dieser Zeitpunkt sei jetzt gekommen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Dass sich der Preis für ein Fass (etwa 159 Liter) der maßgeblichen Sorte Brent zwar mittlerweile etwas stabilisiert hat, mit knapp über 50 Dollar aber weiterhin auf sehr niedrigem Niveau liegt, scheint Al-Falih nicht weiter zu beunruhigen. Dabei hat diese Entwicklung wenig damit zu tun, dass Ölvorräte schwinden, sondern liegt hauptsächlich an wirtschaftlichen Krisen in vielen Förderländern und an Förderunterbrechungen, beispielsweise in <a href="http://www.sueddeutsche.de/thema/Nigeria" data-pagetype="THEME" class="themelink">Nigeria</a>. Dort gab es zuletzt wiederholt Attacken auf Pipelines, die zu Ausfällen bei den Öl-Exporten führten.</p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/oelpreis-die-macht-und-die-ohnmacht-des-oel-kartells-1.3014776" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Macht und Ohnmacht der Öl-Staaten</strong></h3> <span class="teaserable-layout__abstract"> Früher war die Opec für ihren Einfluss gefürchtet. Heute fragen sich viele: Wofür braucht man sie noch? Doch für einen Abgesang ist es zu früh. </span> <span class="teaserable-layout__authors">Analyse von Jan Willmroth</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+  
+  
+  <h3>Optimismus trotz Krisenzeiten</h3>
+
+  
+  
+
+
+  
+  
+  <p>"Wir haben keine Angst, aber wir sind realistisch und wir wissen, dass Öl auch in den kommenden Jahrzehnten eine wichtige Rolle spielen wird", sagt der saudische Minister und Ex-Saudi-Aramco-Chef , für den es das erste große Interview ist, seit er im Mai den mächtigen Ministerposten übernommen hat. Bislang war es eher still um ihn, lieber suchte Al-Falih das Gespräch mit seinen Opec-Partnern als mit der Öffentlichkeit; schließlich gab es aufgrund des langanhaltend niedrigen <a href="http://www.sueddeutsche.de/thema/%C3%96lpreis" data-pagetype="THEME" class="themelink">Ölpreises</a> genug Redebedarf.</p>
+
+  
+  
+
+
+  
+    
+  
+  <p>Dass Saudi-Arabien selbst daran arbeiten werde, für eine Beseitigung des Überangebots zu sorgen, wird Al-Falih damit jedoch wohl kaum gemeint haben. Saudi-Arabien war bislang maßgeblich beteiligt am massiven Überangebot an Öl, das von Mitte 2014 an zu einem Preisverfall bis unter 30 Dollar pro Barrel führte. Statt die Förderung einzuschränken, ordnete der damalige mächtige Ölminister Ali Al-Naimi sogar, die Förderung auszuweiten. Er hoffte, so andere kleinere Ölproduzenten zurückzudrängen - geführt hat das zu historisch niedrigen Preisen für den Rohstoff.</p>
+
+  
+  
+
+
+  
+  
+  <p>Im Interview hat al-Falih nun erneut betont, dass Saudi-Arabien seine Fördermenge auch künftig nicht zurückschrauben werde. "Niemand will die Ölwirtschaft in Saudi-Arabien ausschalten", sagt er. Zwar plant der Vize-Kronprinz Saudi-Arabiens, Mohammed Bin Salman, durch einen Staatsfonds sein Land aus der Öl-Abhängigkeit zu lösen. Eine Fördergrenze ist auf lange Sicht trotzdem nicht vorgesehen, sagt der Ölminister: "Wir versuchen im Gegenteil, die Förderung weiter auszubauen. Aber wir hoffen, dass der Rest unserer Wirtschaft noch stärker wächst."</p>
+
+    <p id="iq-artikelanker"/>
+  
+  
+
+
+  
+  
+  <h3>Aus den Vereinigten Arabischen Emiraten kommen andere Signale</h3>
+
+  
+  
+
+
+  
+  
+  <p>Bislang hatte Al-Falih im Umgang mit seinen Opec-Partnern ein gutes Händchen. Bei einem Treffen der mächtigsten Förderländer im Mai hatte er deren Vertreter noch beruhigt und ihnen die Befürchtung zu nehmen versucht, Saudi-Arabien würde den Ölmarkt bald noch stärker fluten und seine Ölförderung auf bis zu 13 Millionen Barrel pro Tag aufstocken. Diese Beruhighungsstrategie scheint er nun mit der Aussage, die Ölflut sei vorbei, fortführen zu wollen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Aus den Vereinigten Arabischen Emiraten kommen derweil andere Signale. Der zweitgrößte Staatsfonds der Welt, <a href="http://www.sueddeutsche.de/thema/Abu_Dhabi" data-pagetype="THEME" class="themelink">Abu Dhabi</a> Investment Authority, ist mit seiner Prognose zum Ende der Ölflut deutlich zurückhaltender. Die Schwemme sei längst noch nicht vorbei und eine Balance werde es frühestens Mitte 2017 geben, sagte der Forschungschef des Fonds, Christof Ruehl. "Erst wenn der Winter kommt, bekommen wir eine Idee davon, auf welchem Level diese neue Balance überhaupt stattfinden kann", sagt er.</p>
+
+  
+  
+
+
+  
+  
+  <p>Auch glaubt er nicht daran, dass der Ölpreis ohne Anpassungen weiter steigen werde. Was es braucht, um die 60 Dollar zu erreichen, sei simpel: mehr Pausen bei der Förderung<i>.</i></p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/saudi-arabien-was-der-neue-saudische-oelminister-wirklich-plant-1.2985632" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Was der neue saudische Ölminister wirklich plant</strong></h3> <span class="teaserable-layout__abstract"> Eins ist sicher: Eine Begrenzung der Öl-Fördermenge, die weltwirtschaftlich so wichtig wäre, steht nicht auf Khalid al-Falihs Plan. </span> <span class="teaserable-layout__authors">Von Paul-Anton Krüger</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+            
+        
+            
+        
+    </section>
+
+
+    
+      </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+ERROR in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:413]:
+Internal System Error: ("request() got an unexpected keyword argument 'json'",)
+--------------------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 400, in get_url_history
+    originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 450, in save_render_zip_submit
+    originStampResult = submit_add_to_db(url, sha256, title)
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 215, in submit_add_to_db
+    originStampResult = submit(sha256, title)
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 204, in submit
+    return requests.post(apiPostUrl, json=data, headers=headers)
+  File "/usr/lib/python3/dist-packages/requests/api.py", line 88, in post
+    return request('post', url, data=data, **kwargs)
+  File "/usr/lib/python3/dist-packages/requests/api.py", line 44, in request
+    return session.request(method=method, url=url, **kwargs)
+TypeError: request() got an unexpected keyword argument 'json'
+91.14.13.36 - - [26/Jun/2016 08:44:13] "POST / HTTP/1.1" 302 -
+91.14.13.36 - - [26/Jun/2016 08:44:13] "GET / HTTP/1.1" 200 -
+
+Received interrupt signal, shutting down...
+(Hit ctrl-c again to force-shutdown the daemon.)
+Initializing daemon...
+ * Running on http://0.0.0.0:80/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
+Swarm listening on /ip4/127.0.0.1/tcp/4001
+Swarm listening on /ip4/172.31.18.66/tcp/4001
+Swarm listening on /ip6/::1/tcp/4001
+API server listening on /ip4/127.0.0.1/tcp/5001
+Gateway (readonly) server listening on /ip4/127.0.0.1/tcp/8080
+Daemon is ready
+91.14.13.36 - - [26/Jun/2016 08:48:04] "GET / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 08:48:04] "GET /pdf/styles.css HTTP/1.1" 200 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Saudischer Öl-Minister: Die Ölflut ist zu Ende - Wirtschaft - Süddeutsche.de</h1><html><body><div><section class="body" id="article-body">
+                                                            
+
+        
+        
+            
+                    
+        
+            
+                                    <ul>
+ <li>Der neue Ölminister Saudi-Arabiens ist überzeugt: Die Ölflut ist vorbei.</li>
+ <li>Das Königreich werde künftig wieder die Kontrolle über Angebot und Nachfrage erlangen. Die Förderung dürfte das Land aber nicht einschränken.</li>
+ <li>Der Forschungschef des zweitgrößten Staatsfonds der Welt sieht die Zukunft des Ölmarkts weniger optimistisch: Ein Ende der Ölschwemme sei frühestens Mitte 2017 realistisch.</li>
+</ul>
+                    
+            
+                    <section class="authors">
+                      
+            </section>
+        
+            
+
+            
+            <span class="opc-anchor opc-anchor-short"/>
+        
+
+<span id="sharingbaranchor"/>
+
+
+  
+
+
+  
+  
+  <p>Ende, aus, vorbei. Das war's mit der Ölkrise, mit der Ölflut, mit der Ölschwemme - kündigt zumindest der neue saudische Ölminister Khalid Al-Falih an. "Wir sind raus. Das Überangebot ist verschwunden", sagt er <a href="http://www.houstonchronicle.com/business/article/Saudi-energy-minister-says-oil-glut-has-vanished-8317909.php" target="_blank">in einem Interview</a> mit der amerikanischen Zeitung <i>Houston Chronicle</i>. Ab sofort werde sich <a href="http://www.sueddeutsche.de/thema/Saudi-Arabien" data-pagetype="THEME" class="themelink">Saudi-Arabien</a> wieder anschicken, die Kontrolle über den Ölmarkt zu erlangen, sagt Al-Falih. Es würde von dem Königreich "erwartet", für den Ausgleich von Angebot und Nachfrage zu sorgen, sobald sich der Markt erholt habe. Dieser Zeitpunkt sei jetzt gekommen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Dass sich der Preis für ein Fass (etwa 159 Liter) der maßgeblichen Sorte Brent zwar mittlerweile etwas stabilisiert hat, mit knapp über 50 Dollar aber weiterhin auf sehr niedrigem Niveau liegt, scheint Al-Falih nicht weiter zu beunruhigen. Dabei hat diese Entwicklung wenig damit zu tun, dass Ölvorräte schwinden, sondern liegt hauptsächlich an wirtschaftlichen Krisen in vielen Förderländern und an Förderunterbrechungen, beispielsweise in <a href="http://www.sueddeutsche.de/thema/Nigeria" data-pagetype="THEME" class="themelink">Nigeria</a>. Dort gab es zuletzt wiederholt Attacken auf Pipelines, die zu Ausfällen bei den Öl-Exporten führten.</p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/oelpreis-die-macht-und-die-ohnmacht-des-oel-kartells-1.3014776" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Macht und Ohnmacht der Öl-Staaten</strong></h3> <span class="teaserable-layout__abstract"> Früher war die Opec für ihren Einfluss gefürchtet. Heute fragen sich viele: Wofür braucht man sie noch? Doch für einen Abgesang ist es zu früh. </span> <span class="teaserable-layout__authors">Analyse von Jan Willmroth</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+  
+  
+  <h3>Optimismus trotz Krisenzeiten</h3>
+
+  
+  
+
+
+  
+  
+  <p>"Wir haben keine Angst, aber wir sind realistisch und wir wissen, dass Öl auch in den kommenden Jahrzehnten eine wichtige Rolle spielen wird", sagt der saudische Minister und Ex-Saudi-Aramco-Chef , für den es das erste große Interview ist, seit er im Mai den mächtigen Ministerposten übernommen hat. Bislang war es eher still um ihn, lieber suchte Al-Falih das Gespräch mit seinen Opec-Partnern als mit der Öffentlichkeit; schließlich gab es aufgrund des langanhaltend niedrigen <a href="http://www.sueddeutsche.de/thema/%C3%96lpreis" data-pagetype="THEME" class="themelink">Ölpreises</a> genug Redebedarf.</p>
+
+  
+  
+
+
+  
+    
+  
+  <p>Dass Saudi-Arabien selbst daran arbeiten werde, für eine Beseitigung des Überangebots zu sorgen, wird Al-Falih damit jedoch wohl kaum gemeint haben. Saudi-Arabien war bislang maßgeblich beteiligt am massiven Überangebot an Öl, das von Mitte 2014 an zu einem Preisverfall bis unter 30 Dollar pro Barrel führte. Statt die Förderung einzuschränken, ordnete der damalige mächtige Ölminister Ali Al-Naimi sogar, die Förderung auszuweiten. Er hoffte, so andere kleinere Ölproduzenten zurückzudrängen - geführt hat das zu historisch niedrigen Preisen für den Rohstoff.</p>
+
+  
+  
+
+
+  
+  
+  <p>Im Interview hat al-Falih nun erneut betont, dass Saudi-Arabien seine Fördermenge auch künftig nicht zurückschrauben werde. "Niemand will die Ölwirtschaft in Saudi-Arabien ausschalten", sagt er. Zwar plant der Vize-Kronprinz Saudi-Arabiens, Mohammed Bin Salman, durch einen Staatsfonds sein Land aus der Öl-Abhängigkeit zu lösen. Eine Fördergrenze ist auf lange Sicht trotzdem nicht vorgesehen, sagt der Ölminister: "Wir versuchen im Gegenteil, die Förderung weiter auszubauen. Aber wir hoffen, dass der Rest unserer Wirtschaft noch stärker wächst."</p>
+
+    <p id="iq-artikelanker"/>
+  
+  
+
+
+  
+  
+  <h3>Aus den Vereinigten Arabischen Emiraten kommen andere Signale</h3>
+
+  
+  
+
+
+  
+  
+  <p>Bislang hatte Al-Falih im Umgang mit seinen Opec-Partnern ein gutes Händchen. Bei einem Treffen der mächtigsten Förderländer im Mai hatte er deren Vertreter noch beruhigt und ihnen die Befürchtung zu nehmen versucht, Saudi-Arabien würde den Ölmarkt bald noch stärker fluten und seine Ölförderung auf bis zu 13 Millionen Barrel pro Tag aufstocken. Diese Beruhighungsstrategie scheint er nun mit der Aussage, die Ölflut sei vorbei, fortführen zu wollen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Aus den Vereinigten Arabischen Emiraten kommen derweil andere Signale. Der zweitgrößte Staatsfonds der Welt, <a href="http://www.sueddeutsche.de/thema/Abu_Dhabi" data-pagetype="THEME" class="themelink">Abu Dhabi</a> Investment Authority, ist mit seiner Prognose zum Ende der Ölflut deutlich zurückhaltender. Die Schwemme sei längst noch nicht vorbei und eine Balance werde es frühestens Mitte 2017 geben, sagte der Forschungschef des Fonds, Christof Ruehl. "Erst wenn der Winter kommt, bekommen wir eine Idee davon, auf welchem Level diese neue Balance überhaupt stattfinden kann", sagt er.</p>
+
+  
+  
+
+
+  
+  
+  <p>Auch glaubt er nicht daran, dass der Ölpreis ohne Anpassungen weiter steigen werde. Was es braucht, um die 60 Dollar zu erreichen, sei simpel: mehr Pausen bei der Förderung<i>.</i></p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/saudi-arabien-was-der-neue-saudische-oelminister-wirklich-plant-1.2985632" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Was der neue saudische Ölminister wirklich plant</strong></h3> <span class="teaserable-layout__abstract"> Eins ist sicher: Eine Begrenzung der Öl-Fördermenge, die weltwirtschaftlich so wichtig wäre, steht nicht auf Khalid al-Falihs Plan. </span> <span class="teaserable-layout__authors">Von Paul-Anton Krüger</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+            
+        
+            
+        
+    </section>
+
+
+    
+      </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+ERROR in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:463]:
+Internal System Error while creating image and pdf: No such file or directory: 'wkhtmltoimage'
+ Originstamp Result was: 200
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 08:48:31] "POST / HTTP/1.1" 200 -
+5.1.106.65 - - [26/Jun/2016 08:49:43] "GET / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 08:55:17] "GET /favicon.ico HTTP/1.1" 404 -
+91.14.13.36 - - [26/Jun/2016 08:55:17] "GET /favicon.ico HTTP/1.1" 404 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Saudischer Öl-Minister: Die Ölflut ist zu Ende - Wirtschaft - Süddeutsche.de</h1><html><body><div><section class="body" id="article-body">
+                                                            
+
+        
+        
+            
+                    
+        
+            
+                                    <ul>
+ <li>Der neue Ölminister Saudi-Arabiens ist überzeugt: Die Ölflut ist vorbei.</li>
+ <li>Das Königreich werde künftig wieder die Kontrolle über Angebot und Nachfrage erlangen. Die Förderung dürfte das Land aber nicht einschränken.</li>
+ <li>Der Forschungschef des zweitgrößten Staatsfonds der Welt sieht die Zukunft des Ölmarkts weniger optimistisch: Ein Ende der Ölschwemme sei frühestens Mitte 2017 realistisch.</li>
+</ul>
+                    
+            
+                    <section class="authors">
+                      
+            </section>
+        
+            
+
+            
+            <span class="opc-anchor opc-anchor-short"/>
+        
+
+<span id="sharingbaranchor"/>
+
+
+  
+
+
+  
+  
+  <p>Ende, aus, vorbei. Das war's mit der Ölkrise, mit der Ölflut, mit der Ölschwemme - kündigt zumindest der neue saudische Ölminister Khalid Al-Falih an. "Wir sind raus. Das Überangebot ist verschwunden", sagt er <a href="http://www.houstonchronicle.com/business/article/Saudi-energy-minister-says-oil-glut-has-vanished-8317909.php" target="_blank">in einem Interview</a> mit der amerikanischen Zeitung <i>Houston Chronicle</i>. Ab sofort werde sich <a href="http://www.sueddeutsche.de/thema/Saudi-Arabien" data-pagetype="THEME" class="themelink">Saudi-Arabien</a> wieder anschicken, die Kontrolle über den Ölmarkt zu erlangen, sagt Al-Falih. Es würde von dem Königreich "erwartet", für den Ausgleich von Angebot und Nachfrage zu sorgen, sobald sich der Markt erholt habe. Dieser Zeitpunkt sei jetzt gekommen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Dass sich der Preis für ein Fass (etwa 159 Liter) der maßgeblichen Sorte Brent zwar mittlerweile etwas stabilisiert hat, mit knapp über 50 Dollar aber weiterhin auf sehr niedrigem Niveau liegt, scheint Al-Falih nicht weiter zu beunruhigen. Dabei hat diese Entwicklung wenig damit zu tun, dass Ölvorräte schwinden, sondern liegt hauptsächlich an wirtschaftlichen Krisen in vielen Förderländern und an Förderunterbrechungen, beispielsweise in <a href="http://www.sueddeutsche.de/thema/Nigeria" data-pagetype="THEME" class="themelink">Nigeria</a>. Dort gab es zuletzt wiederholt Attacken auf Pipelines, die zu Ausfällen bei den Öl-Exporten führten.</p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/oelpreis-die-macht-und-die-ohnmacht-des-oel-kartells-1.3014776" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Macht und Ohnmacht der Öl-Staaten</strong></h3> <span class="teaserable-layout__abstract"> Früher war die Opec für ihren Einfluss gefürchtet. Heute fragen sich viele: Wofür braucht man sie noch? Doch für einen Abgesang ist es zu früh. </span> <span class="teaserable-layout__authors">Analyse von Jan Willmroth</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+  
+  
+  <h3>Optimismus trotz Krisenzeiten</h3>
+
+  
+  
+
+
+  
+  
+  <p>"Wir haben keine Angst, aber wir sind realistisch und wir wissen, dass Öl auch in den kommenden Jahrzehnten eine wichtige Rolle spielen wird", sagt der saudische Minister und Ex-Saudi-Aramco-Chef , für den es das erste große Interview ist, seit er im Mai den mächtigen Ministerposten übernommen hat. Bislang war es eher still um ihn, lieber suchte Al-Falih das Gespräch mit seinen Opec-Partnern als mit der Öffentlichkeit; schließlich gab es aufgrund des langanhaltend niedrigen <a href="http://www.sueddeutsche.de/thema/%C3%96lpreis" data-pagetype="THEME" class="themelink">Ölpreises</a> genug Redebedarf.</p>
+
+  
+  
+
+
+  
+    
+  
+  <p>Dass Saudi-Arabien selbst daran arbeiten werde, für eine Beseitigung des Überangebots zu sorgen, wird Al-Falih damit jedoch wohl kaum gemeint haben. Saudi-Arabien war bislang maßgeblich beteiligt am massiven Überangebot an Öl, das von Mitte 2014 an zu einem Preisverfall bis unter 30 Dollar pro Barrel führte. Statt die Förderung einzuschränken, ordnete der damalige mächtige Ölminister Ali Al-Naimi sogar, die Förderung auszuweiten. Er hoffte, so andere kleinere Ölproduzenten zurückzudrängen - geführt hat das zu historisch niedrigen Preisen für den Rohstoff.</p>
+
+  
+  
+
+
+  
+  
+  <p>Im Interview hat al-Falih nun erneut betont, dass Saudi-Arabien seine Fördermenge auch künftig nicht zurückschrauben werde. "Niemand will die Ölwirtschaft in Saudi-Arabien ausschalten", sagt er. Zwar plant der Vize-Kronprinz Saudi-Arabiens, Mohammed Bin Salman, durch einen Staatsfonds sein Land aus der Öl-Abhängigkeit zu lösen. Eine Fördergrenze ist auf lange Sicht trotzdem nicht vorgesehen, sagt der Ölminister: "Wir versuchen im Gegenteil, die Förderung weiter auszubauen. Aber wir hoffen, dass der Rest unserer Wirtschaft noch stärker wächst."</p>
+
+    <p id="iq-artikelanker"/>
+  
+  
+
+
+  
+  
+  <h3>Aus den Vereinigten Arabischen Emiraten kommen andere Signale</h3>
+
+  
+  
+
+
+  
+  
+  <p>Bislang hatte Al-Falih im Umgang mit seinen Opec-Partnern ein gutes Händchen. Bei einem Treffen der mächtigsten Förderländer im Mai hatte er deren Vertreter noch beruhigt und ihnen die Befürchtung zu nehmen versucht, Saudi-Arabien würde den Ölmarkt bald noch stärker fluten und seine Ölförderung auf bis zu 13 Millionen Barrel pro Tag aufstocken. Diese Beruhighungsstrategie scheint er nun mit der Aussage, die Ölflut sei vorbei, fortführen zu wollen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Aus den Vereinigten Arabischen Emiraten kommen derweil andere Signale. Der zweitgrößte Staatsfonds der Welt, <a href="http://www.sueddeutsche.de/thema/Abu_Dhabi" data-pagetype="THEME" class="themelink">Abu Dhabi</a> Investment Authority, ist mit seiner Prognose zum Ende der Ölflut deutlich zurückhaltender. Die Schwemme sei längst noch nicht vorbei und eine Balance werde es frühestens Mitte 2017 geben, sagte der Forschungschef des Fonds, Christof Ruehl. "Erst wenn der Winter kommt, bekommen wir eine Idee davon, auf welchem Level diese neue Balance überhaupt stattfinden kann", sagt er.</p>
+
+  
+  
+
+
+  
+  
+  <p>Auch glaubt er nicht daran, dass der Ölpreis ohne Anpassungen weiter steigen werde. Was es braucht, um die 60 Dollar zu erreichen, sei simpel: mehr Pausen bei der Förderung<i>.</i></p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/saudi-arabien-was-der-neue-saudische-oelminister-wirklich-plant-1.2985632" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Was der neue saudische Ölminister wirklich plant</strong></h3> <span class="teaserable-layout__abstract"> Eins ist sicher: Eine Begrenzung der Öl-Fördermenge, die weltwirtschaftlich so wichtig wäre, steht nicht auf Khalid al-Falihs Plan. </span> <span class="teaserable-layout__authors">Von Paul-Anton Krüger</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+            
+        
+            
+        
+    </section>
+
+
+    
+      </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.pdf
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 08:55:28] "POST / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 08:55:40] "GET /pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.pdf HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 08:55:46] "GET /pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.png HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 08:56:01] "GET /pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.pdf HTTP/1.1" 200 -
+ * Detected change in '/home/ubuntu/StampTheWeb/app/main/views.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
+ * Detected change in '/home/ubuntu/StampTheWeb/app/main/views.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
+ * Detected change in '/home/ubuntu/StampTheWeb/app/main/views.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
+ * Detected change in '/home/ubuntu/StampTheWeb/app/main/downloader.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
+ * Detected change in '/home/ubuntu/StampTheWeb/app/main/views.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
+91.14.13.36 - - [26/Jun/2016 10:25:27] "GET / HTTP/1.1" 200 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Saudischer Öl-Minister: Die Ölflut ist zu Ende - Wirtschaft - Süddeutsche.de</h1><html><body><div><section class="body" id="article-body">
+                                                            
+
+        
+        
+            
+                    
+        
+            
+                                    <ul>
+ <li>Der neue Ölminister Saudi-Arabiens ist überzeugt: Die Ölflut ist vorbei.</li>
+ <li>Das Königreich werde künftig wieder die Kontrolle über Angebot und Nachfrage erlangen. Die Förderung dürfte das Land aber nicht einschränken.</li>
+ <li>Der Forschungschef des zweitgrößten Staatsfonds der Welt sieht die Zukunft des Ölmarkts weniger optimistisch: Ein Ende der Ölschwemme sei frühestens Mitte 2017 realistisch.</li>
+</ul>
+                    
+            
+                    <section class="authors">
+                      
+            </section>
+        
+            
+
+            
+            <span class="opc-anchor opc-anchor-short"/>
+        
+
+<span id="sharingbaranchor"/>
+
+
+  
+
+
+  
+  
+  <p>Ende, aus, vorbei. Das war's mit der Ölkrise, mit der Ölflut, mit der Ölschwemme - kündigt zumindest der neue saudische Ölminister Khalid Al-Falih an. "Wir sind raus. Das Überangebot ist verschwunden", sagt er <a href="http://www.houstonchronicle.com/business/article/Saudi-energy-minister-says-oil-glut-has-vanished-8317909.php" target="_blank">in einem Interview</a> mit der amerikanischen Zeitung <i>Houston Chronicle</i>. Ab sofort werde sich <a href="http://www.sueddeutsche.de/thema/Saudi-Arabien" data-pagetype="THEME" class="themelink">Saudi-Arabien</a> wieder anschicken, die Kontrolle über den Ölmarkt zu erlangen, sagt Al-Falih. Es würde von dem Königreich "erwartet", für den Ausgleich von Angebot und Nachfrage zu sorgen, sobald sich der Markt erholt habe. Dieser Zeitpunkt sei jetzt gekommen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Dass sich der Preis für ein Fass (etwa 159 Liter) der maßgeblichen Sorte Brent zwar mittlerweile etwas stabilisiert hat, mit knapp über 50 Dollar aber weiterhin auf sehr niedrigem Niveau liegt, scheint Al-Falih nicht weiter zu beunruhigen. Dabei hat diese Entwicklung wenig damit zu tun, dass Ölvorräte schwinden, sondern liegt hauptsächlich an wirtschaftlichen Krisen in vielen Förderländern und an Förderunterbrechungen, beispielsweise in <a href="http://www.sueddeutsche.de/thema/Nigeria" data-pagetype="THEME" class="themelink">Nigeria</a>. Dort gab es zuletzt wiederholt Attacken auf Pipelines, die zu Ausfällen bei den Öl-Exporten führten.</p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/oelpreis-die-macht-und-die-ohnmacht-des-oel-kartells-1.3014776" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Macht und Ohnmacht der Öl-Staaten</strong></h3> <span class="teaserable-layout__abstract"> Früher war die Opec für ihren Einfluss gefürchtet. Heute fragen sich viele: Wofür braucht man sie noch? Doch für einen Abgesang ist es zu früh. </span> <span class="teaserable-layout__authors">Analyse von Jan Willmroth</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+  
+  
+  <h3>Optimismus trotz Krisenzeiten</h3>
+
+  
+  
+
+
+  
+  
+  <p>"Wir haben keine Angst, aber wir sind realistisch und wir wissen, dass Öl auch in den kommenden Jahrzehnten eine wichtige Rolle spielen wird", sagt der saudische Minister und Ex-Saudi-Aramco-Chef , für den es das erste große Interview ist, seit er im Mai den mächtigen Ministerposten übernommen hat. Bislang war es eher still um ihn, lieber suchte Al-Falih das Gespräch mit seinen Opec-Partnern als mit der Öffentlichkeit; schließlich gab es aufgrund des langanhaltend niedrigen <a href="http://www.sueddeutsche.de/thema/%C3%96lpreis" data-pagetype="THEME" class="themelink">Ölpreises</a> genug Redebedarf.</p>
+
+  
+  
+
+
+  
+    
+  
+  <p>Dass Saudi-Arabien selbst daran arbeiten werde, für eine Beseitigung des Überangebots zu sorgen, wird Al-Falih damit jedoch wohl kaum gemeint haben. Saudi-Arabien war bislang maßgeblich beteiligt am massiven Überangebot an Öl, das von Mitte 2014 an zu einem Preisverfall bis unter 30 Dollar pro Barrel führte. Statt die Förderung einzuschränken, ordnete der damalige mächtige Ölminister Ali Al-Naimi sogar, die Förderung auszuweiten. Er hoffte, so andere kleinere Ölproduzenten zurückzudrängen - geführt hat das zu historisch niedrigen Preisen für den Rohstoff.</p>
+
+  
+  
+
+
+  
+  
+  <p>Im Interview hat al-Falih nun erneut betont, dass Saudi-Arabien seine Fördermenge auch künftig nicht zurückschrauben werde. "Niemand will die Ölwirtschaft in Saudi-Arabien ausschalten", sagt er. Zwar plant der Vize-Kronprinz Saudi-Arabiens, Mohammed Bin Salman, durch einen Staatsfonds sein Land aus der Öl-Abhängigkeit zu lösen. Eine Fördergrenze ist auf lange Sicht trotzdem nicht vorgesehen, sagt der Ölminister: "Wir versuchen im Gegenteil, die Förderung weiter auszubauen. Aber wir hoffen, dass der Rest unserer Wirtschaft noch stärker wächst."</p>
+
+    <p id="iq-artikelanker"/>
+  
+  
+
+
+  
+  
+  <h3>Aus den Vereinigten Arabischen Emiraten kommen andere Signale</h3>
+
+  
+  
+
+
+  
+  
+  <p>Bislang hatte Al-Falih im Umgang mit seinen Opec-Partnern ein gutes Händchen. Bei einem Treffen der mächtigsten Förderländer im Mai hatte er deren Vertreter noch beruhigt und ihnen die Befürchtung zu nehmen versucht, Saudi-Arabien würde den Ölmarkt bald noch stärker fluten und seine Ölförderung auf bis zu 13 Millionen Barrel pro Tag aufstocken. Diese Beruhighungsstrategie scheint er nun mit der Aussage, die Ölflut sei vorbei, fortführen zu wollen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Aus den Vereinigten Arabischen Emiraten kommen derweil andere Signale. Der zweitgrößte Staatsfonds der Welt, <a href="http://www.sueddeutsche.de/thema/Abu_Dhabi" data-pagetype="THEME" class="themelink">Abu Dhabi</a> Investment Authority, ist mit seiner Prognose zum Ende der Ölflut deutlich zurückhaltender. Die Schwemme sei längst noch nicht vorbei und eine Balance werde es frühestens Mitte 2017 geben, sagte der Forschungschef des Fonds, Christof Ruehl. "Erst wenn der Winter kommt, bekommen wir eine Idee davon, auf welchem Level diese neue Balance überhaupt stattfinden kann", sagt er.</p>
+
+  
+  
+
+
+  
+  
+  <p>Auch glaubt er nicht daran, dass der Ölpreis ohne Anpassungen weiter steigen werde. Was es braucht, um die 60 Dollar zu erreichen, sei simpel: mehr Pausen bei der Förderung<i>.</i></p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/saudi-arabien-was-der-neue-saudische-oelminister-wirklich-plant-1.2985632" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Was der neue saudische Ölminister wirklich plant</strong></h3> <span class="teaserable-layout__abstract"> Eins ist sicher: Eine Begrenzung der Öl-Fördermenge, die weltwirtschaftlich so wichtig wäre, steht nicht auf Khalid al-Falihs Plan. </span> <span class="teaserable-layout__authors">Von Paul-Anton Krüger</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+            
+        
+            
+        
+    </section>
+
+
+    
+      </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.pdf
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 10:25:41] "POST / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:25:49] "GET /pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.pdf HTTP/1.1" 200 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Saudischer Öl-Minister: Die Ölflut ist zu Ende - Wirtschaft - Süddeutsche.de</h1><html><body><div><section class="body" id="article-body">
+                                                            
+
+        
+        
+            
+                    
+        
+            
+                                    <ul>
+ <li>Der neue Ölminister Saudi-Arabiens ist überzeugt: Die Ölflut ist vorbei.</li>
+ <li>Das Königreich werde künftig wieder die Kontrolle über Angebot und Nachfrage erlangen. Die Förderung dürfte das Land aber nicht einschränken.</li>
+ <li>Der Forschungschef des zweitgrößten Staatsfonds der Welt sieht die Zukunft des Ölmarkts weniger optimistisch: Ein Ende der Ölschwemme sei frühestens Mitte 2017 realistisch.</li>
+</ul>
+                    
+            
+                    <section class="authors">
+                      
+            </section>
+        
+            
+
+            
+            <span class="opc-anchor opc-anchor-short"/>
+        
+
+<span id="sharingbaranchor"/>
+
+
+  
+
+
+  
+  
+  <p>Ende, aus, vorbei. Das war's mit der Ölkrise, mit der Ölflut, mit der Ölschwemme - kündigt zumindest der neue saudische Ölminister Khalid Al-Falih an. "Wir sind raus. Das Überangebot ist verschwunden", sagt er <a href="http://www.houstonchronicle.com/business/article/Saudi-energy-minister-says-oil-glut-has-vanished-8317909.php" target="_blank">in einem Interview</a> mit der amerikanischen Zeitung <i>Houston Chronicle</i>. Ab sofort werde sich <a href="http://www.sueddeutsche.de/thema/Saudi-Arabien" data-pagetype="THEME" class="themelink">Saudi-Arabien</a> wieder anschicken, die Kontrolle über den Ölmarkt zu erlangen, sagt Al-Falih. Es würde von dem Königreich "erwartet", für den Ausgleich von Angebot und Nachfrage zu sorgen, sobald sich der Markt erholt habe. Dieser Zeitpunkt sei jetzt gekommen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Dass sich der Preis für ein Fass (etwa 159 Liter) der maßgeblichen Sorte Brent zwar mittlerweile etwas stabilisiert hat, mit knapp über 50 Dollar aber weiterhin auf sehr niedrigem Niveau liegt, scheint Al-Falih nicht weiter zu beunruhigen. Dabei hat diese Entwicklung wenig damit zu tun, dass Ölvorräte schwinden, sondern liegt hauptsächlich an wirtschaftlichen Krisen in vielen Förderländern und an Förderunterbrechungen, beispielsweise in <a href="http://www.sueddeutsche.de/thema/Nigeria" data-pagetype="THEME" class="themelink">Nigeria</a>. Dort gab es zuletzt wiederholt Attacken auf Pipelines, die zu Ausfällen bei den Öl-Exporten führten.</p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/oelpreis-die-macht-und-die-ohnmacht-des-oel-kartells-1.3014776" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Macht und Ohnmacht der Öl-Staaten</strong></h3> <span class="teaserable-layout__abstract"> Früher war die Opec für ihren Einfluss gefürchtet. Heute fragen sich viele: Wofür braucht man sie noch? Doch für einen Abgesang ist es zu früh. </span> <span class="teaserable-layout__authors">Analyse von Jan Willmroth</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+  
+  
+  <h3>Optimismus trotz Krisenzeiten</h3>
+
+  
+  
+
+
+  
+  
+  <p>"Wir haben keine Angst, aber wir sind realistisch und wir wissen, dass Öl auch in den kommenden Jahrzehnten eine wichtige Rolle spielen wird", sagt der saudische Minister und Ex-Saudi-Aramco-Chef , für den es das erste große Interview ist, seit er im Mai den mächtigen Ministerposten übernommen hat. Bislang war es eher still um ihn, lieber suchte Al-Falih das Gespräch mit seinen Opec-Partnern als mit der Öffentlichkeit; schließlich gab es aufgrund des langanhaltend niedrigen <a href="http://www.sueddeutsche.de/thema/%C3%96lpreis" data-pagetype="THEME" class="themelink">Ölpreises</a> genug Redebedarf.</p>
+
+  
+  
+
+
+  
+    
+  
+  <p>Dass Saudi-Arabien selbst daran arbeiten werde, für eine Beseitigung des Überangebots zu sorgen, wird Al-Falih damit jedoch wohl kaum gemeint haben. Saudi-Arabien war bislang maßgeblich beteiligt am massiven Überangebot an Öl, das von Mitte 2014 an zu einem Preisverfall bis unter 30 Dollar pro Barrel führte. Statt die Förderung einzuschränken, ordnete der damalige mächtige Ölminister Ali Al-Naimi sogar, die Förderung auszuweiten. Er hoffte, so andere kleinere Ölproduzenten zurückzudrängen - geführt hat das zu historisch niedrigen Preisen für den Rohstoff.</p>
+
+  
+  
+
+
+  
+  
+  <p>Im Interview hat al-Falih nun erneut betont, dass Saudi-Arabien seine Fördermenge auch künftig nicht zurückschrauben werde. "Niemand will die Ölwirtschaft in Saudi-Arabien ausschalten", sagt er. Zwar plant der Vize-Kronprinz Saudi-Arabiens, Mohammed Bin Salman, durch einen Staatsfonds sein Land aus der Öl-Abhängigkeit zu lösen. Eine Fördergrenze ist auf lange Sicht trotzdem nicht vorgesehen, sagt der Ölminister: "Wir versuchen im Gegenteil, die Förderung weiter auszubauen. Aber wir hoffen, dass der Rest unserer Wirtschaft noch stärker wächst."</p>
+
+    <p id="iq-artikelanker"/>
+  
+  
+
+
+  
+  
+  <h3>Aus den Vereinigten Arabischen Emiraten kommen andere Signale</h3>
+
+  
+  
+
+
+  
+  
+  <p>Bislang hatte Al-Falih im Umgang mit seinen Opec-Partnern ein gutes Händchen. Bei einem Treffen der mächtigsten Förderländer im Mai hatte er deren Vertreter noch beruhigt und ihnen die Befürchtung zu nehmen versucht, Saudi-Arabien würde den Ölmarkt bald noch stärker fluten und seine Ölförderung auf bis zu 13 Millionen Barrel pro Tag aufstocken. Diese Beruhighungsstrategie scheint er nun mit der Aussage, die Ölflut sei vorbei, fortführen zu wollen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Aus den Vereinigten Arabischen Emiraten kommen derweil andere Signale. Der zweitgrößte Staatsfonds der Welt, <a href="http://www.sueddeutsche.de/thema/Abu_Dhabi" data-pagetype="THEME" class="themelink">Abu Dhabi</a> Investment Authority, ist mit seiner Prognose zum Ende der Ölflut deutlich zurückhaltender. Die Schwemme sei längst noch nicht vorbei und eine Balance werde es frühestens Mitte 2017 geben, sagte der Forschungschef des Fonds, Christof Ruehl. "Erst wenn der Winter kommt, bekommen wir eine Idee davon, auf welchem Level diese neue Balance überhaupt stattfinden kann", sagt er.</p>
+
+  
+  
+
+
+  
+  
+  <p>Auch glaubt er nicht daran, dass der Ölpreis ohne Anpassungen weiter steigen werde. Was es braucht, um die 60 Dollar zu erreichen, sei simpel: mehr Pausen bei der Förderung<i>.</i></p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/saudi-arabien-was-der-neue-saudische-oelminister-wirklich-plant-1.2985632" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Was der neue saudische Ölminister wirklich plant</strong></h3> <span class="teaserable-layout__abstract"> Eins ist sicher: Eine Begrenzung der Öl-Fördermenge, die weltwirtschaftlich so wichtig wäre, steht nicht auf Khalid al-Falihs Plan. </span> <span class="teaserable-layout__authors">Von Paul-Anton Krüger</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+            
+        
+            
+        
+    </section>
+
+
+    
+      </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.pdf
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 10:26:25] "POST / HTTP/1.1" 200 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Saudischer Öl-Minister: Die Ölflut ist zu Ende - Wirtschaft - Süddeutsche.de</h1><html><body><div><section class="body" id="article-body">
+                                                            
+
+        
+        
+            
+                    
+        
+            
+                                    <ul>
+ <li>Der neue Ölminister Saudi-Arabiens ist überzeugt: Die Ölflut ist vorbei.</li>
+ <li>Das Königreich werde künftig wieder die Kontrolle über Angebot und Nachfrage erlangen. Die Förderung dürfte das Land aber nicht einschränken.</li>
+ <li>Der Forschungschef des zweitgrößten Staatsfonds der Welt sieht die Zukunft des Ölmarkts weniger optimistisch: Ein Ende der Ölschwemme sei frühestens Mitte 2017 realistisch.</li>
+</ul>
+                    
+            
+                    <section class="authors">
+                      
+            </section>
+        
+            
+
+            
+            <span class="opc-anchor opc-anchor-short"/>
+        
+
+<span id="sharingbaranchor"/>
+
+
+  
+
+
+  
+  
+  <p>Ende, aus, vorbei. Das war's mit der Ölkrise, mit der Ölflut, mit der Ölschwemme - kündigt zumindest der neue saudische Ölminister Khalid Al-Falih an. "Wir sind raus. Das Überangebot ist verschwunden", sagt er <a href="http://www.houstonchronicle.com/business/article/Saudi-energy-minister-says-oil-glut-has-vanished-8317909.php" target="_blank">in einem Interview</a> mit der amerikanischen Zeitung <i>Houston Chronicle</i>. Ab sofort werde sich <a href="http://www.sueddeutsche.de/thema/Saudi-Arabien" data-pagetype="THEME" class="themelink">Saudi-Arabien</a> wieder anschicken, die Kontrolle über den Ölmarkt zu erlangen, sagt Al-Falih. Es würde von dem Königreich "erwartet", für den Ausgleich von Angebot und Nachfrage zu sorgen, sobald sich der Markt erholt habe. Dieser Zeitpunkt sei jetzt gekommen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Dass sich der Preis für ein Fass (etwa 159 Liter) der maßgeblichen Sorte Brent zwar mittlerweile etwas stabilisiert hat, mit knapp über 50 Dollar aber weiterhin auf sehr niedrigem Niveau liegt, scheint Al-Falih nicht weiter zu beunruhigen. Dabei hat diese Entwicklung wenig damit zu tun, dass Ölvorräte schwinden, sondern liegt hauptsächlich an wirtschaftlichen Krisen in vielen Förderländern und an Förderunterbrechungen, beispielsweise in <a href="http://www.sueddeutsche.de/thema/Nigeria" data-pagetype="THEME" class="themelink">Nigeria</a>. Dort gab es zuletzt wiederholt Attacken auf Pipelines, die zu Ausfällen bei den Öl-Exporten führten.</p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/oelpreis-die-macht-und-die-ohnmacht-des-oel-kartells-1.3014776" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Macht und Ohnmacht der Öl-Staaten</strong></h3> <span class="teaserable-layout__abstract"> Früher war die Opec für ihren Einfluss gefürchtet. Heute fragen sich viele: Wofür braucht man sie noch? Doch für einen Abgesang ist es zu früh. </span> <span class="teaserable-layout__authors">Analyse von Jan Willmroth</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+  
+  
+  <h3>Optimismus trotz Krisenzeiten</h3>
+
+  
+  
+
+
+  
+  
+  <p>"Wir haben keine Angst, aber wir sind realistisch und wir wissen, dass Öl auch in den kommenden Jahrzehnten eine wichtige Rolle spielen wird", sagt der saudische Minister und Ex-Saudi-Aramco-Chef , für den es das erste große Interview ist, seit er im Mai den mächtigen Ministerposten übernommen hat. Bislang war es eher still um ihn, lieber suchte Al-Falih das Gespräch mit seinen Opec-Partnern als mit der Öffentlichkeit; schließlich gab es aufgrund des langanhaltend niedrigen <a href="http://www.sueddeutsche.de/thema/%C3%96lpreis" data-pagetype="THEME" class="themelink">Ölpreises</a> genug Redebedarf.</p>
+
+  
+  
+
+
+  
+    
+  
+  <p>Dass Saudi-Arabien selbst daran arbeiten werde, für eine Beseitigung des Überangebots zu sorgen, wird Al-Falih damit jedoch wohl kaum gemeint haben. Saudi-Arabien war bislang maßgeblich beteiligt am massiven Überangebot an Öl, das von Mitte 2014 an zu einem Preisverfall bis unter 30 Dollar pro Barrel führte. Statt die Förderung einzuschränken, ordnete der damalige mächtige Ölminister Ali Al-Naimi sogar, die Förderung auszuweiten. Er hoffte, so andere kleinere Ölproduzenten zurückzudrängen - geführt hat das zu historisch niedrigen Preisen für den Rohstoff.</p>
+
+  
+  
+
+
+  
+  
+  <p>Im Interview hat al-Falih nun erneut betont, dass Saudi-Arabien seine Fördermenge auch künftig nicht zurückschrauben werde. "Niemand will die Ölwirtschaft in Saudi-Arabien ausschalten", sagt er. Zwar plant der Vize-Kronprinz Saudi-Arabiens, Mohammed Bin Salman, durch einen Staatsfonds sein Land aus der Öl-Abhängigkeit zu lösen. Eine Fördergrenze ist auf lange Sicht trotzdem nicht vorgesehen, sagt der Ölminister: "Wir versuchen im Gegenteil, die Förderung weiter auszubauen. Aber wir hoffen, dass der Rest unserer Wirtschaft noch stärker wächst."</p>
+
+    <p id="iq-artikelanker"/>
+  
+  
+
+
+  
+  
+  <h3>Aus den Vereinigten Arabischen Emiraten kommen andere Signale</h3>
+
+  
+  
+
+
+  
+  
+  <p>Bislang hatte Al-Falih im Umgang mit seinen Opec-Partnern ein gutes Händchen. Bei einem Treffen der mächtigsten Förderländer im Mai hatte er deren Vertreter noch beruhigt und ihnen die Befürchtung zu nehmen versucht, Saudi-Arabien würde den Ölmarkt bald noch stärker fluten und seine Ölförderung auf bis zu 13 Millionen Barrel pro Tag aufstocken. Diese Beruhighungsstrategie scheint er nun mit der Aussage, die Ölflut sei vorbei, fortführen zu wollen.</p>
+
+  
+  
+
+
+  
+  
+  <p>Aus den Vereinigten Arabischen Emiraten kommen derweil andere Signale. Der zweitgrößte Staatsfonds der Welt, <a href="http://www.sueddeutsche.de/thema/Abu_Dhabi" data-pagetype="THEME" class="themelink">Abu Dhabi</a> Investment Authority, ist mit seiner Prognose zum Ende der Ölflut deutlich zurückhaltender. Die Schwemme sei längst noch nicht vorbei und eine Balance werde es frühestens Mitte 2017 geben, sagte der Forschungschef des Fonds, Christof Ruehl. "Erst wenn der Winter kommt, bekommen wir eine Idee davon, auf welchem Level diese neue Balance überhaupt stattfinden kann", sagt er.</p>
+
+  
+  
+
+
+  
+  
+  <p>Auch glaubt er nicht daran, dass der Ölpreis ohne Anpassungen weiter steigen werde. Was es braucht, um die 60 Dollar zu erreichen, sei simpel: mehr Pausen bei der Förderung<i>.</i></p>
+
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser">  <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/saudi-arabien-was-der-neue-saudische-oelminister-wirklich-plant-1.2985632" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Was der neue saudische Ölminister wirklich plant</strong></h3> <span class="teaserable-layout__abstract"> Eins ist sicher: Eine Begrenzung der Öl-Fördermenge, die weltwirtschaftlich so wichtig wäre, steht nicht auf Khalid al-Falihs Plan. </span> <span class="teaserable-layout__authors">Von Paul-Anton Krüger</span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+            
+        
+            
+        
+    </section>
+
+
+    
+      </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.pdf
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 10:27:19] "POST / HTTP/1.1" 200 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:afac9a13075090cd1db15d62df5cf2a2500694700b819f3f8915abb92f780c5f
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Jetzt braucht die EU eine Generalrevision - Politik - Süddeutsche.de</h1><html><body><div><div id="endOfArticle" class="end-of-article"><p>
+                        {"themeName":"","themeUrl":"","teasers":[{"id":"sz.1.3051061","external_id":"1.3051061","external_system":"sz","types":["article"],"title":"\"Dieses Referendum ist auf seine Weise so wichtig, als wären wir plötzlich im Krieg\"","overline":"Reaktionen auf den Brexit","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3051138/208x156?v=1466785195000","imageAltText":"A British flag which was washed away by heavy rains the day before lies on the street in London","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/kultur/reaktionen-auf-den-brexit-dieses-referendum-ist-auf-seine-weise-so-wichtig-als-waeren-wir-ploetzlich-im-krieg-1.3051061"},{"id":"sz.1.3049252","external_id":"1.3049252","external_system":"sz","types":["article"],"title":"Briten stimmen für den EU-Austritt","overline":"Brexit-Ergebnis","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3049337/208x156?v=1466750568000","imageAltText":"Nigel Farage, the leader of the United Kingdom Independence Party (UKIP), makes a statement after Britain voted to leave on the European Union in London","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/brexit-ergebnis-briten-stimmen-fuer-den-eu-austritt-1.3049252"},{"id":"sz.1.3039132","external_id":"1.3039132","external_system":"sz","types":["article"],"title":"Schaffen wir die Nationalstaaten ab!","overline":"Interview zum Brexit","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3044501/208x156?v=1466511726000","imageAltText":"NASA Earth at night","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/interview-zum-brexit-schaffen-wir-die-nationalstaaten-ab-1.3039132"},{"id":"sz.1.3034806","external_id":"1.3034806","external_system":"sz","types":["article"],"title":"EU warnt Briten vor chaotischem Brexit","overline":"Europa","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3036319/208x156?v=1466013573000","imageAltText":"Symbolic U.K. Goods As Brexit Debate Continues","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/europa-eu-warnt-briten-vor-chaotischem-brexit-1.3034806"},{"id":"sz.7.119853","external_id":"7.119853","external_system":"sz","types":["externallink"],"title":"Bekommen Sie bei der \"Ode an die Freude\" Gänsehaut? ","overline":"Drohender Brexit","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3031162/208x156?v=1465808344000","imageAltText":"SZ-Magazin Europafragen Fotoprojekt Grenzhäuschen","lazyLoad":true},"teaserPrefix":"","suffixLabel":"SZ-Magazin","targetUrl":"http://sz-magazin.sueddeutsche.de/texte/anzeigen/44657"}]}
+                                
+
+
+    </p><aside><p data-widget="plista_widget_sideArticle" data-linktrack="onclick.platformtype.articleend.department_name.plista"/></aside>
+
+
+
+
+
+
+
+                                
+
+
+    <aside class="newsscanner-end-of-article">
+        <section class="newsscanner-end-of-article-header">
+            
+                <a href="" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">Leser lesen aktuell</a>
+            
+        </section>
+        <section class="newsscanner-end-of-article-body">
+            <ol class="newsscanner-end-of-article-list">
+            
+                <li class="newsscanner-end-of-article-item sz1">
+                    <a href="http://www.sueddeutsche.de/wissen/klima-wie-die-welt-ohne-eis-aussehen-wuerde-1.3049357" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Klima</span>
+                        <strong class="newsscanner-end-of-article-item-title">Wie die Welt ohne Eis aussehen würde</strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz2">
+                    <a href="http://www.sueddeutsche.de/politik/nach-dem-brexit-jetzt-braucht-die-eu-eine-generalrevision-1.3049766" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Nach dem Brexit</span>
+                        <strong class="newsscanner-end-of-article-item-title">Jetzt braucht die EU eine Generalrevision </strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz3">
+                    <a href="http://www.sueddeutsche.de/politik/brexit-mehrheit-der-schotten-will-unabhaengigkeit-von-grossbritannien-1.3051541" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Brexit</span>
+                        <strong class="newsscanner-end-of-article-item-title">Mehrheit der Schotten will Unabhängigkeit von Großbritannien</strong>
+                    </a>
+                </li>
+            
+            </ol>
+        </section>
+    </aside>
+
+                                
+
+
+    <aside class="newsscanner-end-of-article">
+        <section class="newsscanner-end-of-article-header">
+            
+                <a href="" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">Leser empfehlen</a>
+            
+        </section>
+        <section class="newsscanner-end-of-article-body">
+            <ol class="newsscanner-end-of-article-list">
+            
+                <li class="newsscanner-end-of-article-item sz1">
+                    <a href="http://www.sueddeutsche.de/politik/nach-der-brexit-entscheidung-londoner-suchen-den-exit-aus-dem-brexit-1.3051427" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Nach der Brexit-Entscheidung</span>
+                        <strong class="newsscanner-end-of-article-item-title">Londoner suchen den Exit aus dem Brexit</strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz2">
+                    <a href="http://www.sueddeutsche.de/politik/nach-dem-brexit-die-haben-mir-meine-zukunft-geklaut-1.3051150" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Reportage</span>
+                        <strong class="newsscanner-end-of-article-item-title">"Die haben mir meine Zukunft geklaut" </strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz3">
+                    <a href="http://www.sueddeutsche.de/politik/brexit-eu-parlamentspraesident-schulz-fordert-austrittsantrag-der-briten-bis-dienstag-1.3051495" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Brexit</span>
+                        <strong class="newsscanner-end-of-article-item-title">EU-Parlamentspräsident Schulz fordert Austrittsantrag der Briten bis Dienstag</strong>
+                    </a>
+                </li>
+            
+            </ol>
+        </section>
+    </aside>
+
+            </div>            
+                                    
+            
+        </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"hash_sha256":"afac9a13075090cd1db15d62df5cf2a2500694700b819f3f8915abb92f780c5f","created_at":"2016-06-26T10:30:26.179Z","updated_at":"2016-06-26T10:30:26.179Z","submitted_at":null,"title":"Jetzt braucht die EU eine Generalrevision - Politik - Süddeutsche.de"}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"hash_sha256":"afac9a13075090cd1db15d62df5cf2a2500694700b819f3f8915abb92f780c5f","created_at":"2016-06-26T10:30:26.179Z","updated_at":"2016-06-26T10:30:26.179Z","submitted_at":null,"title":"Jetzt braucht die EU eine Generalrevision - Politik - Süddeutsche.de"}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/politik/nach-dem-brexit-jetzt-braucht-die-eu-eine-generalrevision-1.3049766
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/afac9a13075090cd1db15d62df5cf2a2500694700b819f3f8915abb92f780c5f.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/politik/nach-dem-brexit-jetzt-braucht-die-eu-eine-generalrevision-1.3049766
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/afac9a13075090cd1db15d62df5cf2a2500694700b819f3f8915abb92f780c5f.pdf
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 10:30:34] "POST / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:34:48] "GET /pdf/afac9a13075090cd1db15d62df5cf2a2500694700b819f3f8915abb92f780c5f.pdf HTTP/1.1" 200 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:89f20a625b5e0bec61b0e0594a33ec3ec8cfa55118c8330a8b60a23ff0f53eb2
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Brexit: Das Pfund, eine machtlose Währung - Wirtschaft - Süddeutsche.de</h1><html><body><div><section class="body" id="article-body">
+                                                            
+
+        
+        
+            
+                    
+        
+            
+                                    <p class="article entry-summary">
+                    Ihre Währung war einst der Stolz der Briten, jetzt aber ist das Pfund abgestürzt wie noch nie. Manche Börsianer sagen: "Das hier ist schlimmer als Lehman".
+                </p>
+                    
+            
+                    <section class="authors">
+                      <div class="authorContainer">
+
+        
+
+    <div class="authorProfileContainer">
+            
+                <span class="moreInfo">
+      <strong> Von <span id="abbr-bfi" data-abbr="bfi">Björn Finke</span>, <span id="abbr-NP" data-abbr="NP">Nikolaus Piper</span>, <span id="abbr-usc" data-abbr="usc">Ulrich Schäfer</span> und <span id="abbr-zyd" data-abbr="zyd">Markus Zydra</span></strong>
+    </span>
+        </div>
+
+                  
+              
+              
+              
+          
+  </div>
+            </section>
+        
+            
+
+            
+            <span class="opc-anchor opc-anchor-short"/>
+        
+
+<span id="sharingbaranchor"/>
+
+
+  
+
+
+  
+  
+  <p>In den Hochhäusern in der Square Mile, dem alten Bankenviertel, und in <a href="http://www.sueddeutsche.de/thema/Canary_Wharf" data-pagetype="THEME" class="themelink">Canary Wharf</a>, dem neuen Finanzviertel an der Themse, scheint auch in gewöhnlichen Nächten aus beunruhigend vielen Fenstern fahles Licht. Doch in den Stunden nach dem Referendum war es noch heller als sonst. Die Finanzinstitute hatten sehr viele Händler dazu verdonnert, Wache zu halten. Schließlich würden die Märkte auf die Hochrechnungen reagieren, das war klar.</p>
+
+  
+  
+
+
+  
+  
+  <p>Nicht klar war, wie heftig die Reaktion ausfallen würde: Das Pfund stürzte auf den tiefsten Stand seit drei Jahrzehnten, die Börsen in <a href="http://www.sueddeutsche.de/thema/Japan" data-pagetype="THEME" class="themelink">Japan</a> und Europa brachen ein, in Frankfurt sagt später ein Händler: "Das hier ist schlimmer als Lehman." Schlimmer also als das Beben im September 2008, als die Finanzkrise begann.</p>
+
+  
+  
+
+
+  
+  
+  <h3>Kurzzeitig stieg der Wert des Pfund auf 1,50 Dollar - dann brach er ein</h3>
+
+  
+  
+
+
+  
+  
+  <p>Die Banken in London bereiteten sich auf die Brexit-Nacht sorgsam vor. Der US-Konzern JP Morgan buchte Cateringfirmen und Hotelzimmer in der Nähe seines Glasturms in Canary Wharf. Die <a href="http://www.sueddeutsche.de/thema/Royal_Bank_of_Scotland" data-pagetype="THEME" class="themelink">Royal Bank of Scotland</a> (RBS) setzte bei der Verpflegung schnöde auf einen Nachbarn: "Auf der anderen Straßenseite ist bei uns ein 24-Stunden-McDonald's", sagte RBS-Volkswirt Ross Walker. Auch der Betreiber des Stromnetzes, National Grid, stellte sich auf diese Schicksalsnacht ein: Banker, die durcharbeiten, viele Briten vor dem Fernseher - das Unternehmen orderte bei den Kraftwerken extra viel Strom.</p>
+
+  
+  
+
+
+  
+    
+  
+  <p>Wie nervenaufreibend die Nacht werden würde, ahnte aber kaum jemand. Nach Schließung der Wahllokale berichteten Fernsehsender, dass das Pro-EU-Lager Umfragen zufolge vorne liegt. Auf den Wahlpartys jubelten die Austritts-Gegner, und an den Devisenmärkten gewann das Pfund an Wert - es stieg auf den höchsten Kurs seit neun Monaten, kurz vor Mitternacht kostete es 1,50 Dollar.</p>
+
+  
+  
+
+
+  
+  
+  <p>Doch als die ersten Ergebnisse aus den Wahlkreisen eingingen, brach das Pfund ein - um zwei Uhr früh kostete es nur noch 1,45 Dollar. Als die Sonne schließlich aufging, an einem strahlend schönen Morgen, und klar war: Die Briten haben mit Nein gestimmt, da war der Kurs auf 1,33 Dollar gefallen - was für ein historischer Absturz.</p>
+
+    <p id="iq-artikelanker"/>
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser"> <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/brexit-das-staerkste-beben-seit-der-finanzkrise-1.3049613" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Das stärkste Beben seit der Finanzkrise </strong></h3> <span class="teaserable-layout__abstract"> Anleger trauen dem Alleingang der Briten nicht. Weltweit brechen die Kurse ein. So übel wie an diesem Freitag hat es zuletzt 2008 ausgesehen. </span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+  
+  
+  <h3>Das Pfund symbolisierte einst die Macht des britischen Empire</h3>
+
+  
+  
+
+
+  
+  
+  <p>Das Pfund ist - oder muss man sagen: es war? - so etwas wie die Währung der Währungen. Es ist das bei Weitem älteste noch im Gebrauch befindliche Zahlungsmittel. Einst symbolisierte es die Macht des britischen Empire. Vor dem Ersten Weltkrieg wurden die meisten internationalen Finanzgeschäfte damit abgewickelt. Seit dem Zweiten Weltkrieg spiegelte sich der schmerzhafte Abschied vom Weltreich und die Suche nach einer neuen Identität in einer langen Reihe von Pfundkrisen, von denen die vermutlich schwerste am Freitagmorgen begonnen hat.</p>
+
+  
+  
+
+
+            
+        
+            
+        
+    </section>
+
+
+    
+      </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"hash_sha256":"89f20a625b5e0bec61b0e0594a33ec3ec8cfa55118c8330a8b60a23ff0f53eb2","created_at":"2016-06-26T10:36:12.493Z","updated_at":"2016-06-26T10:36:12.493Z","submitted_at":null,"title":"Brexit: Das Pfund, eine machtlose Währung - Wirtschaft - Süddeutsche.de"}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"hash_sha256":"89f20a625b5e0bec61b0e0594a33ec3ec8cfa55118c8330a8b60a23ff0f53eb2","created_at":"2016-06-26T10:36:12.493Z","updated_at":"2016-06-26T10:36:12.493Z","submitted_at":null,"title":"Brexit: Das Pfund, eine machtlose Währung - Wirtschaft - Süddeutsche.de"}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/wirtschaft/brexit-das-pfund-eine-machtlose-waehrung-1.3049642
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/89f20a625b5e0bec61b0e0594a33ec3ec8cfa55118c8330a8b60a23ff0f53eb2.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/wirtschaft/brexit-das-pfund-eine-machtlose-waehrung-1.3049642
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/89f20a625b5e0bec61b0e0594a33ec3ec8cfa55118c8330a8b60a23ff0f53eb2.pdf
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 10:36:40] "POST / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:37:05] "GET /regular HTTP/1.1" 200 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:89f20a625b5e0bec61b0e0594a33ec3ec8cfa55118c8330a8b60a23ff0f53eb2
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Brexit: Das Pfund, eine machtlose Währung - Wirtschaft - Süddeutsche.de</h1><html><body><div><section class="body" id="article-body">
+                                                            
+
+        
+        
+            
+                    
+        
+            
+                                    <p class="article entry-summary">
+                    Ihre Währung war einst der Stolz der Briten, jetzt aber ist das Pfund abgestürzt wie noch nie. Manche Börsianer sagen: "Das hier ist schlimmer als Lehman".
+                </p>
+                    
+            
+                    <section class="authors">
+                      <div class="authorContainer">
+
+        
+
+    <div class="authorProfileContainer">
+            
+                <span class="moreInfo">
+      <strong> Von <span id="abbr-bfi" data-abbr="bfi">Björn Finke</span>, <span id="abbr-NP" data-abbr="NP">Nikolaus Piper</span>, <span id="abbr-usc" data-abbr="usc">Ulrich Schäfer</span> und <span id="abbr-zyd" data-abbr="zyd">Markus Zydra</span></strong>
+    </span>
+        </div>
+
+                  
+              
+              
+              
+          
+  </div>
+            </section>
+        
+            
+
+            
+            <span class="opc-anchor opc-anchor-short"/>
+        
+
+<span id="sharingbaranchor"/>
+
+
+  
+
+
+  
+  
+  <p>In den Hochhäusern in der Square Mile, dem alten Bankenviertel, und in <a href="http://www.sueddeutsche.de/thema/Canary_Wharf" data-pagetype="THEME" class="themelink">Canary Wharf</a>, dem neuen Finanzviertel an der Themse, scheint auch in gewöhnlichen Nächten aus beunruhigend vielen Fenstern fahles Licht. Doch in den Stunden nach dem Referendum war es noch heller als sonst. Die Finanzinstitute hatten sehr viele Händler dazu verdonnert, Wache zu halten. Schließlich würden die Märkte auf die Hochrechnungen reagieren, das war klar.</p>
+
+  
+  
+
+
+  
+  
+  <p>Nicht klar war, wie heftig die Reaktion ausfallen würde: Das Pfund stürzte auf den tiefsten Stand seit drei Jahrzehnten, die Börsen in <a href="http://www.sueddeutsche.de/thema/Japan" data-pagetype="THEME" class="themelink">Japan</a> und Europa brachen ein, in Frankfurt sagt später ein Händler: "Das hier ist schlimmer als Lehman." Schlimmer also als das Beben im September 2008, als die Finanzkrise begann.</p>
+
+  
+  
+
+
+  
+  
+  <h3>Kurzzeitig stieg der Wert des Pfund auf 1,50 Dollar - dann brach er ein</h3>
+
+  
+  
+
+
+  
+  
+  <p>Die Banken in London bereiteten sich auf die Brexit-Nacht sorgsam vor. Der US-Konzern JP Morgan buchte Cateringfirmen und Hotelzimmer in der Nähe seines Glasturms in Canary Wharf. Die <a href="http://www.sueddeutsche.de/thema/Royal_Bank_of_Scotland" data-pagetype="THEME" class="themelink">Royal Bank of Scotland</a> (RBS) setzte bei der Verpflegung schnöde auf einen Nachbarn: "Auf der anderen Straßenseite ist bei uns ein 24-Stunden-McDonald's", sagte RBS-Volkswirt Ross Walker. Auch der Betreiber des Stromnetzes, National Grid, stellte sich auf diese Schicksalsnacht ein: Banker, die durcharbeiten, viele Briten vor dem Fernseher - das Unternehmen orderte bei den Kraftwerken extra viel Strom.</p>
+
+  
+  
+
+
+  
+    
+  
+  <p>Wie nervenaufreibend die Nacht werden würde, ahnte aber kaum jemand. Nach Schließung der Wahllokale berichteten Fernsehsender, dass das Pro-EU-Lager Umfragen zufolge vorne liegt. Auf den Wahlpartys jubelten die Austritts-Gegner, und an den Devisenmärkten gewann das Pfund an Wert - es stieg auf den höchsten Kurs seit neun Monaten, kurz vor Mitternacht kostete es 1,50 Dollar.</p>
+
+  
+  
+
+
+  
+  
+  <p>Doch als die ersten Ergebnisse aus den Wahlkreisen eingingen, brach das Pfund ein - um zwei Uhr früh kostete es nur noch 1,45 Dollar. Als die Sonne schließlich aufging, an einem strahlend schönen Morgen, und klar war: Die Briten haben mit Nein gestimmt, da war der Kurs auf 1,33 Dollar gefallen - was für ein historischer Absturz.</p>
+
+    <p id="iq-artikelanker"/>
+  
+          
+<figure class="teaserable-layout teaserable-layout--teaser"> <figcaption class="teaserable-layout__figcaption"> <a href="http://www.sueddeutsche.de/wirtschaft/brexit-das-staerkste-beben-seit-der-finanzkrise-1.3049613" class="teaserable-layout__link"> <h3 class="teaserable-layout__title"><strong>Das stärkste Beben seit der Finanzkrise </strong></h3> <span class="teaserable-layout__abstract"> Anleger trauen dem Alleingang der Briten nicht. Weltweit brechen die Kurse ein. So übel wie an diesem Freitag hat es zuletzt 2008 ausgesehen. </span> <span class="teaserable-layout__more">mehr ...</span> </a> </figcaption> </figure>
+  
+
+
+  
+  
+  <h3>Das Pfund symbolisierte einst die Macht des britischen Empire</h3>
+
+  
+  
+
+
+  
+  
+  <p>Das Pfund ist - oder muss man sagen: es war? - so etwas wie die Währung der Währungen. Es ist das bei Weitem älteste noch im Gebrauch befindliche Zahlungsmittel. Einst symbolisierte es die Macht des britischen Empire. Vor dem Ersten Weltkrieg wurden die meisten internationalen Finanzgeschäfte damit abgewickelt. Seit dem Zweiten Weltkrieg spiegelte sich der schmerzhafte Abschied vom Weltreich und die Suche nach einer neuen Identität in einer langen Reihe von Pfundkrisen, von denen die vermutlich schwerste am Freitagmorgen begonnen hat.</p>
+
+  
+  
+
+
+            
+        
+            
+        
+    </section>
+
+
+    
+      </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"errors":{"hash_sha256":["has already been taken"]}}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/wirtschaft/brexit-das-pfund-eine-machtlose-waehrung-1.3049642
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/89f20a625b5e0bec61b0e0594a33ec3ec8cfa55118c8330a8b60a23ff0f53eb2.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/wirtschaft/brexit-das-pfund-eine-machtlose-waehrung-1.3049642
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/89f20a625b5e0bec61b0e0594a33ec3ec8cfa55118c8330a8b60a23ff0f53eb2.pdf
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 10:37:53] "POST /regular HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:38:12] "GET / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:38:28] "GET /regular HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:38:32] "GET /compare HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:39:28] "GET /compare HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:39:43] "GET /compare_options/228: HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:40:22] "POST /compare_options/228: HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:40:38] "POST /compare_options/228: HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:40:53] "POST /compare_options/228: HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:43:06] "POST /compare_options/228: HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:43:06] "GET / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:43:06] "GET / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:43:06] "GET / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:43:06] "GET / HTTP/1.1" 200 -
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:172]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:189]:
+Hash:23ee02cb1c8bb49ea07779ee1aadcd90c64b8a769bdbdedfb9af372348a570bf
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Armeesprecher: Ganz Falludscha vom IS zurückerobert - Politik - Süddeutsche.de</h1><html><body><div><div id="endOfArticle" class="end-of-article"><p>
+                        {"themeName":"","themeUrl":"","teasers":[{"id":"sz.1.3040890","external_id":"1.3040890","external_system":"sz","types":["article"],"title":"Falludschas Fall ist ein Sieg ohne Sieger","overline":"Irak","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3042248/208x156?v=1466414570000","imageAltText":"Flüchtlingsdrama im westirakischen Falludscha","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/irak-sieg-ohne-sieger-1.3040890"},{"id":"sz.1.3025612","external_id":"1.3025612","external_system":"sz","types":["video"],"title":"Kampf gegen den IS","overline":"US-Kampfjets im Einsatz","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3025613/208x156?v=1465383615000","imageAltText":"","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/panorama/us-kampfjets-im-einsatz-kampf-gegen-den-is-1.3025612"},{"id":"sz.1.3021684","external_id":"1.3021684","external_system":"sz","types":["article"],"title":"Irakische Truppen entdecken Massengrab","overline":"Irak","teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/irak-irakische-truppen-entdecken-massengrab-1.3021684"},{"id":"sz.1.3020343","external_id":"1.3020343","external_system":"sz","types":["article"],"title":"Syrische Armee stößt nach Rakka vor","overline":"Militärische Offensive","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3020347/208x156?v=1465070228000","imageAltText":"Soldaten der syrischen Armee in der Provinz Al-Rakka","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/militaerische-offensive-syrische-armee-stoesst-auf-is-hochburg-al-rakka-vor-1.3020343"},{"id":"sz.1.3014587","external_id":"1.3014587","external_system":"sz","types":["article"],"title":"IS soll Hunderte Familien als menschliche Schutzschilde missbrauchen","overline":"Irak","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3014588/208x156?v=1464755946000","imageAltText":"","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/irak-is-soll-hunderte-familien-als-menschliche-schutzschilde-missbrauchen-1.3014587"}]}
+                                
+
+
+    </p><aside><p data-widget="plista_widget_sideArticle" data-linktrack="onclick.platformtype.articleend.department_name.plista"/></aside>
+
+
+
+
+
+
+
+                                
+
+
+    <aside class="newsscanner-end-of-article">
+        <section class="newsscanner-end-of-article-header">
+            
+                <a href="" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">Leser lesen aktuell</a>
+            
+        </section>
+        <section class="newsscanner-end-of-article-body">
+            <ol class="newsscanner-end-of-article-list">
+            
+                <li class="newsscanner-end-of-article-item sz1">
+                    <a href="http://www.sueddeutsche.de/wissen/klima-wie-die-welt-ohne-eis-aussehen-wuerde-1.3049357" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Klima</span>
+                        <strong class="newsscanner-end-of-article-item-title">Wie die Welt ohne Eis aussehen würde</strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz2">
+                    <a href="http://www.sueddeutsche.de/politik/nach-dem-brexit-jetzt-braucht-die-eu-eine-generalrevision-1.3049766" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Nach dem Brexit</span>
+                        <strong class="newsscanner-end-of-article-item-title">Jetzt braucht die EU eine Generalrevision </strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz3">
+                    <a href="http://www.sueddeutsche.de/sport/vs-der-direkte-vergleich-weissbier-schorle-1.3050213" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Fußball-EM</span>
+                        <strong class="newsscanner-end-of-article-item-title">1996 vs. 2016 - wer gewinnt den Vergleich?</strong>
+                    </a>
+                </li>
+            
+            </ol>
+        </section>
+    </aside>
+
+                                
+
+
+    <aside class="newsscanner-end-of-article">
+        <section class="newsscanner-end-of-article-header">
+            
+                <a href="" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">Leser empfehlen</a>
+            
+        </section>
+        <section class="newsscanner-end-of-article-body">
+            <ol class="newsscanner-end-of-article-list">
+            
+                <li class="newsscanner-end-of-article-item sz1">
+                    <a href="http://www.sueddeutsche.de/politik/nach-der-brexit-entscheidung-londoner-suchen-den-exit-aus-dem-brexit-1.3051427" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Nach der Brexit-Entscheidung</span>
+                        <strong class="newsscanner-end-of-article-item-title">Londoner suchen den Exit aus dem Brexit</strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz2">
+                    <a href="http://www.sueddeutsche.de/politik/nach-dem-brexit-die-haben-mir-meine-zukunft-geklaut-1.3051150" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Reportage</span>
+                        <strong class="newsscanner-end-of-article-item-title">"Die haben mir meine Zukunft geklaut" </strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz3">
+                    <a href="http://www.sueddeutsche.de/politik/brexit-eu-parlamentspraesident-schulz-fordert-austrittsantrag-der-briten-bis-dienstag-1.3051495" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Brexit</span>
+                        <strong class="newsscanner-end-of-article-item-title">EU-Parlamentspräsident Schulz fordert Austrittsantrag der Briten bis Dienstag</strong>
+                    </a>
+                </li>
+            
+            </ol>
+        </section>
+    </aside>
+
+            </div>            
+                                    
+            
+        </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:216]:
+{"hash_sha256":"23ee02cb1c8bb49ea07779ee1aadcd90c64b8a769bdbdedfb9af372348a570bf","created_at":"2016-06-26T10:44:10.667Z","updated_at":"2016-06-26T10:44:10.667Z","submitted_at":null,"title":"Armeesprecher: Ganz Falludscha vom IS zurückerobert - Politik - Süddeutsche.de"}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+Origin Stamp Response:{"hash_sha256":"23ee02cb1c8bb49ea07779ee1aadcd90c64b8a769bdbdedfb9af372348a570bf","created_at":"2016-06-26T10:44:10.667Z","updated_at":"2016-06-26T10:44:10.667Z","submitted_at":null,"title":"Armeesprecher: Ganz Falludscha vom IS zurückerobert - Politik - Süddeutsche.de"}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/politik/islamischer-staat-armeesprecher-verkuendet-vollstaendige-rueckeroberung-von-falludscha-1.3051850
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/23ee02cb1c8bb49ea07779ee1aadcd90c64b8a769bdbdedfb9af372348a570bf.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/politik/islamischer-staat-armeesprecher-verkuendet-vollstaendige-rueckeroberung-von-falludscha-1.3051850
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/23ee02cb1c8bb49ea07779ee1aadcd90c64b8a769bdbdedfb9af372348a570bf.pdf
+--------------------------------------------------------------------------------
+91.14.13.36 - - [26/Jun/2016 10:44:20] "POST / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:44:35] "GET /pdf/23ee02cb1c8bb49ea07779ee1aadcd90c64b8a769bdbdedfb9af372348a570bf.pdf HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:44:50] "GET /pdf/23ee02cb1c8bb49ea07779ee1aadcd90c64b8a769bdbdedfb9af372348a570bf.png HTTP/1.1" 200 -
+ * Detected change in '/home/ubuntu/StampTheWeb/app/main/views.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
