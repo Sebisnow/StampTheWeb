@@ -45,6 +45,7 @@ def index():
             else:
                 flash('Could not submit to Originstamp because of a mysterious error.')
 
+        #TODO Filter does not work properly all new stamped articels
         already_exist = Post.query.filter(and_(Post.urlSite.like(url_site),
                                                Post.hashVal.like(sha256))).first()
         if already_exist is not None:
