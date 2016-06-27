@@ -160,13 +160,10 @@ def create_png_from_html(url, sha256):
         flash("Could not create PNG for this URL: " + url)
     if os.path.isfile(path):
         return
-<<<<<<< HEAD
+
     if not app.config["TESTING"]:
         flash(u'Could not create PNG from ' + url, 'error')
     app.logger.error('Could not create PNG from the URL : '+url)
-=======
-    app.logger.error('Could not create PNG from the: '+url)
->>>>>>> 25edc12d1518264b730d1cb68e9c40fb4cc5e36f
     return
 
 def create_html_from_url(doc,hash,url):
@@ -187,26 +184,19 @@ def create_pdf_from_url(url,sha256):
     app.logger.info('PDF Path:'+path)
     try:
         pdfkit.from_url(url, path)
-<<<<<<< HEAD
+
     except IOError as e:
 
         app.logger.error('Could not create PDF from the URL: ' + url)
         app.logger.error(traceback.format_exc(), e)
-=======
-    except Exception as e:
-        # is needed on on windows, where os.rename can't override existing files.
->>>>>>> 25edc12d1518264b730d1cb68e9c40fb4cc5e36f
+
         if os.path.isfile(path):
             app.logger.error('But local PDF exists at: ' + path)
             return
-<<<<<<< HEAD
+
         if not app.config["TESTING"]:
             flash(u'Could not create PDF from ' + url, 'error')
-=======
-        flash(u'Could not create PDF from '+ url, 'error')
-        app.logger.error('Could not create PDF from the: '+url)
-        app.logger.error(traceback.format_exc(), e)
->>>>>>> 25edc12d1518264b730d1cb68e9c40fb4cc5e36f
+
     return
 
 def calculate_hash_for_html_doc(doc):
@@ -405,12 +395,12 @@ def get_url_history(url):
         flash('100 Bad URL Could not retrieve URL to create timestamp for it.'+url,'error')
         app.logger.error('100 Bad URL Could not retrieve URL to create timestamp for it:' + url)
         return ReturnResults(None,None,None)
-    #soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
+    # soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
     doc = Document(res.text)
     #encoding = chardet.detect(res.text.encode()).get('encoding')
     try:
         sha256, html_text = calculate_hash_for_html_doc(doc)
-        #if check_database_for_hash(sha256) < 1:
+        # if check_database_for_hash(sha256) < 1:
         originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
     except:
 
@@ -421,7 +411,7 @@ def get_url_history(url):
         else:
             return ReturnResults(None, sha256, doc.title())
 
-    #return json.dumps(check_database_for_url(url), default=date_handler)
+    # return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originStampResult, sha256, doc.title())
 
 def load_zip_submit(url, soup, enc):
@@ -447,11 +437,11 @@ def save_render_zip_submit(doc, sha256, url, title):
     create_png_from_html(url, sha256)
     create_pdf_from_url(url,sha256)
     create_html_from_url(doc,sha256,url)
-    #archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
-    #archive.write(basePath + sha256 + '.html')
-    #os.remove(basePath + sha256 + '.html')
-    #archive.write(basePath + sha256 + '.png')
-    #os.remove(basePath + sha256 + '.png')
+    # archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
+    # archive.write(basePath + sha256 + '.html')
+    # os.remove(basePath + sha256 + '.html')
+    # archive.write(basePath + sha256 + '.png')
+    # os.remove(basePath + sha256 + '.png')
     originStampResult = submit_add_to_db(url, sha256, title)
     return originStampResult
 
