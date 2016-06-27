@@ -1,4 +1,4 @@
-from flask import Flask,send_from_directory
+from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_mail import Mail
 from flask_moment import Moment
@@ -10,9 +10,6 @@ import logging
 from markupsafe import Markup
 import re
 from logging.handlers import RotatingFileHandler
-
-
-
 
 bootstrap = Bootstrap()
 mail = Mail()
@@ -35,13 +32,12 @@ def clever_function(str,domain):
 
 
 def create_app(config_name):
-    app = Flask(__name__, static_folder='pdf') #working
+    app = Flask(__name__,static_folder='pdf') #working
     #app = Flask(__name__, static_url_path='')
     app.config.from_object(config[config_name])
-    app.config.setdefault('SQLALCHEMY_TRACK_MODIFICATIONS', True)
     config[config_name].init_app(app)
     app.config['UPLOAD_FOLDER'] = 'pdf/' #working
-    #app.config['SERVER_NAME'] = 'http://127.0.0.1:5000'
+    #app.config['SERVER_NAME'] = 'http://westamps.herokuapp.com/'
 
     #Setting up Logging
     handler = RotatingFileHandler('webStamps.log', maxBytes=10000, backupCount=1)
@@ -54,6 +50,7 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
     pagedown.init_app(app)
+
 
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)

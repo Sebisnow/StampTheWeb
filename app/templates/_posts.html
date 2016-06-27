@@ -7,6 +7,26 @@
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 
+<script type="text/javascript">
+  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
+
+<style>
+    .twitter-share-button[style] { vertical-align: text-bottom !important; }
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<!-- bootbox.js at 4.4.0 -->
+<script src="https://rawgit.com/makeusabrew/bootbox/f3a04a57877cab071738de558581fbc91812dce9/bootbox.js"></script>
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/css/bootstrap-dialog.min.css" rel="stylesheet" type="text/css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
+
 <ul class="posts">
     {% for post in posts %}
     <li class="post">
@@ -15,7 +35,7 @@
                 <img class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=40) }}">
             </a>
         </div>
-        <div class="post-content">
+        <div class="post-content" id = "{{post.id}}">
             <div class="post-date">{{ moment(post.timestamp).fromNow() }}</div>
             <div class="post-author"><a href="{{ url_for('.user', username=post.author.username) }}">{{ post.author.username }}</a></div>
             <div class="post-body">
@@ -37,18 +57,23 @@
                                 </tr>
 
                                 <tr>
-                                    <td>{{post.webTitl | safe}}</td>
+
+                                    <td><p align="left" class="glyphicon glyphicon-file"></p>{{post.webTitl | safe}}</td>
+
                                     <td>{{post.hashVal}}<br/>
                                         {% if post.fileName %}
                                         <a class="label label-primary" href=/pdf/{{  post.fileName }} target="_blank"  style="margin-right: 5px;">Download File </a>
                                         {% else %}
                                         <a class="label label-primary" href=/pdf/{{  post.hashVal }}.pdf target="_blank"  style="margin-right: 5px;">Download pdf </a>
                                         <a class="label label-primary" href=/pdf/{{  post.hashVal }}.png target="_blank"  style="margin-right: 5px;">Download png </a>
+                                        <a class="label label-primary"  onclick="myFunction({{post.id}})" > Compare</a>
+                                        <a class="label label-primary" href="http://www.originstamp.org/s/{{post.hashVal}}" target="_blank"> Verify Hash</a>
+
                                         {% endif %}
                                     </td>
                                     <td>{{post.origStampTime}}</td>
                                     <td><br/>
-                                    <a class="label label-primary" href="{{post.urlSite}}" target="_blank"  style="margin-right: 5px;">URL </a></td>
+                                    <a class="label label-primary" href="{{post.urlSite}}" target="_blank"  style="margin-right: 5px;">Open </a></td>
                                 </tr>
 
                         </table>
@@ -84,3 +109,46 @@
     </li>
     {% endfor %}
 </ul>
+<script type="text/javascript">
+    function myFunction(x) {
+        $.getJSON($SCRIPT_ROOT + '/check_selected', {
+        post: x
+        }, function(data) {
+            var response = data.result;
+            console.log(response);
+            if(response.indexOf(":") > -1){
+                url = "/verify_two/"+response.toString();
+                window.open(url,'_blank');
+                selected="";
+            }
+            else{
+                var selected = x.toString();
+                var div = document.getElementById(selected);
+                div.style.backgroundColor = '#f0f0f0';
+                var txt;
+                BootstrapDialog.show({
+                    title: 'Compare',
+                    message: 'Would you like to compare the selected post to the current web-content?',
+                    buttons: [{
+                        label: 'Yes',
+                        action: function(dialog) {
+                            url = "/verifyID/"+x.toString();
+                            window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }, {
+                        label: 'No',
+                        action: function(dialog) {
+                            BootstrapDialog.alert('Please select another post!');
+                            firstPost=x.toString();
+                            url = "/compare_options/"+firstPost+":"+'{{domain}}';
+                            window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }]
+                });
+            }
+        });
+
+    }
+</script>

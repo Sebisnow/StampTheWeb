@@ -15,14 +15,14 @@
       <h3>URL</h3>
       <p>Please provide a URL in order to compare the the data on that URL.</p>
         {% if current_user.can(Permission.WRITE_ARTICLES) %}
-        {{ wtf.quick_form(form) }}
+        {{ wtf.quick_form(form, button_map={'submit':'primary'} ) }}
         {% endif %}
     </div>
   </div>
 {% set alphabets ='abcdefghijklmnopqrstuvwxyz' %}
 
 <div class="container">
-  <h3> Or select a Domain</h3>
+  <h3>Browse other submissions</h3>
   <ul class="nav nav-tabs">
       {% for c in alphabets %}
     <li><a data-toggle="tab" href=#{{c}}>{{c.upper()}}</a></li>

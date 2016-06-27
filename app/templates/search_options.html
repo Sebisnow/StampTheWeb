@@ -9,13 +9,13 @@
     <div >
       <h3>Compare the same page from another country</h3>
       {% if current_user.can(Permission.WRITE_ARTICLES) %}
-        {{ wtf.quick_form(form_choice) }}
+        {{ wtf.quick_form(form_choice, button_map={'submit':'primary'}) }}
         {% endif %}
     </div>
     <div>
       <h3>Or Compare with the Previously saved posts</h3>
       {% if current_user.can(Permission.WRITE_ARTICLES) %}
-        {{ wtf.quick_form(form) }}
+        {{ wtf.quick_form(form, button_map={'submit':'primary'}) }}
         {% endif %}
     </div>
 
