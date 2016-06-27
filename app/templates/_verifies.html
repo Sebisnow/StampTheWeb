@@ -7,6 +7,11 @@
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 
+
+<script type="text/javascript">
+  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
@@ -59,7 +64,7 @@
                                     {% if search %}
                                     <td>{{clever_function(very.webTitl,domain)}}</td>
                                     {% else %}
-                                    <td>{{very.webTitl | safe}}</td>
+                                    <td> <p align="left" class="glyphicon glyphicon-file"></p>{{very.webTitl | safe}}</td>
                                     {% endif %}
                                     <td>{{very.hashVal}}<br/>
                                         {% if very.fileName %}
@@ -77,7 +82,7 @@
                                     <td>{{very.origStampTime}}</td>
                                     <td><br/>
                                         {% if very.urlSite %}
-                                         <a class="label label-primary" href="{{very.urlSite}}" target="_blank"  style="margin-right: 5px;">URL </a></td>
+                                         <a class="label label-primary" href="{{very.urlSite}}" target="_blank"  style="margin-right: 5px;">Open </a></td>
                                         {% endif %}
                                 </tr>
                         </table>
@@ -85,6 +90,9 @@
             </div>
             <div class="post-footer">
                 {% if current_user == very.author %}
+                <a href="{{ url_for('.edit', id=very.id) }}">
+                    <span class="label label-primary">Edit</span>
+                </a>
                 {% if single %}
                 <a href="https://twitter.com/share" class="twitter-share-button" data-url="{{ url_for('.very', id=very.id) }}" data-layout="button">Tweet</a>
                     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
@@ -103,42 +111,45 @@
 </ul>
 
 <script type="text/javascript">
-    var firstPost = "";
     function myFunction(x) {
-        if(firstPost==""){
-            var txt;
-            BootstrapDialog.show({
-                title: 'Compare',
-                message: 'Would you like to compare the selected post to the current web-content?',
-                buttons: [{
-                    label: 'Yes',
-                    action: function(dialog) {
-                        url = "/verifyID/"+x.toString();
-                        window.open(url,'_blank');
-                        dialog.close();
-                    }
-                }, {
-                    label: 'No',
-                    action: function(dialog) {
-                        BootstrapDialog.alert('Please select another post!');
-                        var div = document.getElementById(x);
-                        div.style.backgroundColor = '#85C1E9';
-                        firstPost=x.toString();
-                        //url = "/modify/"+x.toString();
-                        //var popup = window.open(url,'','width=,height=,resizable=no');
-                        //popup.blur();
-                        //window.focus();
-                        dialog.close();
-                    }
-                }]
-            });
-        }
-        else{
-            var div = document.getElementById(firstPost);
-            div.style.backgroundColor = '#f0f0f0';
-            url = "/verify_two/"+firstPost+":"+x.toString();
-            window.open(url,'_blank');
-            firstPost="";
-        }
+        $.getJSON($SCRIPT_ROOT + '/check_selected', {
+        post: x
+        }, function(data) {
+            var response = data.result;
+            console.log(response);
+            if(response.indexOf(":") > -1){
+                url = "/verify_two/"+response.toString();
+                window.open(url,'_blank');
+                selected="";
+            }
+            else{
+                var selected = x.toString();
+                var div = document.getElementById(selected);
+                div.style.backgroundColor = '#f0f0f0';
+                var txt;
+                BootstrapDialog.show({
+                    title: 'Compare',
+                    message: 'Would you like to compare the selected post to the current web-content?',
+                    buttons: [{
+                        label: 'Yes',
+                        action: function(dialog) {
+                            url = "/verifyID/"+x.toString();
+                            window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }, {
+                        label: 'No',
+                        action: function(dialog) {
+                            BootstrapDialog.alert('Please select another post!');
+                            firstPost=x.toString();
+                            url = "/compare_options/"+firstPost+":"+'{{domain}}';
+                            window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }]
+                });
+            }
+        });
+
     }
 </script>

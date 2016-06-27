@@ -1,0 +1,29 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>How to write and save html file in python? - Stack Overflow</h1><html><body><div><div class="post-text" itemprop="text">&#13;
+<p>You can try:</p>
+
+<pre><code>colour = ["red", "red", "green", "yellow"]
+
+with open('mypage.html', 'w') as myFile:
+    myFile.write('&lt;html&gt;')
+    myFile.write('&lt;body&gt;')
+    myFile.write('&lt;table&gt;')
+
+    s = '1234567890'
+    for i in range(0, len(s), 60):
+        myFile.write('&lt;tr&gt;&lt;td&gt;%04d&lt;/td&gt;' % (i+1));
+    for j, k in enumerate(s[i:i+60]):
+        myFile.write('&lt;td&gt;&lt;font style="background-color:%s;"&gt;%s&lt;font&gt;&lt;/td&gt;' % (colour[j %len(colour)], k));
+
+
+    myFile.write('&lt;/tr&gt;')
+    myFile.write('&lt;/table&gt;')
+    myFile.write('&lt;/body&gt;')
+    myFile.write('&lt;/html&gt;')
+</code></pre>
+    </div>&#13;
+    </div></body></html></body>

@@ -220,6 +220,7 @@ class Post(db.Model):
     origStampTime = db.Column(db.DateTime)
     fileName = db.Column(db.Text)
     regular = db.relationship('Regular', backref='postID', lazy='dynamic')
+    block = db.relationship('Block', backref='postID', lazy='dynamic')
 
     @staticmethod
     def generate_fake(count=100):
@@ -257,6 +258,21 @@ class Regular(db.Model):
     uk = db.Column(db.Boolean)
     china = db.Column(db.Boolean)
     email = db.Column(db.String)
+
+class Block(db.Model):
+    __tablename__ = 'block'
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    usa = db.Column(db.Boolean)
+    uk = db.Column(db.Boolean)
+    china = db.Column(db.Boolean)
+
+class Location(db.Model):
+    __tablename__ = 'location'
+    ip = db.Column(db.Text, primary_key=True)
+    country_code = db.Column(db.String)
+    country_name = db.Column(db.String)
 
 class Verify(db.Model):
     __tablename__ = 'verify'
