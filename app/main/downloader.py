@@ -116,7 +116,7 @@ def create_png_from_url(url, sha256):
         return
     if not app.config["TESTING"]:
         flash(u'Could not create PNG from ' + url, 'error')
-    app.logger.error('Could not create PNG from the: '+url)
+    app.logger.error('Could not create PNG from the URL : '+url)
     return
 
 
@@ -151,15 +151,15 @@ def create_pdf_from_url(url,sha256):
     app.logger.info('PDF Path:'+path)
     try:
         pdfkit.from_url(url, path)
-    except Exception as e:
-        # is needed on on windows, where os.rename can't override existing files.
+    except IOError as e:
 
-        if not app.config["TESTING"]:
-            flash(u'Could not create PDF from ' + url, 'error')
-        app.logger.error('Could not create PDF from the: ' + url)
+        app.logger.error('Could not create PDF from the URL: ' + url)
         app.logger.error(traceback.format_exc(), e)
         if os.path.isfile(path):
+            app.logger.error('But local PDF exists at: ' + path)
             return
+        if not app.config["TESTING"]:
+            flash(u'Could not create PDF from ' + url, 'error')
     return
 
 
@@ -176,7 +176,7 @@ def calculate_hash_for_html_doc(doc):
     #encoding = chardet.detect(doc.summary().encode()).get('encoding')
     encoding = 'utf-8'
     doc.encoding = encoding
-
+    # TODO all te Header information should be preserved not rewritten
     text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1' \
            '-transitional.dtd">\n' + '<head>\n' + \
            '<meta http-equiv="Content-Type" content="text/html; ' \
@@ -184,6 +184,8 @@ def calculate_hash_for_html_doc(doc):
            + '<h1>' + doc.title().split(sep='|')[0] + '</h1>'
 
     text += doc.summary() + '</body>'
+    # TODO IPFS implementation
+    
     calc_hash = hashlib.sha256()
     calc_hash.update(doc.summary().encode(encoding))
     sha256 = calc_hash.hexdigest()
