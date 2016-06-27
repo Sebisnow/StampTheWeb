@@ -62,7 +62,7 @@
                                     {% if search %}
                                     <td>{{clever_function(very.webTitl,domain)}}</td>
                                     {% else %}
-                                    <td>{{very.webTitl | safe}}</td>
+                                    <td> <p align="left" class="glyphicon glyphicon-file"></p>{{very.webTitl | safe}}</td>
                                     {% endif %}
                                     <td>{{very.hashVal}}<br/>
                                         {% if very.fileName %}
@@ -79,7 +79,7 @@
                                     <td>{{very.origStampTime}}</td>
                                     <td><br/>
                                         {% if very.urlSite %}
-                                         <a class="label label-primary" href="{{very.urlSite}}" target="_blank"  style="margin-right: 5px;">URL </a></td>
+                                         <a class="label label-primary" href="{{very.urlSite}}" target="_blank"  style="margin-right: 5px;">Open </a></td>
                                         {% endif %}
                                 </tr>
                         </table>

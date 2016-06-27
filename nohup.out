@@ -1667,3 +1667,799 @@ PDF Path:app/pdf/23ee02cb1c8bb49ea07779ee1aadcd90c64b8a769bdbdedfb9af372348a570b
  * Restarting with stat
  * Debugger is active!
  * Debugger pin code: 246-649-699
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:173]:
+Creating HTML and Hash
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:190]:
+Hash:22bfe6d688bda2d7c99c2e93601bcdd1d5eb670e4d9f8c998d7f6215aa57771d
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:191]:
+HTML:<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Armeesprecher: Ganz Falludscha vom IS zurückerobert - Politik - Süddeutsche.de</h1><html><body><div><div id="endOfArticle" class="end-of-article"><p>
+                        {"themeName":"","themeUrl":"","teasers":[{"id":"sz.1.3040890","external_id":"1.3040890","external_system":"sz","types":["article"],"title":"Falludschas Fall ist ein Sieg ohne Sieger","overline":"Irak","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3042248/208x156?v=1466414570000","imageAltText":"Flüchtlingsdrama im westirakischen Falludscha","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/irak-sieg-ohne-sieger-1.3040890"},{"id":"sz.1.3025612","external_id":"1.3025612","external_system":"sz","types":["video"],"title":"Kampf gegen den IS","overline":"US-Kampfjets im Einsatz","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3025613/208x156?v=1465383615000","imageAltText":"","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/panorama/us-kampfjets-im-einsatz-kampf-gegen-den-is-1.3025612"},{"id":"sz.1.3021684","external_id":"1.3021684","external_system":"sz","types":["article"],"title":"Irakische Truppen entdecken Massengrab","overline":"Irak","teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/irak-irakische-truppen-entdecken-massengrab-1.3021684"},{"id":"sz.1.3020343","external_id":"1.3020343","external_system":"sz","types":["article"],"title":"Syrische Armee stößt nach Rakka vor","overline":"Militärische Offensive","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3020347/208x156?v=1465070228000","imageAltText":"Soldaten der syrischen Armee in der Provinz Al-Rakka","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/militaerische-offensive-syrische-armee-stoesst-auf-is-hochburg-al-rakka-vor-1.3020343"},{"id":"sz.1.3014587","external_id":"1.3014587","external_system":"sz","types":["article"],"title":"IS soll Hunderte Familien als menschliche Schutzschilde missbrauchen","overline":"Irak","image":{"imageUrl":"http://media-cdn.sueddeutsche.de/image/sz.1.3014588/208x156?v=1464755946000","imageAltText":"","lazyLoad":true},"teaserPrefix":"","suffixLabel":"","targetUrl":"http://www.sueddeutsche.de/politik/irak-is-soll-hunderte-familien-als-menschliche-schutzschilde-missbrauchen-1.3014587"}]}
+                                
+
+
+    </p><aside><p data-widget="plista_widget_sideArticle" data-linktrack="onclick.platformtype.articleend.department_name.plista"/></aside>
+
+
+
+
+
+
+
+                                
+
+
+    <aside class="newsscanner-end-of-article">
+        <section class="newsscanner-end-of-article-header">
+            
+                <a href="" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">Leser lesen aktuell</a>
+            
+        </section>
+        <section class="newsscanner-end-of-article-body">
+            <ol class="newsscanner-end-of-article-list">
+            
+                <li class="newsscanner-end-of-article-item sz1">
+                    <a href="http://www.sueddeutsche.de/wissen/klima-wie-die-welt-ohne-eis-aussehen-wuerde-1.3049357" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Klima</span>
+                        <strong class="newsscanner-end-of-article-item-title">Wie die Welt ohne Eis aussehen würde</strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz2">
+                    <a href="http://www.sueddeutsche.de/wirtschaft/brexit-das-sind-die-wirtschaftlichen-folgen-des-brexit-1.3049646" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Brexit</span>
+                        <strong class="newsscanner-end-of-article-item-title">Das sind die wirtschaftlichen Folgen des Brexit</strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz3">
+                    <a href="http://www.sueddeutsche.de/politik/nach-dem-brexit-jetzt-braucht-die-eu-eine-generalrevision-1.3049766" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101069.department_name.visits">
+                        <span class="newsscanner-end-of-article-item-overline">Nach dem Brexit</span>
+                        <strong class="newsscanner-end-of-article-item-title">Jetzt braucht die EU eine Generalrevision </strong>
+                    </a>
+                </li>
+            
+            </ol>
+        </section>
+    </aside>
+
+                                
+
+
+    <aside class="newsscanner-end-of-article">
+        <section class="newsscanner-end-of-article-header">
+            
+                <a href="" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">Leser empfehlen</a>
+            
+        </section>
+        <section class="newsscanner-end-of-article-body">
+            <ol class="newsscanner-end-of-article-list">
+            
+                <li class="newsscanner-end-of-article-item sz1">
+                    <a href="http://www.sueddeutsche.de/politik/nach-der-brexit-entscheidung-londoner-suchen-den-exit-aus-dem-brexit-1.3051427" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Nach der Brexit-Entscheidung</span>
+                        <strong class="newsscanner-end-of-article-item-title">Londoner suchen den Exit aus dem Brexit</strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz2">
+                    <a href="http://www.sueddeutsche.de/politik/nach-dem-brexit-die-haben-mir-meine-zukunft-geklaut-1.3051150" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Reportage</span>
+                        <strong class="newsscanner-end-of-article-item-title">"Die haben mir meine Zukunft geklaut" </strong>
+                    </a>
+                </li>
+            
+                <li class="newsscanner-end-of-article-item sz3">
+                    <a href="http://www.sueddeutsche.de/politik/brexit-eu-parlamentspraesident-schulz-fordert-austrittsantrag-der-briten-bis-dienstag-1.3051495" data-linktrack="onclick.platformtype.articleend.newsscannermodule.7.101068.department_name.social">
+                        <span class="newsscanner-end-of-article-item-overline">Brexit</span>
+                        <strong class="newsscanner-end-of-article-item-title">EU-Parlamentspräsident Schulz fordert Austrittsantrag der Briten bis Dienstag</strong>
+                    </a>
+                </li>
+            
+            </ol>
+        </section>
+    </aside>
+
+            </div>            
+                                    
+            
+        </div></body></html></body>
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:217]:
+{"hash_sha256":"22bfe6d688bda2d7c99c2e93601bcdd1d5eb670e4d9f8c998d7f6215aa57771d","created_at":"2016-06-26T10:56:10.918Z","updated_at":"2016-06-26T10:56:10.918Z","submitted_at":null,"title":"Armeesprecher: Ganz Falludscha vom IS zurückerobert - Politik - Süddeutsche.de"}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:218]:
+Origin Stamp Response:{"hash_sha256":"22bfe6d688bda2d7c99c2e93601bcdd1d5eb670e4d9f8c998d7f6215aa57771d","created_at":"2016-06-26T10:56:10.918Z","updated_at":"2016-06-26T10:56:10.918Z","submitted_at":null,"title":"Armeesprecher: Ganz Falludscha vom IS zurückerobert - Politik - Süddeutsche.de"}
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:108]:
+Creating PNG from URL:http://www.sueddeutsche.de/politik/islamischer-staat-armeesprecher-verkuendet-vollstaendige-rueckeroberung-von-falludscha-1.3051850
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:110]:
+PNG Path:app/pdf/22bfe6d688bda2d7c99c2e93601bcdd1d5eb670e4d9f8c998d7f6215aa57771d.png
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:149]:
+Creating PDF from URL:http://www.sueddeutsche.de/politik/islamischer-staat-armeesprecher-verkuendet-vollstaendige-rueckeroberung-von-falludscha-1.3051850
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+INFO in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:151]:
+PDF Path:app/pdf/22bfe6d688bda2d7c99c2e93601bcdd1d5eb670e4d9f8c998d7f6215aa57771d.pdf
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+ERROR in downloader [/home/ubuntu/StampTheWeb/app/main/downloader.py:159]:
+Could not create PDF from the: http://www.sueddeutsche.de/politik/islamischer-staat-armeesprecher-verkuendet-vollstaendige-rueckeroberung-von-falludscha-1.3051850
+--------------------------------------------------------------------------------
+--- Logging error ---
+Traceback (most recent call last):
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 153, in create_pdf_from_url
+    pdfkit.from_url(url, path)
+  File "/usr/local/lib/python3.4/dist-packages/pdfkit/api.py", line 24, in from_url
+    return r.to_pdf(output_path)
+  File "/usr/local/lib/python3.4/dist-packages/pdfkit/pdfkit.py", line 116, in to_pdf
+    raise IOError('wkhtmltopdf reported an error:\n' + stderr.decode('utf-8'))
+OSError: wkhtmltopdf reported an error:
+Loading pages (1/6)
+[>                                                           ] 0%[======>                                                     ] 10%[=============>                                              ] 22%[=================>                                          ] 29%[===================>                                        ] 33%[=====================>                                      ] 35%[======================>                                     ] 38%[==========================>                                 ] 44%[===========================>                                ] 46%[=============================>                              ] 49%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[=============================>                              ] 49%[=================================>                          ] 55%[==================================>                         ] 58%[====================================>                       ] 61%[======================================>                     ] 64%[========================================>                   ] 68%[==========================================>                 ] 71%[============================================>               ] 74%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[=============================================>              ] 76%[==============================================>             ] 78%[================================================>           ] 81%[=================================================>          ] 83%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 88%[====================================================>       ] 88%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[====================================================>       ] 88%[====================================================>       ] 88%[=====================================================>      ] 89%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[=====================================================>      ] 89%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[============================================================] 100%Counting pages (2/6)                                               
+[============================================================] Object 1 of 1QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+Resolving links (4/6)                                                       
+[============================================================] Object 1 of 1Loading headers and footers (5/6)                                           
+Printing pages (6/6)
+[>                                                           ] PreparingQFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[===================>                                        ] Page 1 of 3[=======================================>                    ] Page 2 of 3[============================================================] Page 3 of 3QImage: out of memory, returning null image
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+Done                                                                      
+Exit with code 1 due to network error: ContentNotFoundError
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.4/logging/__init__.py", line 978, in emit
+    msg = self.format(record)
+  File "/usr/lib/python3.4/logging/__init__.py", line 828, in format
+    return fmt.format(record)
+  File "/usr/lib/python3.4/logging/__init__.py", line 565, in format
+    record.message = record.getMessage()
+  File "/usr/lib/python3.4/logging/__init__.py", line 328, in getMessage
+    msg = msg % self.args
+ValueError: unsupported format character '?' (0xd) at index 564
+Call stack:
+  File "/usr/lib/python3.4/threading.py", line 888, in _bootstrap
+    self._bootstrap_inner()
+  File "/usr/lib/python3.4/threading.py", line 920, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.4/threading.py", line 868, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 659, in inner
+    srv.serve_forever()
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 499, in serve_forever
+    HTTPServer.serve_forever(self)
+  File "/usr/lib/python3.4/socketserver.py", line 238, in serve_forever
+    self._handle_request_noblock()
+  File "/usr/lib/python3.4/socketserver.py", line 305, in _handle_request_noblock
+    self.process_request(request, client_address)
+  File "/usr/lib/python3.4/socketserver.py", line 331, in process_request
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.4/socketserver.py", line 344, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.4/socketserver.py", line 673, in __init__
+    self.handle()
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 216, in handle
+    rv = BaseHTTPRequestHandler.handle(self)
+  File "/usr/lib/python3.4/http/server.py", line 398, in handle
+    self.handle_one_request()
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 251, in handle_one_request
+    return self.run_wsgi()
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 193, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 183, in execute
+    for data in application_iter:
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/debug/__init__.py", line 284, in debug_application
+    app_iter = self.app(environ, start_response)
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 2000, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1988, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1639, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1625, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/ubuntu/StampTheWeb/app/main/views.py", line 33, in index
+    results = downloader.get_url_history(url_site)
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 400, in get_url_history
+    originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 458, in save_render_zip_submit
+    create_pdf_from_url(url, sha256)
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 160, in create_pdf_from_url
+    app.logger.error(traceback.format_exc(), e)
+  File "/usr/lib/python3.4/logging/__init__.py", line 1303, in error
+    self._log(ERROR, msg, args, **kwargs)
+  File "/usr/lib/python3.4/logging/__init__.py", line 1409, in _log
+    self.handle(record)
+  File "/usr/lib/python3.4/logging/__init__.py", line 1419, in handle
+    self.callHandlers(record)
+  File "/usr/lib/python3.4/logging/__init__.py", line 1481, in callHandlers
+    hdlr.handle(record)
+  File "/usr/lib/python3.4/logging/__init__.py", line 853, in handle
+    self.emit(record)
+  File "/usr/local/lib/python3.4/dist-packages/flask/logging.py", line 68, in emit
+    StreamHandler.emit(self, record)
+Message: 'Traceback (most recent call last):\n  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 153, in create_pdf_from_url\n    pdfkit.from_url(url, path)\n  File "/usr/local/lib/python3.4/dist-packages/pdfkit/api.py", line 24, in from_url\n    return r.to_pdf(output_path)\n  File "/usr/local/lib/python3.4/dist-packages/pdfkit/pdfkit.py", line 116, in to_pdf\n    raise IOError(\'wkhtmltopdf reported an error:\\n\' + stderr.decode(\'utf-8\'))\nOSError: wkhtmltopdf reported an error:\nLoading pages (1/6)\n[>                                                           ] 0%\r[======>                                                     ] 10%\r[=============>                                              ] 22%\r[=================>                                          ] 29%\r[===================>                                        ] 33%\r[=====================>                                      ] 35%\r[======================>                                     ] 38%\r[==========================>                                 ] 44%\r[===========================>                                ] 46%\r[=============================>                              ] 49%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=============================>                              ] 49%\r[=================================>                          ] 55%\r[==================================>                         ] 58%\r[====================================>                       ] 61%\r[======================================>                     ] 64%\r[========================================>                   ] 68%\r[==========================================>                 ] 71%\r[============================================>               ] 74%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=============================================>              ] 76%\r[==============================================>             ] 78%\r[================================================>           ] 81%\r[=================================================>          ] 83%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 88%\r[====================================================>       ] 88%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[====================================================>       ] 88%\r[====================================================>       ] 88%\r[=====================================================>      ] 89%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=====================================================>      ] 89%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[============================================================] 100%\rCounting pages (2/6)                                               \n[============================================================] Object 1 of 1\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nResolving links (4/6)                                                       \n[============================================================] Object 1 of 1\rLoading headers and footers (5/6)                                           \nPrinting pages (6/6)\n[>                                                           ] Preparing\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[===================>                                        ] Page 1 of 3\r[=======================================>                    ] Page 2 of 3\r[============================================================] Page 3 of 3\rQImage: out of memory, returning null image\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nDone                                                                      \nExit with code 1 due to network error: ContentNotFoundError\n\n'
+Arguments: (OSError('wkhtmltopdf reported an error:\nLoading pages (1/6)\n[>                                                           ] 0%\r[======>                                                     ] 10%\r[=============>                                              ] 22%\r[=================>                                          ] 29%\r[===================>                                        ] 33%\r[=====================>                                      ] 35%\r[======================>                                     ] 38%\r[==========================>                                 ] 44%\r[===========================>                                ] 46%\r[=============================>                              ] 49%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=============================>                              ] 49%\r[=================================>                          ] 55%\r[==================================>                         ] 58%\r[====================================>                       ] 61%\r[======================================>                     ] 64%\r[========================================>                   ] 68%\r[==========================================>                 ] 71%\r[============================================>               ] 74%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=============================================>              ] 76%\r[==============================================>             ] 78%\r[================================================>           ] 81%\r[=================================================>          ] 83%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 88%\r[====================================================>       ] 88%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[====================================================>       ] 88%\r[====================================================>       ] 88%\r[=====================================================>      ] 89%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=====================================================>      ] 89%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[============================================================] 100%\rCounting pages (2/6)                                               \n[============================================================] Object 1 of 1\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nResolving links (4/6)                                                       \n[============================================================] Object 1 of 1\rLoading headers and footers (5/6)                                           \nPrinting pages (6/6)\n[>                                                           ] Preparing\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[===================>                                        ] Page 1 of 3\r[=======================================>                    ] Page 2 of 3\r[============================================================] Page 3 of 3\rQImage: out of memory, returning null image\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nDone                                                                      \nExit with code 1 due to network error: ContentNotFoundError\n',),)
+--- Logging error ---
+Traceback (most recent call last):
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 153, in create_pdf_from_url
+    pdfkit.from_url(url, path)
+  File "/usr/local/lib/python3.4/dist-packages/pdfkit/api.py", line 24, in from_url
+    return r.to_pdf(output_path)
+  File "/usr/local/lib/python3.4/dist-packages/pdfkit/pdfkit.py", line 116, in to_pdf
+    raise IOError('wkhtmltopdf reported an error:\n' + stderr.decode('utf-8'))
+OSError: wkhtmltopdf reported an error:
+Loading pages (1/6)
+[>                                                           ] 0%[======>                                                     ] 10%[=============>                                              ] 22%[=================>                                          ] 29%[===================>                                        ] 33%[=====================>                                      ] 35%[======================>                                     ] 38%[==========================>                                 ] 44%[===========================>                                ] 46%[=============================>                              ] 49%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[=============================>                              ] 49%[=================================>                          ] 55%[==================================>                         ] 58%[====================================>                       ] 61%[======================================>                     ] 64%[========================================>                   ] 68%[==========================================>                 ] 71%[============================================>               ] 74%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[=============================================>              ] 76%[==============================================>             ] 78%[================================================>           ] 81%[=================================================>          ] 83%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 87%[====================================================>       ] 88%[====================================================>       ] 88%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[====================================================>       ] 88%[====================================================>       ] 88%[=====================================================>      ] 89%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[=====================================================>      ] 89%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[======================================================>     ] 90%[============================================================] 100%Counting pages (2/6)                                               
+[============================================================] Object 1 of 1QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+Resolving links (4/6)                                                       
+[============================================================] Object 1 of 1Loading headers and footers (5/6)                                           
+Printing pages (6/6)
+[>                                                           ] PreparingQFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+[===================>                                        ] Page 1 of 3[=======================================>                    ] Page 2 of 3[============================================================] Page 3 of 3QImage: out of memory, returning null image
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+QFont::setPixelSize: Pixel size <= 0 (0)
+Done                                                                      
+Exit with code 1 due to network error: ContentNotFoundError
+
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/usr/lib/python3.4/logging/handlers.py", line 71, in emit
+    if self.shouldRollover(record):
+  File "/usr/lib/python3.4/logging/handlers.py", line 187, in shouldRollover
+    msg = "%s\n" % self.format(record)
+  File "/usr/lib/python3.4/logging/__init__.py", line 828, in format
+    return fmt.format(record)
+  File "/usr/lib/python3.4/logging/__init__.py", line 565, in format
+    record.message = record.getMessage()
+  File "/usr/lib/python3.4/logging/__init__.py", line 328, in getMessage
+    msg = msg % self.args
+ValueError: unsupported format character '?' (0xd) at index 564
+Call stack:
+  File "/usr/lib/python3.4/threading.py", line 888, in _bootstrap
+    self._bootstrap_inner()
+  File "/usr/lib/python3.4/threading.py", line 920, in _bootstrap_inner
+    self.run()
+  File "/usr/lib/python3.4/threading.py", line 868, in run
+    self._target(*self._args, **self._kwargs)
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 659, in inner
+    srv.serve_forever()
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 499, in serve_forever
+    HTTPServer.serve_forever(self)
+  File "/usr/lib/python3.4/socketserver.py", line 238, in serve_forever
+    self._handle_request_noblock()
+  File "/usr/lib/python3.4/socketserver.py", line 305, in _handle_request_noblock
+    self.process_request(request, client_address)
+  File "/usr/lib/python3.4/socketserver.py", line 331, in process_request
+    self.finish_request(request, client_address)
+  File "/usr/lib/python3.4/socketserver.py", line 344, in finish_request
+    self.RequestHandlerClass(request, client_address, self)
+  File "/usr/lib/python3.4/socketserver.py", line 673, in __init__
+    self.handle()
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 216, in handle
+    rv = BaseHTTPRequestHandler.handle(self)
+  File "/usr/lib/python3.4/http/server.py", line 398, in handle
+    self.handle_one_request()
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 251, in handle_one_request
+    return self.run_wsgi()
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 193, in run_wsgi
+    execute(self.server.app)
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/serving.py", line 183, in execute
+    for data in application_iter:
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/debug/__init__.py", line 284, in debug_application
+    app_iter = self.app(environ, start_response)
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 2000, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1988, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1639, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1625, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "/home/ubuntu/StampTheWeb/app/main/views.py", line 33, in index
+    results = downloader.get_url_history(url_site)
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 400, in get_url_history
+    originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 458, in save_render_zip_submit
+    create_pdf_from_url(url, sha256)
+  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 160, in create_pdf_from_url
+    app.logger.error(traceback.format_exc(), e)
+Message: 'Traceback (most recent call last):\n  File "/home/ubuntu/StampTheWeb/app/main/downloader.py", line 153, in create_pdf_from_url\n    pdfkit.from_url(url, path)\n  File "/usr/local/lib/python3.4/dist-packages/pdfkit/api.py", line 24, in from_url\n    return r.to_pdf(output_path)\n  File "/usr/local/lib/python3.4/dist-packages/pdfkit/pdfkit.py", line 116, in to_pdf\n    raise IOError(\'wkhtmltopdf reported an error:\\n\' + stderr.decode(\'utf-8\'))\nOSError: wkhtmltopdf reported an error:\nLoading pages (1/6)\n[>                                                           ] 0%\r[======>                                                     ] 10%\r[=============>                                              ] 22%\r[=================>                                          ] 29%\r[===================>                                        ] 33%\r[=====================>                                      ] 35%\r[======================>                                     ] 38%\r[==========================>                                 ] 44%\r[===========================>                                ] 46%\r[=============================>                              ] 49%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=============================>                              ] 49%\r[=================================>                          ] 55%\r[==================================>                         ] 58%\r[====================================>                       ] 61%\r[======================================>                     ] 64%\r[========================================>                   ] 68%\r[==========================================>                 ] 71%\r[============================================>               ] 74%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=============================================>              ] 76%\r[==============================================>             ] 78%\r[================================================>           ] 81%\r[=================================================>          ] 83%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 88%\r[====================================================>       ] 88%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[====================================================>       ] 88%\r[====================================================>       ] 88%\r[=====================================================>      ] 89%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=====================================================>      ] 89%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[============================================================] 100%\rCounting pages (2/6)                                               \n[============================================================] Object 1 of 1\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nResolving links (4/6)                                                       \n[============================================================] Object 1 of 1\rLoading headers and footers (5/6)                                           \nPrinting pages (6/6)\n[>                                                           ] Preparing\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[===================>                                        ] Page 1 of 3\r[=======================================>                    ] Page 2 of 3\r[============================================================] Page 3 of 3\rQImage: out of memory, returning null image\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nDone                                                                      \nExit with code 1 due to network error: ContentNotFoundError\n\n'
+Arguments: (OSError('wkhtmltopdf reported an error:\nLoading pages (1/6)\n[>                                                           ] 0%\r[======>                                                     ] 10%\r[=============>                                              ] 22%\r[=================>                                          ] 29%\r[===================>                                        ] 33%\r[=====================>                                      ] 35%\r[======================>                                     ] 38%\r[==========================>                                 ] 44%\r[===========================>                                ] 46%\r[=============================>                              ] 49%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=============================>                              ] 49%\r[=================================>                          ] 55%\r[==================================>                         ] 58%\r[====================================>                       ] 61%\r[======================================>                     ] 64%\r[========================================>                   ] 68%\r[==========================================>                 ] 71%\r[============================================>               ] 74%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=============================================>              ] 76%\r[==============================================>             ] 78%\r[================================================>           ] 81%\r[=================================================>          ] 83%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 87%\r[====================================================>       ] 88%\r[====================================================>       ] 88%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[====================================================>       ] 88%\r[====================================================>       ] 88%\r[=====================================================>      ] 89%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[=====================================================>      ] 89%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[======================================================>     ] 90%\r[============================================================] 100%\rCounting pages (2/6)                                               \n[============================================================] Object 1 of 1\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nResolving links (4/6)                                                       \n[============================================================] Object 1 of 1\rLoading headers and footers (5/6)                                           \nPrinting pages (6/6)\n[>                                                           ] Preparing\rQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\n[===================>                                        ] Page 1 of 3\r[=======================================>                    ] Page 2 of 3\r[============================================================] Page 3 of 3\rQImage: out of memory, returning null image\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nQFont::setPixelSize: Pixel size <= 0 (0)\nDone                                                                      \nExit with code 1 due to network error: ContentNotFoundError\n',),)
+91.14.13.36 - - [26/Jun/2016 10:56:20] "POST / HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:56:20] "GET /pdf/styles.css HTTP/1.1" 200 -
+91.14.13.36 - - [26/Jun/2016 10:56:41] "GET /pdf/22bfe6d688bda2d7c99c2e93601bcdd1d5eb670e4d9f8c998d7f6215aa57771d.pdf HTTP/1.1" 200 -
+183.129.160.229 - - [26/Jun/2016 11:56:54] "GET / HTTP/1.1" 200 -
+61.216.2.13 - - [26/Jun/2016 14:02:10] "POST /404 HTTP/1.1" 404 -
+158.69.25.178 - - [26/Jun/2016 16:26:20] "GET / HTTP/1.1" 200 -
+66.249.66.170 - - [26/Jun/2016 17:25:02] "GET /robots.txt HTTP/1.1" 404 -
+66.249.66.173 - - [26/Jun/2016 17:25:02] "GET / HTTP/1.1" 200 -
+66.249.66.173 - - [26/Jun/2016 17:32:55] "GET /pdf/styles.css HTTP/1.1" 200 -
+158.69.25.178 - - [26/Jun/2016 18:10:57] "GET / HTTP/1.1" 200 -
+158.69.25.178 - - [26/Jun/2016 18:10:58] "GET /pdf/styles.css HTTP/1.1" 200 -
+158.69.25.178 - - [26/Jun/2016 18:11:01] "GET /robots.txt HTTP/1.1" 404 -
+158.69.25.178 - - [26/Jun/2016 18:11:01] "GET /pdf/favicon.png HTTP/1.1" 200 -
+31.13.102.122 - - [26/Jun/2016 18:11:11] "GET / HTTP/1.1" 200 -
+191.96.249.54 - - [27/Jun/2016 00:36:45] "GET / HTTP/1.1" 200 -
+191.96.249.54 - - [27/Jun/2016 01:57:12] "GET /xmlrpc.php HTTP/1.1" 404 -
+23.247.97.142 - - [27/Jun/2016 03:17:13] "GET /manager/html HTTP/1.1" 404 -
+66.249.66.170 - - [27/Jun/2016 05:16:53] "GET / HTTP/1.1" 200 -
+ * Detected change in '/home/ubuntu/StampTheWeb/app/main/errors.py', reloading
+ * Restarting with stat
+/usr/local/lib/python3.4/dist-packages/flask_sqlalchemy/__init__.py:800: UserWarning: SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True to suppress this warning.
+  warnings.warn('SQLALCHEMY_TRACK_MODIFICATIONS adds significant overhead and will be disabled by default in the future.  Set it to True to suppress this warning.')
+ * Debugger is active!
+ * Debugger pin code: 246-649-699
+ * Detected change in '/home/ubuntu/StampTheWeb/config.py', reloading
+ * Restarting with stat
+Traceback (most recent call last):
+  File "/home/ubuntu/StampTheWeb/manage.py", line 3, in <module>
+    from app import create_app, db
+  File "/home/ubuntu/StampTheWeb/app/__init__.py", line 8, in <module>
+    from config import config
+  File "/home/ubuntu/StampTheWeb/config.py", line 21
+    CHINA_PROXY = "60.216.40.135"
+                                ^
+TabError: inconsistent use of tabs and spaces in indentation

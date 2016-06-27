@@ -73,24 +73,31 @@ def create_pdf_from_url(url,sha256):
 def get_file_text(hash):
     # Parm hash: value of hash to open the file
     path = basePath +hash+'.html'
-    if os.path.isfile(path):
-        file = open(path,encoding="cp1252")
-        text=file.read()
-    else:
-        flash('HTML not found, due to some internal problem. Hash:' + hash)
-        logging.error('HTML file not found '+path+'Hash:'+hash)
-        return ''
-
+    try:
+        if os.path.isfile(path):
+            file = open(path,encoding="utf-8")
+            text=file.read()
+        else:
+            flash('HTML not found, due to some internal problem. Hash:' + hash)
+            logging.error('HTML file not found '+path+'Hash:'+hash)
+            return ''
+    except:
+        if os.path.isfile(path):
+            file = open(path,encoding="cp1252")
+            text=file.read()
+        else:
+            flash('HTML not found, due to some internal problem. Hash:' + hash)
+            logging.error('HTML file not found '+path+'Hash:'+hash)
+            return ''
     return text
 def writePostsData(posts):
     container={}
     child=[]
-
     for post in posts:
         item_dict={}
         item_dict['id'] = str(post.id)
         item_dict['title'] = post.webTitl
-        item_dict['url'] = '/very/'+str(post.id)
+        item_dict['url'] = '/comp/'+str(post.id)
         item_dict['class'] = 'event-success'
         dt = post.timestamp
         sec_since_epoch = mktime(dt.timetuple()) + dt.microsecond/1000000.0
@@ -106,19 +113,16 @@ def writePostsData(posts):
             os.remove(basePath + 'events.json.php')
             with open(basePath + 'events.json.php', 'w') as outfile:
                 json.dump(container, outfile,sort_keys=True, indent=4, separators=(',', ': '))
-
         except:
             flash(u'Internal System Error. Could not delete timeline file.','error')
-            current_app.logger.error('Internal System Error. Could not delete timeline file..' )
+            current_app.logger.error('Internal System Error. Could not delete timeline file.' )
     else:
         try:
             with open(basePath + 'events.json.php', 'w') as outfile:
                 json.dump(container, outfile,sort_keys=True, indent=4, separators=(',', ': '))
         except:
             flash(u'Internal System Error. Could not write events to calendar.','error')
-            current_app.logger.error('Internal System Error. Could not write events to calendar.' )
-
-
+            current_app.logger.error('Internal System Error. Could not write events to calendar.')
 
 def calculate_hash_for_html_doc(html_doc):
     """Calculate hash for given html document.
@@ -172,20 +176,16 @@ def submit_add_to_db(url, sha256, title):
     current_app.logger.info(originStampResult.text)
     current_app.logger.info('Origin Stamp Response:' +originStampResult.text)
     if originStampResult.status_code >= 300 :
-        flash(u'300 Internal System Error. not submit hash to originstamp.','error')
-        current_app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+        flash(u'An Error occur while submitting hash to originstamp. Hash: '+sha256,'error')
+        current_app.logger.error('An Error occur while submitting hash to originstamp. Hash:' + sha256)
         return originStampResult
         #raise OriginstampError('Could not submit hash to Originstamp', r)
     elif "errors" in originStampResult.json():
-        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
-        current_app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+        flash(u'An Error occur while submitting hash to originstamp. Hash:'+sha256,'error')
+        current_app.logger.error('An Error occur while submitting hash to originstamp. Hash: '+sha256)
         return originStampResult
 
-    #date = parser.parse(r.json()['created_at'])
-    #query = 'INSERT INTO stampedSites (hash, datetime, url, title) VALUES (%s, %s, %s, %s);'
-    #db.execute_on_database(query, (sha256, date.strftime('%Y-%m-%d %H:%M:%S'), url, title))
     return originStampResult
-
 
 def submitHash(hash):
     originStampResult = submit(hash, "")
@@ -252,8 +252,8 @@ def get_url_history(url):
         #originStampResult = save_render_zip_submit(doc, sha256, url, soup.title.string)
 
     except:
-        flash(u'300 Internal System Error. A problem occur in verification:'+url,'error')
-        current_app.logger.error('300 Internal System Error. A problem occur in verification' )
+        flash(u'A problem occured while creating html for the URL :'+url,'error')
+        current_app.logger.error('A problem occured while creating html for the URL:' + url)
         if html_text is not None:
             return ReturnResults(html_text, sha256, doc.title())
         else:
@@ -303,7 +303,6 @@ def json_error(code, title, detail):
                        'errors': {'code': code,
                                   'title': title,
                                   'detail': detail}})
-
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj

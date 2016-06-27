@@ -7,6 +7,11 @@
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));</script>
 
+
+<script type="text/javascript">
+  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
@@ -59,7 +64,7 @@
                                     {% if search %}
                                     <td>{{clever_function(very.webTitl,domain)}}</td>
                                     {% else %}
-                                    <td>{{very.webTitl | safe}}</td>
+                                    <td> <p align="left" class="glyphicon glyphicon-file"></p>{{very.webTitl | safe}}</td>
                                     {% endif %}
                                     <td>{{very.hashVal}}<br/>
                                         {% if very.fileName %}
@@ -103,27 +108,44 @@
 
 <script type="text/javascript">
     function myFunction(x) {
-            var firstPost = "";
-            BootstrapDialog.show({
-                title: 'Compare',
-                message: 'Would you like to compare the selected post to the current web-content?',
-                buttons: [{
-                    label: 'Yes',
-                    action: function(dialog) {
-                        url = "/verifyID/"+x.toString();
-                        window.open(url,'_blank');
-                        dialog.close();
-                    }
-                }, {
-                    label: 'No',
-                    action: function(dialog) {
-                        firstPost=x.toString();
-                        url = "/compare_options/"+firstPost+":"+'{{domain}}';
-                        window.open(url,'_blank');
-                        dialog.close();
-                    }
-                }]
-            });
+        $.getJSON($SCRIPT_ROOT + '/check_selected', {
+        post: x
+        }, function(data) {
+            var response = data.result;
+            console.log(response);
+            if(response.indexOf(":") > -1){
+                url = "/verify_two/"+response.toString();
+                window.open(url,'_blank');
+                selected="";
+            }
+            else{
+                var selected = x.toString();
+                var div = document.getElementById(selected);
+                div.style.backgroundColor = '#f0f0f0';
+                var txt;
+                BootstrapDialog.show({
+                    title: 'Compare',
+                    message: 'Would you like to compare the selected post to the current web-content?',
+                    buttons: [{
+                        label: 'Yes',
+                        action: function(dialog) {
+                            url = "/verifyID/"+x.toString();
+                            window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }, {
+                        label: 'No',
+                        action: function(dialog) {
+                            BootstrapDialog.alert('Please select another post!');
+                            firstPost=x.toString();
+                            url = "/compare_options/"+firstPost+":"+'{{domain}}';
+                            window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }]
+                });
+            }
+        });
 
     }
 </script>

@@ -1,7 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
 {% block title %}WEB Stamps{% endblock %}
-
 {% block head %}
 {{ super() }}
 <!--<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">  -->
@@ -12,7 +11,6 @@
 
 
 {% endblock %}
-
 {% block navbar %}
 <div class="navbar navbar-inverse" role="navigation">
     <div class="container">
@@ -27,10 +25,19 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('main.index') }}">Submit URL</a></li>
+                <li class="{{ home_page}}"><a id="main.index" href="{{ url_for('main.index') }}">Submit URL</a></li>
                 {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('main.compare') }}">Compare</a></li>
-                <li><a href="{{ url_for('main.regular') }}">Regular</a></li>
+                <li class="{{ comp_page}}"><a id="main.compare" href="{{ url_for('main.compare') }}">Compare</a></li>
+                <li class="dropdown {{ regular }}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Schedule <b class="caret"></b>
+                        </a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ reg_page }}"><a href="{{ url_for('main.regular') }}" >Schedule recurring URL timestamps</a></li>
+                        <li class="{{ reg_sch }}"><a href="{{ url_for('main.compare_country') }}" >Schedule recurring URL timestamps from different locations</a></li>
+                    </ul>
+                <li class="{{ block_page }}"><a href="{{ url_for('main.block') }}">Block Articles</a></li>
+                <li class="{{ stat_page }}"><a href="{{ url_for('main.statistics') }}">Statistics</a></li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -73,3 +80,5 @@
 {{ super() }}
 {{ moment.include_moment() }}
 {% endblock %}
+
+
