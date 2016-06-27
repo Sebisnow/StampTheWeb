@@ -18,6 +18,10 @@ class Config:
     FLASKY_CHINA_PROXY = "http://60.216.40.135:9999"
     FLASKY_USA_PROXY = "http://199.115.117.212:80"
     FLASKY_UK_PROXY = "http://90.216.222.23:8080"
+	CHINA_PROXY = "60.216.40.135"
+    USA_PROXY = "199.115.117.212"
+    UK_PROXY = "90.216.222.23"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
     def init_app(app):
