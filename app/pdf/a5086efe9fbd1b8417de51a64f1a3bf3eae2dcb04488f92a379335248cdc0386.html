@@ -1,0 +1,27 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>git - Multiple heroku accounts - Stack Overflow</h1><html><body><div><div class="post-text" itemprop="text">&#13;
+<p>You need to ensure that you are using the correct ssh key.</p>
+
+<p>The way to do this (and the way the heroku accounts plugin prompts you) is to add a section to your ssh config file in ~/.ssh/config. For instance, for my work heroku account I have this in my ssh config:</p>
+
+<pre><code>Host heroku.work
+  HostName heroku.com
+  IdentityFile ~/.ssh/id_heroku_work_rsa
+  IdentitiesOnly yes
+</code></pre>
+
+<p>Now, and this is crucial, you need to make sure that your git remote is set up to use <strong>that same named host</strong>.  In this case it is <strong>heroku.work</strong>.  Normally it would be heroku.com if you were using heroku with only a single account.</p>
+
+<p>So you'll need to edit the git remote (you can do this in the <code>.git/config</code> file of your repo on your machine).  Change the file to look like:</p>
+
+<pre><code> [remote "heroku"]
+   url = git@heroku.work:&lt;appname&gt;.git
+</code></pre>
+
+<p>Note the heroku.<strong>work</strong>, not heroku.<strong>com</strong>, and replace &lt;appname&gt; with the name of your app (aka your repo name) on heroku.</p>
+    </div>&#13;
+    </div></body></html></body>

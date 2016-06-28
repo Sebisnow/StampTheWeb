@@ -40,7 +40,7 @@
                                 </tr>
 
                                 <tr>
-                                    <td>{{post.postID.webTitl | safe}}</td>
+                                    <td><p align="left" class="glyphicon glyphicon-file"></p>{{post.postID.webTitl | safe}}</td>
                                     <td><br/>
                                         {% if post.postID.fileName %}
                                         <a class="label label-primary" href=/pdf/{{  post.postID.fileName }} target="_blank"  style="margin-right: 5px;">Download File </a>
@@ -61,7 +61,7 @@
                                     <td>-</td>
                                     {% endif %}
                                     <td><br/>
-                                    <a class="label label-primary" href="{{post.postID.urlSite}}" target="_blank"  style="margin-right: 5px;">URL </a></td>
+                                    <a class="label label-primary" href="{{post.postID.urlSite}}" target="_blank"  style="margin-right: 5px;">Open </a></td>
                                     <td><p>{{post.frequency}} </p></td>
                                 </tr>
 
