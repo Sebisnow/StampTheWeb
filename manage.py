@@ -9,7 +9,7 @@ import schedule
 import time
 import datetime
 import send_mail
-#from threading import Thread
+from threading import Thread
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -83,14 +83,14 @@ def deploy():
     from app.models import Role, User
 
     # migrate database to latest revision
-    upgrade()
+    #upgrade()
 	
 
 if __name__ == '__main__':
 
-    #schedule.every(86400).seconds.do(run_every_day)
-    #t = Thread(target=run_schedule)
-    #t.start()
+    schedule.every(86400).seconds.do(run_every_day)
+    t = Thread(target=run_schedule)
+    t.start()
     #print ("Start time: " + str(start_time))
     #app.run()
     manager.run()

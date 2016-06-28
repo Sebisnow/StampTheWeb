@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>Convert html to pdf using Python/Flask - Stack Overflow</h1><html><body><div><div class="post-text" itemprop="text">&#13;
+&#13;
+<p>I want to generate pdf file from html using Python + Flask. To do this, I use xhtml2pdf. Here is my code:</p>
+
+<pre><code>def main():
+    pdf = StringIO()
+    pdf = create_pdf(render_template('cvTemplate.html', user=user))
+    pdf_out = pdf.getvalue()
+    response = make_response(pdf_out)
+    return response
+
+def create_pdf(pdf_data):
+    pdf = StringIO()
+    pisa.CreatePDF(StringIO(pdf_data.encode('utf-8')), pdf)
+    return pdf
+</code></pre>
+
+<p>In this code file is generating on the fly. BUT! xhtml2pdf doesn't support many styles in CSS, because of this big problem to mark page correctly. I found another instrument(wkhtmltopdf). But when I wrote something like:</p>
+
+<pre><code>pdf = StringIO()
+data = render_template('cvTemplate1.html', user=user)
+WKhtmlToPdf(data.encode('utf-8'), pdf)
+return pdf
+</code></pre>
+
+<p>Was raised error:</p>
+
+<pre><code>AttributeError: 'cStringIO.StringO' object has no attribute 'rfind'
+</code></pre>
+
+<p>And my question is how to convert html to pdf using wkhtmltopdf (with generating file on the fly) in Flask?</p>
+
+<p>Thanks in advance for your answers.</p>
+    </div>&#13;
+    </div></body></html></body>
