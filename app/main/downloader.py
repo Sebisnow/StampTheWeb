@@ -176,6 +176,8 @@ def create_html_from_url(doc,hash,url):
         app.logger.error('Could not create HTML from the: '+url)
     if os.path.isfile(path):
         return
+
+
 def create_pdf_from_url(url,sha256):
     #:param url: url to retrieve
     #method to write pdf file
@@ -189,14 +191,11 @@ def create_pdf_from_url(url,sha256):
 
         app.logger.error('Could not create PDF from the URL: ' + url)
         app.logger.error(traceback.format_exc(), e)
-
+        if not app.config["TESTING"]:
+            flash(u'Could not create PDF from ' + url, 'error')
         if os.path.isfile(path):
             app.logger.error('But local PDF exists at: ' + path)
             return
-
-        if not app.config["TESTING"]:
-            flash(u'Could not create PDF from ' + url, 'error')
-
     return
 
 def calculate_hash_for_html_doc(doc):
