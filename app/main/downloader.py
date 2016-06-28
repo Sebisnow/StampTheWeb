@@ -157,8 +157,8 @@ def create_png_from_html(url, sha256):
     try:
         call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
     except:
-        app.logger.error('Could not create PNG from the: ' + url)
-        #flash("Could not create PNG for this URL: " + url)
+        app.logger.error('Could not create PNG from url: ' + url)
+        flash("Could not create PNG from url: " + url)
     if os.path.isfile(path):
         return
     app.logger.error('Could not create PNG from the: '+url)
@@ -186,8 +186,8 @@ def create_pdf_from_url(url,sha256):
         # is needed on on windows, where os.rename can't override existing files.
         if os.path.isfile(path):
             return
-        #flash(u'Could not create PDF from '+ url, 'error')
-        app.logger.error('Could not create PDF from the: '+url)
+        flash(u'Could not create PDF from url:'+ url, 'error')
+        app.logger.error('Could not create PDF from url: '+url)
         app.logger.error(traceback.format_exc(), e)
     return
 
