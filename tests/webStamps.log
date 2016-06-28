@@ -15,3 +15,5 @@ Internal System Error: ('characters_written',)
 Internal System Error: ('characters_written',)
 Internal System Error: ('characters_written',)
 Internal System Error: ('characters_written',)
+Could not create PDF from the URL: http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480
+But local PDF exists at: /home/sebastian/testing-stw/036a93c212bf075df78bb2468917773890802ce9eb596fad7c504d64a7c0d2f5.pdf

@@ -204,6 +204,7 @@ def create_pdf_from_url(url,sha256):
     path = basePath + sha256 + '.pdf'
     app.logger.info('PDF Path:'+path)
     try:
+        # TODO throws error
         pdfkit.from_url(url, path)
 
     except IOError as e:
