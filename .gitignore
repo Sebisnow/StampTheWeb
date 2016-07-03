@@ -1,2 +1,5 @@
 venv
 *.pyc
+*.idea
+*.env
+data-dev.sqlite

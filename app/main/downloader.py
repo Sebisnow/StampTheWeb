@@ -7,13 +7,15 @@ import uuid
 import shutil
 import zipfile
 import traceback
-import ipfsApi as ipfs
 from readability.readability import Document
 from subprocess import call, DEVNULL
 from app import db
 import pdfkit
 from . import main
 from flask import flash
+import queue
+import threading
+import csv
 import logging
 #from manage import app
 from flask import current_app as app
@@ -25,7 +27,6 @@ urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 #nullDevice = open(os.devnull, 'w')
 basePath = 'app/pdf/'
 errorCaught = ""
-ipfs_Client = ipfs.Client('127.0.0.1', 5001)
 
 apiPostUrl = 'http://www.originstamp.org/api/stamps'
 # other apiKey:
@@ -37,37 +38,32 @@ options = {'quiet': ''}
 
 
 class ReturnResults(object):
-    def __init__(self, originStampResult, hashValue, webTitle, errors=None):
-        self.originStampResult = originStampResult
-        self.hashValue = hashValue
-        self.webTitle = webTitle
-        self.errors = errors
+  def __init__(self, originStampResult, hashValue, webTitle):
+     self.originStampResult = originStampResult
+     self.hashValue = hashValue
+     self.webTitle = webTitle
 
-
-def get_all_domain_names(post):
+def get_all_domain_names(Post):
     domain_list = []
     domain_name = []
     # Getting Domains visited by all the users
-    for domains in post.query.filter(post.urlSite is not None):
+    for domains in Post.query.filter(Post.urlSite != None):
         if domains.urlSite is not None:
             url_parse = urlparse(domains.urlSite)
             if url_parse.netloc and url_parse.scheme:
                 domain_list.append(domains.urlSite)
-                if url_parse.netloc.startswith('www.'):
+                if (url_parse.netloc.startswith('www.')):
                     domain_name.append(url_parse.netloc[4:])
                 else:
                     domain_name.append(url_parse.netloc)
     return domain_name
 
-
 class DownloadError(Exception):
     """
     Error-Class for problems happening during running wkhtmltopdf/image.
     """
-
     def __init__(self, message):
         super(DownloadError, self).__init__(message)
-
 
 class RequestError(Exception):
     """
@@ -78,9 +74,10 @@ class RequestError(Exception):
         super(RequestError, self).__init__(message)
         request = req
 
-
 def remove_unwanted_data_regular():
-    basePath = 'app/pdf/world-population.geo.json'
+
+
+    basePath = 'app/pdf/temp-world.geo.json'
     with open(basePath) as data_file:
         data = json.load(data_file)
     a = 0
@@ -95,13 +92,12 @@ def remove_unwanted_data_regular():
         del data["features"][a]["properties"]["AREA"]
         del data["features"][a]["properties"]["Percentage"]
         del data["features"][a]["properties"]["URLS"]
-        a += 1
+        a+=1
 
     return data
 
-
 def remove_unwanted_data():
-    basePath = 'app/pdf/world-population.geo.json'
+    basePath = 'app/pdf/temp-world.geo.json'
     with open(basePath) as data_file:
         data = json.load(data_file)
     a = 0
@@ -112,112 +108,133 @@ def remove_unwanted_data():
         del data["features"][a]["properties"]["GMI_CNTRY"]
         del data["features"][a]["properties"]["NAME_12"]
         del data["features"][a]["properties"]["AREA"]
-        a += 1
+        a+=1
 
     return data
 
+def remove_unwanted_data_block_country():
+    basePath = 'app/pdf/temp-world.geo.json'
+    with open(basePath) as data_file:
+        data = json.load(data_file)
+    a = 0
+    while a < 211:
+        data["features"][a]["properties"]["Block"] = 0
+        data["features"][a]["properties"]["Block_Status"] = ""
+        del data["features"][a]["properties"]["ISO_3_CODE"]
+        del data["features"][a]["properties"]["NAME_1"]
+        del data["features"][a]["properties"]["GMI_CNTRY"]
+        del data["features"][a]["properties"]["NAME_12"]
+        del data["features"][a]["properties"]["AREA"]
+        del data["features"][a]["properties"]["Percentage"]
+        del data["features"][a]["properties"]["URLS"]
+        a+=1
+
+    return data
 
 def get_text_from_other_country(china, usa, uk, url):
     if china is True:
-        proxy = app.config['FLASKY_CHINA_PROXY']
-        hash, text = update_and_send(proxy, url)
+        proxy = app.config['CHINA_PROXY_PORT']
+        hash,text= update_and_send(proxy,url)
         return hash,text
 
     if usa is True:
-        proxy = app.config['FLASKY_USA_PROXY']
-        hash, text = update_and_send(proxy,url)
-        return hash, text
+        proxy = app.config['USA_PROXY_PORT']
+        hash,text= update_and_send(proxy,url)
+        return hash,text
     if uk:
-        proxy = app.config['FLASKY_UK_PROXY']
-        hash, text = update_and_send(proxy, url)
-        return hash, text
+        proxy = app.config['UK_PROXY_PORT']
+        hash,text= update_and_send(proxy,url)
+        return hash,text
 
+def update_and_send(proxy,url):
 
-def update_and_send(proxy, url):
     try:
-        r = requests.get(url, proxies={"http": proxy})
+        r = requests.get(url, proxies={"http":proxy})
     except:
-        return None, None
+        return None,None
 
     if r:
         return calculate_hash_for_html_doc(Document(r.text))
 
+def search_for_url(url):
+    index = 0
+    proxy_list = {}
+    with open(basePath+"proxy_list.tsv", "rt", encoding="utf8") as tsv:
+        for line in csv.reader(tsv, delimiter="\t" ):
+            proxy_list[index] = [line[0], line[1], None]
+            index += 1
 
-class OriginstampError(Exception):
+    q = queue.Queue()
+    for k in proxy_list:
+        p = proxy_list[k][1]
+        t = threading.Thread(target=get_url, args = (q, p, url))
+        t.daemon = True
+        t.start()
+
+    for k in proxy_list:
+        proxy_list[k][2] = q.get()
+        #print(proxy_list[k][2], proxy_list[k][0])  #for Debugging open this
+
+    return proxy_list
+
+def get_url(q, p, url):
+    r=None
+    try:
+        r = requests.get(url, proxies={"http":p})
+    except:
+        q.put(r)
+
+    if r is not None:
+        q.put(r.status_code)
+    else:
+        q.put(None)
+
+def create_png_from_html(url, sha256):
     """
-    Error-Class for problems happening during requesting URL.
-    """
-
-    def __init__(self, message, req):
-        super(OriginstampError, self).__init__(message)
-        request = req
-
-
-def create_png_from_url(url, sha256):
-    """
-    Create png from URL. Returns path to file.
+    Create png from a given URL.
     :param url: url to retrieve
     :param sha256: name of the downloaded png
     :returns: path to the created png """
-    app.logger.info('Creating PNG from URL:'+url)
+    #app.logger.info('Creating PNG from URL:'+url)
     path = basePath + sha256 + '.png'
-    app.logger.info('PNG Path:'+path)
-    # call(['wkhtmltoimage', url, path, '--quality 20'], stderr=nullDevice)
-    call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
-    # call(["webkit2png", "-o", path, "-g", "1000", "1260", "-t", "30", url
-    # subprocess.Popen(['wget', '-O', path, 'http://images.websnapr.com/?url='+url+'&size=s&nocache=82']).wait()
+    #app.logger.info('PNG Path:'+path)
+    #call(['wkhtmltoimage', url, path, '--quality 20'], stderr=nullDevice)
+    try:
+        call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
+    except:
+        app.logger.error('Could not create PNG from url: ' + url)
+        flash("Could not create PNG from url: " + url)
     if os.path.isfile(path):
         return
-    if not app.config["TESTING"]:
-        flash(u'Could not create PNG from ' + url, 'error')
-    app.logger.error('Could not create PNG from the URL : '+url)
+    app.logger.error('Could not create PNG from the: '+url)
     return
 
-
-def create_html_from_url(doc, hash, url):
-
+def create_html_from_url(doc,hash,url):
     path = basePath + hash + '.html'
     try:
-        with open(path, 'w+') as file:
-            file.write(doc)
-        if os.path.isfile(path):
-            return
-    except FileNotFoundError as e:
-        if not app.config["TESTING"]:
-            flash(u'Could not create HTML from ' + url, 'error')
-        app.logger.error('Could not create HTML from the: ' + url + '\n' + e.characters_written)
+        f = codecs.open(path, 'w', encoding='utf8')
+        f.write(doc)
+    except:
+        flash(u'Could not create HTML from '+ url, 'error')
+        app.logger.error('Could not create HTML from the: '+url)
+    if os.path.isfile(path):
         return
-    except AttributeError as att:
-        if not app.config["TESTING"]:
-            flash(u'Due to attribute error I could not create HTML from ' + url, 'error')
-        app.logger.error('Due to attribute error I could not create HTML from the: ' + url + '\n' + att.args)
-        return
-
-
 def create_pdf_from_url(url,sha256):
-    """
-    :param url: url to retrieve
-    :param sha256: the hash of the url which is important for the filename
-    method to write pdf file
-    """
-    app.logger.info('Creating PDF from URL:' + url)
-    path = basePath + sha256 + '.pdf'
-    app.logger.info('PDF Path:'+path)
+    #:param url: url to retrieve
+    #method to write pdf file
+    #app.logger.info('Creating PDF from URL:'+url)
+    path = basePath +sha256+'.pdf'
+    #app.logger.info('PDF Path:'+path)
     try:
-        # TODO throws error
         pdfkit.from_url(url, path)
-
-    except IOError as e:
-
-        app.logger.error('Could not create PDF from the URL: ' + url)
-        app.logger.error(traceback.format_exc(), e)
+    except Exception as e:
+        # is needed on on windows, where os.rename can't override existing files.
         if os.path.isfile(path):
-            app.logger.error('But local PDF exists at: ' + path)
             return
-        if not app.config["TESTING"]:
-            flash(u'Could not create PDF from ' + url, 'error')
+        flash(u'Could not create PDF from url:'+ url, 'error')
+        app.logger.error('Could not create PDF from url: '+url)
+        app.logger.error(traceback.format_exc(), e)
     return
-
 
 def calculate_hash_for_html_doc(doc):
     """
@@ -226,12 +243,11 @@ def calculate_hash_for_html_doc(doc):
     :returns: calculated hash for given URL and the document used to create the hash
     """
     app.logger.info('Creating HTML and Hash')
-
     # Detect the encoding of the html for future reference
-    # encoding = chardet.detect(doc.summary().encode()).get('encoding')
+    #encoding = chardet.detect(doc.summary().encode()).get('encoding')
     encoding = 'utf-8'
     doc.encoding = encoding
-    # TODO all the Header information should be preserved not rewritten
+
     text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1' \
            '-transitional.dtd">\n' + '<head>\n' + \
            '<meta http-equiv="Content-Type" content="text/html; ' \
@@ -239,8 +255,6 @@ def calculate_hash_for_html_doc(doc):
            + '<h1>' + doc.title().split(sep='|')[0] + '</h1>'
 
     text += doc.summary() + '</body>'
-    # TODO IPFS implementation
-
     calc_hash = hashlib.sha256()
     calc_hash.update(doc.summary().encode(encoding))
     sha256 = calc_hash.hexdigest()
@@ -272,31 +286,16 @@ def submit_add_to_db(url, sha256, title):
     """
     originStampResult = submit(sha256, title)
     app.logger.info(originStampResult.text)
-    app.logger.info('Origin Stamp Response:' + originStampResult.text)
-    if originStampResult.status_code >= 400:
-        if not app.config["TESTING"]:
-            flash(u'Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
-                  '\n ErrorMessage: ' + originStampResult.text, 'error')
-        app.logger.error('Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
-                         '\n ErrorMessage: ' + originStampResult.text)
-        return originStampResult
-        # raise OriginstampError('Could not submit hash to Originstamp', r)
-    elif originStampResult.status_code >= 300:
-        if not app.config["TESTING"]:
-            flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
-                  '\n ErrorMessage: ' + originStampResult.text, 'error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
+    app.logger.info('Origin Stamp Response:' +originStampResult.text)
+    if originStampResult.status_code >= 300 :
+        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
         return originStampResult
     elif originStampResult.status_code == 200:
-        # if not app.config["TESTING"]: flash(u'URL already submitted to OriginStamp'+ url + ' Hash '+sha256)
-        # app.logger.error('URL already submitted to OriginStamp')
         return originStampResult
     elif "errors" in originStampResult.json():
-        if not app.config["TESTING"]:
-            flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
-                  '\n ErrorMessage: ' + originStampResult.text, 'error')
-        app.logger.error('An Error occurred. Error Code: ' + originStampResult.status_code +
-                         '\n ErrorMessage: ' + originStampResult.text)
+        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
         return originStampResult
 
     return originStampResult
@@ -356,72 +355,61 @@ def compress_files(files, js_files):
         # is needed on on windows, where os.rename can't override existing files.
         os.remove(sha256 + ".zip")
         os.rename(filename, sha256 + ".zip")
+        flash("Could not Compress file:"+filename,'error')
+        app.logger.error("Could not Compress file:"+filename)
     return sha256
 
-"""
+
 def check_database_for_hash(sha256):
     query = 'SELECT COUNT(*) AS c FROM posts WHERE posts.hashVal = '+sha256+';'
     from sqlalchemy import text
     sql = text(query)
     result = db.engine.execute(sql)
     return result
+
+
 def check_database_for_url(url):
     query = 'SELECT * FROM stampedSites WHERE stampedSites.url = %s ORDER BY datetime ASC;'
     return db.execute_on_database(query, url)
-"""
-
 
 def submitHash(hash):
     originStampResult = submit(hash, "")
     app.logger.info(originStampResult.text)
-    app.logger.info('Origin Stamp Response:' + originStampResult.text)
-    if originStampResult.status_code >= 300:
-        if not app.config["TESTING"]:
-            flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
+    app.logger.info('Origin Stamp Response:' +originStampResult.text)
+    if originStampResult.status_code >= 300 :
+        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
         return ReturnResults(None, hash, "None")
     elif originStampResult.status_code == 200:
-        if not app.config["TESTING"]:
-            flash(u'Hash already submitted to OriginStamp' + ' Hash '+hash)
-        app.logger.error('Hash already submitted to OriginStamp')
+        flash(u'Hash already submitted to OriginStamp' + ' Hash '+hash)
+        app.logger.error('Hash already submitted to OriginStamp' )
         return ReturnResults(originStampResult, hash, "")
-        # raise OriginstampError('Could not submit hash to Originstamp', r)
+        #raise OriginstampError('Could not submit hash to Originstamp', r)
     elif "errors" in originStampResult.json():
-        if not app.config["TESTING"]:
-            flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
+        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
         return ReturnResults(None, hash, "None")
     else:
         return ReturnResults(originStampResult, hash, "")
 
-
 def getHashOfFile(fname):
-    res = ipfs_Client.add(fname)
-    """
     hash_sha265 = hashlib.sha256()
     with open(fname, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_sha265.update(chunk)
     return hash_sha265.hexdigest()
-    """
-    return res['Hash']
-
 
 def get_text_timestamp(text):
-    ipfs_hash = ipfs_Client.add_str(text)
-    # hash_object = hashlib.sha256(text)
-    # hex_dig = hash_object.hexdigest()
-    results = submitHash(ipfs_hash)
+    hash_object = hashlib.sha256(text)
+    hex_dig = hash_object.hexdigest()
+    results = submitHash(hex_dig)
     return results
-
-
 def get_hash_history(hash):
     """
     :parm hash: the hash which needs to verify from OriginStamps
     """
     results = submitHash(hash)
     return results
-
 
 def get_url_history(url):
     """
@@ -430,41 +418,37 @@ def get_url_history(url):
     :return: history of the URL in the system
     """
     # validate URL
-    sha256 = None
+    OriginstampError = None
+    sha256=None
     if not re.match(urlPattern, url):
-        if not app.config["TESTING"]:
-            flash('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url, 'error')
-        app.logger.error('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url)
-        return ReturnResults(None, None, None)
+        flash('100'+'Bad URL'+'URL needs to be valid to create timestamp for it:'+url,'error')
+        app.logger.error('100'+'Bad URL'+'URL needs to be valid to create timestamp for it:' + url)
+        return ReturnResults(None,None,None)
 
     res = requests.get(url)
     if res.status_code >= 300:
-        if not app.config["TESTING"]:
-            flash('100 Bad URL Could not retrieve URL to create timestamp for it.' + url, 'error')
+        flash('100 Bad URL Could not retrieve URL to create timestamp for it.'+url,'error')
         app.logger.error('100 Bad URL Could not retrieve URL to create timestamp for it:' + url)
-        return ReturnResults(None, None, None)
-    # soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
+        return ReturnResults(None,None,None)
+    #soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
     doc = Document(res.text)
-    # encoding = chardet.detect(res.text.encode()).get('encoding')
+    #encoding = chardet.detect(res.text.encode()).get('encoding')
     try:
         sha256, html_text = calculate_hash_for_html_doc(doc)
-        # if check_database_for_hash(sha256) < 1:
+        #if check_database_for_hash(sha256) < 1:
         originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
+    except:
 
-    except Exception as e:
+        flash(u'300 Internal System Error. Could not submit hash to originstamp:'+url,'error')
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+        if OriginstampError is not None:
+            return ReturnResults(originStampResult, sha256, doc.title())
+        else:
+            return ReturnResults(None, sha256, doc.title())
 
-        # should only occur if data was submitted successfully but png or pdf creation failed
-        if not app.config["TESTING"]:
-            flash(u'Internal System Error: ' + str(e.args), 'error')
-        app.logger.error('Internal System Error: ' + str(e.args))
-        traceback.print_exc()
-        return ReturnResults(None, sha256, doc.title())
-
-    # return json.dumps(check_database_for_url(url), default=date_handler)
+    #return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originStampResult, sha256, doc.title())
 
-'''
-# Deprecated Method of old STW
 def load_zip_submit(url, soup, enc):
     old_path = os.getcwd()
     tmp_dir = basePath + str(uuid.uuid4())
@@ -481,52 +465,20 @@ def load_zip_submit(url, soup, enc):
         os.rename(sha256 + '.zip', '../' + sha256 + '.zip')
     os.chdir(old_path)
     shutil.rmtree(tmp_dir)
-'''
 
 
 def save_render_zip_submit(doc, sha256, url, title):
 
-    try:
-        create_html_from_url(doc, sha256, url)
-    except FileNotFoundError as fileError:
-            # can only occur if data was submitted successfully but png or pdf creation failed
-            if not app.config["TESTING"]:
-                flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
-            app.logger.error('Internal System Error while creating HTML,: ' +
-                             fileError.strerror + "\n Maybe chack the path, current base path: " + basePath)
+    create_png_from_html(url, sha256)
+    create_pdf_from_url(url,sha256)
+    create_html_from_url(doc,sha256,url)
     #archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
     #archive.write(basePath + sha256 + '.html')
     #os.remove(basePath + sha256 + '.html')
     #archive.write(basePath + sha256 + '.png')
     #os.remove(basePath + sha256 + '.png')
     originStampResult = submit_add_to_db(url, sha256, title)
-
-    # moved image creation behind Timestamping so images are only created for new Stamps if no eror occurred
-    if originStampResult.status_code == 200:
-        try:
-            create_png_from_url(url, sha256)
-            # TODO  pdf creation throws error on server - check
-            create_pdf_from_url(url, sha256)
-        except FileNotFoundError as fileError:
-            # can only occur if data was submitted successfully but png or pdf creation failed
-            if not app.config["TESTING"]:
-                flash(u'FileNotFoundError while creating image and pdf: ' + fileError.strerror +
-                      '\n Originstamp Result was: ' + str(originStampResult.status_code), 'error')
-            app.logger.error('FileNotFoundError while creating image and pdf: ' +
-                             fileError.strerror + '\n Originstamp Result was: ' + str(originStampResult.status_code))
-            originStampResult.error = fileError
-            return originStampResult
-        except Exception as e:
-            # can only occur if data was submitted successfully but png or pdf creation failed
-            if not app.config["TESTING"]:
-                flash(u'Internal System Error while creating image and pdf: ' + e.args +
-                      '\n Originstamp Result was: ' + str(originStampResult.status_code), 'error')
-            app.logger.error('Internal System Error while creating image and pdf: ' +
-                             e.args + '\n Originstamp Result was: ' + str(originStampResult.status_code))
-            originStampResult.error = e
-            return originStampResult
     return originStampResult
-
 
 def main():
     # url = 'http://www.theverge.com/2015/12/11/9891068/oneplus-x-review-android'
@@ -556,7 +508,6 @@ def json_error(code, title, detail):
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
-
 def execute_on_database(query, args):
     connection = db.session.connection()
     try:
@@ -569,7 +520,6 @@ def execute_on_database(query, args):
     finally:
         connection.close()
     return result
-
 
 if __name__ == '__main__':
     main()

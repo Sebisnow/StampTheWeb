@@ -3,7 +3,7 @@ from flask import render_template, redirect, url_for, abort, flash, request,\
 from flask_login import login_required, current_user
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, PostVerify, PostFreq, \
-    SearchPost,SearchOptions,PostBlock, PostCountry
+    SearchPost,SearchOptions,PostBlock, PostCountry, URL_Status
 from .. import db
 from ..models import Permission, Role, User, Post, Regular, Location, Block
 from ..decorators import admin_required
@@ -22,6 +22,7 @@ import json
 
 global selected
 
+@login_required
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
@@ -42,9 +43,9 @@ def index():
             origStampTime=datetime.utcnow()
 
         already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
-                                               Post.hashVal.like(sha256))).first()
+                                            Post.hashVal.like(sha256))).first()
         if already_exist is not None:
-            flash('The URL was already submitted and the content of the website ahs not changed since!')
+            flash('The URL Already Submitted')
             post_old = Post.query.get_or_404(already_exist.id)
             return render_template('post.html', posts=[post_old],single=True)
         else:
@@ -88,7 +89,7 @@ def index():
         db.session.commit()
         page = request.args.get('page', 1, type=int)
         pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            page, per_page=current_app.config['POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('regular.html', form=form_freq, posts=posts,
@@ -105,7 +106,7 @@ def index():
 
         page = request.args.get('page', 1, type=int)
         pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            page, per_page=current_app.config['POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('index.html', form=form, posts=posts,
@@ -125,7 +126,7 @@ def compare():
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                page, per_page=current_app.config['POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
@@ -135,7 +136,7 @@ def compare():
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                page, per_page=current_app.config['POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
@@ -152,7 +153,7 @@ def compare():
                 doman_name_unique.add(name+ ';'+str(count))
     page = request.args.get('page', 1, type=int)
     pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['POSTS_PER_PAGE'],
         error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
@@ -178,7 +179,7 @@ def compare_options(ids):
 
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                page, per_page=current_app.config['POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_options.html', verify=posts, form=form, form_choice=form_choice,
@@ -190,7 +191,7 @@ def compare_options(ids):
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                page, per_page=current_app.config['POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_options.html', verify=posts,
@@ -233,7 +234,7 @@ def compare_options(ids):
 
         page = request.args.get('page', 1, type=int)
         pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            page, per_page=current_app.config['POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('search_options.html', verify=posts, form=form, form_choice=form_choice,
@@ -245,7 +246,7 @@ def compare_options(ids):
         verification.writePostsData(posts)
         page = request.args.get('page', 1, type=int)
         pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            page, per_page=current_app.config['POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('search_options.html', verify=posts,
@@ -299,11 +300,11 @@ def block():
             return redirect(url_for('.block'))
     page = request.args.get('page', 1, type=int)
     pagination = Block.query.order_by(Block.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('block.html', form=form, posts=posts,
-                           pagination=pagination, block_page="active")
+                           pagination=pagination, block_block="active", block_page="active")
 
 @main.route('/statistics')
 def statistics():
@@ -325,7 +326,7 @@ def statistics():
             try:
                 response = requests.get(url)
             except:
-                flash("An Error occure while finding the location of a URL")
+                flash("An Error occur while finding the location of a URL")
             js = response.json()
             percentage = domain_name.count(domain)/len(domain_name) * 100
             if js['country_code'] in countr_stat.keys():
@@ -346,9 +347,22 @@ def statistics():
                 data["features"][a]["properties"]["URLS"] = countr_stat[key][1]
                 data["features"][a]["properties"]["Percentage"] = countr_stat[key][2]
 
-    json.dump(data, open("app/pdf/world-population.geo1.json",'w'))
+    json.dump(data, open("app/pdf/stat-data.geo.json",'w'))
 
     return render_template('statistics.html', stat_page="active")
+
+@main.route('/block_country', methods=['GET', 'POST'])
+def block_country():
+    form = URL_Status()
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        block_list = downloader.search_for_url(form.urlSite.data)
+        data = downloader.remove_unwanted_data_block_country()
+        json.dump(data, open("app/pdf/block-data-country.geo.json",'w'))
+        return render_template('block_country.html', block_country="active", block_page="active",
+                           form=form, file='block-data-country.geo.json')
+
+    return render_template('block_country.html', block_country="active", block_page="active",
+                           form=form, file='temp-world.geo.json')
 
 @main.route('/compare_country', methods=['GET', 'POST'])
 def compare_country():
@@ -389,7 +403,7 @@ def compare_country():
         return redirect(url_for('.compare_country'))
     page = request.args.get('page', 1, type=int)
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
 
@@ -437,7 +451,7 @@ def compare_country():
                 break
 
 
-    json.dump(data, open("app/pdf/world-population.geo2.json",'w'))
+    json.dump(data, open("app/pdf/country-map.geo.json",'w'))
 
     return render_template('compare_country.html', form=form, posts=posts,
                            pagination=pagination, reg_sch="active", regular="active")
@@ -477,7 +491,7 @@ def regular():
         return redirect(url_for('.regular'))
     page = request.args.get('page', 1, type=int)
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('regular.html', form=formFreq, posts=posts,
@@ -488,7 +502,7 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
     pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('user.html', user=user, posts=posts,
@@ -615,7 +629,7 @@ def verifyDomain(domain):
     verification.writePostsData(posts)
     page = request.args.get('page', 1, type=int)
     pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('search_domains.html', verify=posts,
