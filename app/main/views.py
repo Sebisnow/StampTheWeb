@@ -22,6 +22,7 @@ import json
 
 global selected
 
+
 @main.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
@@ -29,27 +30,27 @@ def index():
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
         sha256=None
-        dateTimeGMT=None
-        urlSite=form.urlSite.data
-        results = downloader.get_url_history(urlSite)
-        originStampResult = results.originStampResult
+        date_time_gmt=None
+        url_site = form.urlSite.data
+        results = downloader.get_url_history(url_site)
+        origin_stamp_result = results.originStampResult
         sha256 = results.hashValue
         title = results.webTitle
-        if originStampResult is not None:
-            dateTimeGMT=originStampResult.headers['Date']
-            origStampTime = datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z")
+        if origin_stamp_result is not None:
+            date_time_gmt = origin_stamp_result.headers['Date']
+            orig_stamp_time = datetime.strptime(date_time_gmt, "%a, %d %b %Y %H:%M:%S %Z")
         else:
-            origStampTime=datetime.utcnow()
+            orig_stamp_time = datetime.utcnow()
 
-        already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
+        already_exist = Post.query.filter(and_(Post.urlSite.like(url_site),
                                                Post.hashVal.like(sha256))).first()
         if already_exist is not None:
             flash('The URL was already submitted and the content of the website ahs not changed since!')
             post_old = Post.query.get_or_404(already_exist.id)
             return render_template('post.html', posts=[post_old],single=True)
         else:
-            post_new = Post(body=form.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title,
-                            origStampTime=origStampTime,
+            post_new = Post(body=form.body.data, urlSite=url_site, hashVal=sha256, webTitl=title,
+                            origStampTime=orig_stamp_time,
                             author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
@@ -57,32 +58,32 @@ def index():
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_freq.validate_on_submit() and form_freq.frequency.data > 0:
         sha256 = None
-        dateTimeGMT = None
-        urlSite = form_freq.urlSite.data
+        date_time_gmt = None
+        url_site = form_freq.urlSite.data
         freq = form_freq.frequency.data
         email = form_freq.email.data
-        results = downloader.get_url_history(urlSite)
-        originStampResult = results.originStampResult
+        results = downloader.get_url_history(url_site)
+        origin_stamp_result = results.originStampResult
         sha256 = results.hashValue
         title = results.webTitle
-        if originStampResult is not None:
-            dateTimeGMT=originStampResult.headers['Date']
-            origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z")
+        if origin_stamp_result is not None:
+            date_time_gmt = origin_stamp_result.headers['Date']
+            orig_stamp_time = datetime.strptime(date_time_gmt, "%a, %d %b %Y %H:%M:%S %Z")
         else:
-            origStampTime = datetime.now()
+            orig_stamp_time = datetime.now()
 
-        already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
-                                            Post.hashVal.like(sha256))).first()
+        already_exist = Post.query.filter(and_(Post.urlSite.like(url_site),
+                                               Post.hashVal.like(sha256))).first()
         if already_exist is not None:
             post_new = already_exist
         else:
-            post_new = Post(body=form_freq.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title,
-                            origStampTime=origStampTime,
+            post_new = Post(body=form_freq.body.data, urlSite=url_site, hashVal=sha256, webTitl=title,
+                            origStampTime=orig_stamp_time,
                             author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
-        #post_found = Post.query.filter(and_(Post.urlSite.like(urlSite),
-                                            #Post.hashVal.like(sha256))).first()
+        #  = Post.query.filter(and_(Post.url_site.like(url_site),
+        # Post.hashVal.like(sha256))).first()
         regular_new = Regular(frequency=freq, postID=post_new,email=email)
         db.session.add(regular_new)
         db.session.commit()
@@ -99,64 +100,67 @@ def index():
         domain_name_unique = set(domain_name)
         for name in domain_name_unique:
             if ';' not in name:
-                count=domain_name.count(name)
+                count = domain_name.count(name)
                 domain_name_unique.remove(name)
-                domain_name_unique.add(name+ ';'+str(count))
+                domain_name_unique.add(name + ';'+str(count))
 
         page = request.args.get('page', 1, type=int)
         pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
-        return render_template('index.html', form=form, posts=posts,
-                               pagination=pagination,doman_name=domain_name_unique,formFreq=form_freq, home_page="active")
+        return render_template('index.html', form=form, posts=posts, pagination=pagination,
+                               doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
+
+
 @main.route('/compare', methods=['GET', 'POST'])
 def compare():
     form = PostVerify()
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
-        searchkeyword = form.urlSite.data
-        if not validators.url(searchkeyword):
-            domain = searchkeyword
-            searchkeyword = '%'+searchkeyword+'%'
-            posts = Post.query.filter(or_(Post.urlSite.like(searchkeyword),
-                                            Post.webTitl.like(searchkeyword), Post.body.like(searchkeyword)))
+        search_keyword = form.urlSite.data
+        if not validators.url(search_keyword):
+            domain = search_keyword
+            search_keyword = '%'+search_keyword+'%'
+            posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
+                                          Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
 
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
                 page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
-                                   pagination=pagination,domain=domain, search = True)
-        elif validators.url(searchkeyword):
-            posts = Post.query.filter(Post.urlSite.contains(searchkeyword))
+                                   pagination=pagination, domain=domain, search=True)
+        elif validators.url(search_keyword):
+            posts = Post.query.filter(Post.urlSite.contains(search_keyword))
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
                 page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
-                                   pagination=pagination,search = True, domain=searchkeyword)
-    doman_name_unique=[]
-    #Getting Domains user visited
+                                   pagination=pagination, search=True, domain=search_keyword)
+    domain_name_unique = []
+    # Getting Domains user visited
     if not current_user.is_anonymous:
         domain_name = downloader.get_all_domain_names(Post)
-        doman_name_unique = set(domain_name)
-        for name in doman_name_unique:
+        domain_name_unique = set(domain_name)
+        for name in domain_name_unique:
             if ';' not in name:
-                count=domain_name.count(name)
-                doman_name_unique.remove(name)
-                doman_name_unique.add(name+ ';'+str(count))
+                count = domain_name.count(name)
+                domain_name_unique.remove(name)
+                domain_name_unique.add(name + ';'+str(count))
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+    pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
-                           pagination=pagination,doman_name=doman_name_unique, comp_page="active")
+                           pagination=pagination,doman_name=domain_name_unique, comp_page="active")
+
 
 @main.route('/compare_options/<ids>', methods=['GET', 'POST'])
 def compare_options(ids):
@@ -164,32 +168,30 @@ def compare_options(ids):
     form_choice = SearchOptions()
     a_split = ids.split(':')
     post_1 = Post.query.get_or_404(a_split[0])
-    searchkeyword = a_split[1]
+    search_keyword = a_split[1]
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
-        searchkeyword=form.urlSite.data
+        search_keyword = form.urlSite.data
 
-        if not validators.url(searchkeyword):
-            domain = searchkeyword
-            searchkeyword = '%'+searchkeyword+'%'
-            posts = Post.query.filter(or_(Post.urlSite.like(searchkeyword),
-                                            Post.webTitl.like(searchkeyword),Post.body.like(searchkeyword)))
-
+        if not validators.url(search_keyword):
+            domain = search_keyword
+            search_keyword = '%'+search_keyword+'%'
+            posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
+                                          Post.webTitl.like(search_keyword),Post.body.like(search_keyword)))
 
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
                 page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_options.html', verify=posts, form=form, form_choice=form_choice,
-                                   pagination=pagination,last_post = post_1, domain=domain,last=str(post_1.id))
+                                   pagination=pagination, last_post=post_1, domain=domain, last=str(post_1.id))
 
-
-        elif validators.url(searchkeyword):
-            posts = Post.query.filter(Post.urlSite.contains(searchkeyword))
+        elif validators.url(search_keyword):
+            posts = Post.query.filter(Post.urlSite.contains(search_keyword))
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
                 page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
@@ -224,11 +226,11 @@ def compare_options(ids):
             return render_template('very.html',double=True,left=Markup(text_left),dateLeft = post_1.timestamp,
                                    dateRight = datetime.utcnow(),search=False)
 
-    if not validators.url(searchkeyword):
-        domain = searchkeyword
-        searchkeyword = '%'+searchkeyword+'%'
-        posts = Post.query.filter(or_(Post.urlSite.like(searchkeyword),
-                                        Post.webTitl.like(searchkeyword), Post.body.like(searchkeyword)))
+    if not validators.url(search_keyword):
+        domain = search_keyword
+        search_keyword = '%'+search_keyword+'%'
+        posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
+                                        Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
 
 
         page = request.args.get('page', 1, type=int)
@@ -240,8 +242,8 @@ def compare_options(ids):
                                pagination=pagination,last_post = post_1, domain=domain,last=str(post_1.id))
 
 
-    elif validators.url(searchkeyword):
-        posts = Post.query.filter(Post.urlSite.contains(searchkeyword))
+    elif validators.url(search_keyword):
+        posts = Post.query.filter(Post.urlSite.contains(search_keyword))
         verification.writePostsData(posts)
         page = request.args.get('page', 1, type=int)
         pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
