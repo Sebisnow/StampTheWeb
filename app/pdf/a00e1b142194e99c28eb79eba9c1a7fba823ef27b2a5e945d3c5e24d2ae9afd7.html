@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<h1>BM Corser - The ipfs</h1><html><body><div><div class="document" id="the-ipfs">
+<h1 class="title">The <tt class="docutils literal">ipfs</tt></h1>
+<h2 class="subtitle" id="interplanetary-filesystem">InterPlanetary Filesystem</h2>
+<div class="section" id="preamble">
+<h1>Preamble</h1>
+<p>Last week, dreaming about being able to serve <a class="reference external" href="http://originalenclosure.net/pars">pars</a> images using something like
+the BitTorrent protocol from the browser. I asked Jeeves: “Can browsers
+communicate peer-to-peer?” Turns out they can through <a class="reference external" href="http://www.webrtc.org/">WebRTC</a>, released by
+Harald Alvestrand (“on behalf” of Google) in 2011. The WebRTC protocol is
+supported by some major browsers but, disappointingly, interoperability is
+only possible through a <a class="reference external" href="http://www.webrtc.org/interop">polyfill</a> and neither Safari or IE have native support
+in any form. It would be possible to implement something like a torrent client
+in JavaScript that would run in the browser. As the wise programmer once said,
+everything you can think of has already been implemented in JavaScript, and
+sure enough someone has already implemented an in-browser BitTorrent client,
+called <a class="reference external" href="https://github.com/feross/webtorrent">webtorrent</a>.</p>
+<p>So that could have gone somewhere, until I was on Dan O’Huiginn’s blog and read
+<a class="reference external" href="http://ohuiginn.net/wp/?p=2032">his overview</a> of the InterPlanetary Filesystem.</p>
+<p>It kind of sounded like something I wanted.</p>
+</div>
+<div class="section" id="introduction">
+<h1>Introduction</h1>
+<p>IPFS is being designed primarily by a Stanford CS dude (<a class="reference external" href="http://juan.benet.ai/">Juan Batiz-Benet</a>),
+who made a company which sold to Yahoo as an <a class="reference external" href="http://en.wikipedia.org/wiki/Acqui-hiring">“acqui-hire”</a> last year. The
+protocol does not appear groundbreaking in itself, on the face of it it’s a
+pretty simple idea. It describes something like a single, global Git repo that
+supports peer-to-peer protocols as well as SSH and HTTP. You can get the data
+you want by cloning the relevant part of the DAG through BitTorrent (like a
+shallow clone in Git). The parts of the repo you have locally would be seeded
+to others in the network who requested them, following similar choking rules to
+BitTorrent.</p>
+<p>It’s a great idea because it builds on things people are already familiar with
+that also have mature and and widely successful implementations as well as
+introducing some novel ideas (see <a class="reference internal" href="#mutable-namespaces">Mutable namespaces</a>) and wraps the whole
+lot into a pretty well cohesive whole. The clarity of vision is impressive and
+ambitious, yes sir.</p>
+<p>At least one unrelated thrust (<a class="reference external" href="https://code.google.com/p/gittorrent/">GTP</a>) has already been made in a similar
+direction, but the project is smaller in scope and seems to be unmaintained.</p>
+<p>IPFS also boasts WIP implementations in hipster languages like Golang and
+Node.js, someone is even working on a Haskell implementation. What’s not
+to like?</p>
+<p>However, it’s not going to happen tomorrow; IPFS is still just a cool idea.
+There are no clients, no developer toolchain and of course no native browser
+support. That said, let’s look at what IPFS is made of and imagine some
+applications of being able “mount the world at <tt class="docutils literal">/ipfs</tt>”.</p>
+</div>
+<div class="section" id="kademlia-dht">
+<h1>Kademlia DHT</h1>
+<div class="figure">
+<img alt="/assets/images/consistent_hashing.png" class="full" src="/assets/images/consistent_hashing.png"/>
+<p class="caption">Yes, it’s that exciting (<a class="reference external" href="http://offthelip.org/2009/07/19/distributed-hash-tables-part-1/">source</a>).</p>
+</div>
+<p>One routing mechanism IPFS proposes to use is the “distributed sloppy hash
+table” employed by BitTorrent. The spec also states that the routing layer
+should be “swappable”, meaning more traditional (or more exotic) routing could
+be used in place of a DHT. The DHT named in the spec is Kademlia, intended
+as a successor to CHORD. It has nice properties for high-churn
+applications; we’re all guilty of shutting down μTorrent as soon as that
+latest Linux distro has finished downloading. Kademlia’s design is, in part,
+informed by analysis of data collected from the Gnutella network. Remember
+LimeWire and BearShare? They ran on Gnutella.</p>
+</div>
+<div class="section" id="mutable-namespaces">
+<h1>Mutable namespaces</h1>
+<p>Aside from borrowing ideas from successful applications of DAGs and DHTs, the
+spec has a novel take on the URL. Novel, but apparently just an idea borrowed
+from <a class="reference external" href="http://en.wikipedia.org/wiki/Self-certifying_File_System">SFS</a>, designed for his doctoral thesis in 2000 by David Mazières.</p>
+<p>In IPFS, files are addressed by the cryptographic hash of their content and
+meta data, like objects in Git, rather than a file path or web address
+decided by a human, the content-hash becomes a file’s “name”. This is
+convenient for programmatically addressing files, but supremely
+un-human-readable.</p>
+<p>On the internet, we rely heavily on the same address refering to different
+things at different times. For example, consider the domain <tt class="docutils literal">news.com</tt>.  When
+we request that content at that address, we would probably expect to find the
+lastest news. This would not be possible if we were using a content-addressed
+system because the <em>content</em> of <tt class="docutils literal">news.com</tt> (and therefore its address) would
+change every time an event was reported.</p>
+<p>The IPFS would interface with DNS to offer domain names and web addresses, or
+in the context of a content-addressed system; <em>mutable namespaces</em>. These would
+operate something like a signed ref (tag or branch) <a class="reference external" href="https://ariejan.net/2014/06/04/gpg-sign-your-git-commits/">in Git</a>, addressed on a
+DHT via your public-key. Basically, everyone would get a namespace rooted
+in their key pair, which could be mapped (somehow) to a “proper” domain name in
+a DNS record.</p>
+<p>In the analogy of the “single global Git repo”, this would solve the problems
+of someone pushing with <tt class="docutils literal"><span class="pre">--force</span></tt> on to <tt class="docutils literal">master</tt>, everyone wanting a branch
+called <tt class="docutils literal">dev</tt> as well as making it possible to offer new news on <tt class="docutils literal">news.com</tt>.</p>
+<p>Trust here would be provided by <a class="reference external" href="http://www.pgp.net/pgpnet/pgp-faq/pgp-faq-security-questions.html#security-how">PGP</a>, which I guess is pretty good :wink:</p>
+</div>
+<div class="section" id="securitynprivacy">
+<h1>Security‘n’Privacy</h1>
+<p>The security of a system such as IPFS presents different problems to
+traditional web security. The normal scenario would be that the trusted DNS
+server gives me the IP for the domain I request, I setup a connection to that
+trusted IP address over HTTP/TLS. As long as the box answering to that IP is
+secure (<a class="reference external" href="http://attrition.org/security/rant/sony_aka_sownage.html">lol, Sony</a>) and I trust the owner of that box means me no harm then I
+can safely transfer files in good faith that the content will be what I expect.</p>
+<p>This is not the case with peer-to-peer networks. It is not feasible to
+categorically say that we trust all the nodes in the swarm. There are things
+that help (see the <a class="reference external" href="/2014/12/22/merkle-dag.html#merkle-tree">Merkle tree</a> section in a related post), but it boils down
+to PGP-signing.</p>
+<p>On the other hand, a peer-to-peer system is much less vunerable to many types
+of attack than a centralised system. Kademlia has some built in stuff for
+dealing with attackers flooding the cluster with new nodes.</p>
+</div>
+<div class="section" id="conclusion-conjecture">
+<h1>Conclusion/conjecture</h1>
+<p>Expressed in the most general terms, IPFS proposes an <strong>other web</strong>. It’s a
+very different place to the web we know today. Instead of all web traffic being
+mediated by trusted central servers and services and these entities being the
+things that people really look at when they use the web, users of the internet
+would have the opportunity to communicate more directly <em>with each other</em>, not
+relying on a third party to securely transmit their messages, documents,
+programmes and images.</p>
+<p>The theme of decentralised systems and decentralisation has caught the
+attention of the zeitgeist and if the impact of widespread adoption (after the
+development works are underway) of a public, global, “interplanetary”
+filesystem can be communicated to computer users as a whole, the IPFS could
+become a reality and some pretty exciting stuff would be able to follow.</p>
+
+
+
+
+
+
+
+
+</div>
+</div>
+
+  </div></body></html></body>

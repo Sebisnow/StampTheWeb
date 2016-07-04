@@ -10,8 +10,8 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_SUBJECT_PREFIX = '[WEB Stamps]'
-    MAIL_SENDER = 'WEB Stamps Admin <waqar.detho@uni-konstanz.de>'
+    MAIL_SUBJECT_PREFIX = '[Stamp The Web]'
+    MAIL_SENDER = 'Stamp The Web Admin <waqar.detho@uni-konstanz.de>'
     #ADMIN = os.environ.get('ADMIN')
     ADMIN = 'waqar.detho@uni-konstanz.de'
     POSTS_PER_PAGE = 20
