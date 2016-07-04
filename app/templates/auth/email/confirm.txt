@@ -1,9 +1,9 @@
 Dear {{ user.username }},
 
-Welcome to Flasky!
+Welcome to Web Stamps!
 
 You are receiving this email, since you have created a regular stamps. We would like to inform you that
-    we found a change in your timestamped page. To view your changed post click here.
+    we found a change in your timestamped page. To view this changed post click here.
 
 {{ url_for('auth.confirm', token=token, _external=True) }}
 
