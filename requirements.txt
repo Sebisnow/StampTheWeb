@@ -23,13 +23,14 @@ Flask-Script==2.0.5
 Flask-SQLAlchemy==2.1
 Flask-SSLify==0.1.5
 Flask-WTF==0.12
+ForgeryPy==0.1
 gunicorn==19.6.0
 html2pdf==0.1
 html5lib==0.9999999
 htmltopdf==0.1.1
 itsdangerous==0.24
-lxml==3.6.0
 Jinja2==2.8
+lxml==3.6.0
 Mako==1.0.4
 Markdown==2.6.6
 MarkupSafe==0.23
@@ -48,3 +49,6 @@ Werkzeug==0.11.10
 wkhtmltopdf==0.2
 wkhtmltopdf-wrapper==0.3.3
 WTForms==2.1
+wheel==0.29.0
+setuptools==23.0.0
+pip==8.1.2

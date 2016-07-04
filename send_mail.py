@@ -33,15 +33,15 @@ class OriginstampError(Exception):
 def get_pages_send_email(post,task):
     url = post.urlSite
     if task.china:
-        proxy = current_app.config['FLASKY_CHINA_PROXY']
+        proxy = app.config['CHINA_PROXY_PORT']
         if update_and_send(proxy,post,url,'China',True):
             return True
     elif task.usa:
-        proxy = current_app.config['FLASKY_USA_PROXY']
+        proxy = app.config['USA_PROXY_PORT']
         if update_and_send(proxy,post,url,'USA',True):
             return True
     elif task.uk:
-        proxy = current_app.config['FLASKY_UK_PROXY']
+        proxy = app.config['UK_PROXY_PORT']
         if update_and_send(proxy,post,url,'UK',True):
             return True
     else:

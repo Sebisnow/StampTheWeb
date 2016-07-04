@@ -12553,3 +12553,4 @@ Printing pages (6/6)
 66.249.79.234 - - [04/Jul/2016 15:27:55] "GET /user/amy63?page=1 HTTP/1.1" 200 -
 66.249.79.134 - - [04/Jul/2016 15:37:39] "GET /pdf/48eb280936d7db72512f7eaaf5bb714bb41cd2a02d17233c0f47d91ebaa85a46.pdf HTTP/1.1" 200 -
 66.249.79.246 - - [04/Jul/2016 15:56:37] "GET /pdf/7bb9e80dc88b42d96c5c16d265dc32efc17657544772f630dc349d231b8221e2.pdf HTTP/1.1" 200 -
+ * Detected change in '/home/ubuntu/StampTheWeb/app/main/forms.py', reloading

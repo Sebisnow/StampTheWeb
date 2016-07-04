@@ -1,6 +1,6 @@
 {% extends "bootstrap/base.html" %}
 
-{% block title %}WEB Stamps{% endblock %}
+{% block title %}Stamp The Web{% endblock %}
 {% block head %}
 {{ super() }}
 <!--<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">  -->
@@ -21,7 +21,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">WEB Stamps</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}">Stamp The Web</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
@@ -36,7 +36,16 @@
                         <li class="{{ reg_page }}"><a href="{{ url_for('main.regular') }}" >Schedule recurring URL timestamps</a></li>
                         <li class="{{ reg_sch }}"><a href="{{ url_for('main.compare_country') }}" >Schedule recurring URL timestamps from different locations</a></li>
                     </ul>
-                <li class="{{ block_page }}"><a href="{{ url_for('main.block') }}">Block Articles</a></li>
+                </li>
+                <li class="dropdown {{ block_page }}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Block Articles <b class="caret"></b>
+                        </a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ block_block }}"><a href="{{ url_for('main.block') }}">Find for a location</a></li>
+                        <li class="{{ block_country }}"><a href="{{ url_for('main.block_country') }}" >Find Block map</a></li>
+                    </ul>
+                </li>
                 <li class="{{ stat_page }}"><a href="{{ url_for('main.statistics') }}">Statistics</a></li>
                 {% endif %}
             </ul>

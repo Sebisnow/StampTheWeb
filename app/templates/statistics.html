@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Web Stamps - Statistics{% endblock %}
+{% block title %}Stamp The Web - Statistics{% endblock %}
 {% block page_content %}
 
 
@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="/pdf/bower_components/simple/stylesheets/pygment_trac.css" />
 
     <link rel="stylesheet" href="/pdf/lib/css/simple-map-d3.css">
-    <title>Web Stamps Statistics</title>
+    <title>Stamp The Web Statistics</title>
     <h3>Most Visited Articles by Country</h3>
     <p>This map shows the percentages of Articles visited with respect to the country of origin of the articles.</p>
 
@@ -29,7 +29,7 @@
         $(document).ready(function() {
           var worldMap = SimpleMapD3({
             container: '.simple-map-d3-world-map',
-            datasource: '/pdf/world-population.geo1.json',
+            datasource: '/pdf/stat-data.geo.json',
             projection: 'equirectangular',
             colorOn: true,
             colorProperty: 'Percentage',
