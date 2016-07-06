@@ -4,6 +4,7 @@ from flask import current_app
 from app import create_app, db
 import ipfsApi as ipfs
 import os
+from subprocess import check_output, DEVNULL
 
 
 class BasicsTestCase(unittest.TestCase):
@@ -11,6 +12,7 @@ class BasicsTestCase(unittest.TestCase):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
+        self.client = ipfs.Client()
         db.create_all()
 
     def tearDown(self):
@@ -28,18 +30,31 @@ class BasicsTestCase(unittest.TestCase):
 
     def test_text_timestamp(self):
         print("test submit to Originstamp")
-        result = down.get_text_timestamp("Big test in Python")
+        text = "Big test in Python"
+        result = down.get_text_timestamp(text)
         print("    Submit Status code: " + str(result.originStampResult.status_code))
         print("    Submit Response Text: " + result.originStampResult.text)
         print("    Submit Hash: " + result.hashValue)
         print("    Submit Title: " + result.webTitle)
         self.assertTrue(result.originStampResult.status_code == 200)
+        with open("test1.html", "w+") as f:
+            f.write(str(text))
+            print(f.encoding)
+        hash = self.client.add("test1.html")
+        print(hash)
+
+        retur = check_output(['ipfs', 'get', hash['Hash']], stderr=DEVNULL)
+        print(retur)
+        doc = ""
+        with open(hash['Hash'], "r") as f:
+            doc += f.read()
+        self.assertEqual(str(text), doc)
 
     def test_ipfs_hashing(self):
         print("test IPFS hashing")
         result = down.get_text_timestamp("Big test in Python")
-        client = ipfs.Client()
-        text = client.cat(result.hashValue)
+
+        text = self.client.cat(result.hashValue)
         print("    Submitted Text: 'Big test in Python'")
         print("    Text from IPFS by Hash: " + text)
         self.assertEqual(text, "Big test in Python")

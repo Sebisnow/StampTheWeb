@@ -15,22 +15,19 @@ import pdfkit
 from . import main
 from flask import flash
 import logging
-#from manage import app
+# from manage import app
 from flask import current_app as app
 from urllib.parse import urlparse
 import codecs
 
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
 urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
-#nullDevice = open(os.devnull, 'w')
+# nullDevice = open(os.devnull, 'w')
 basePath = 'app/pdf/'
 errorCaught = ""
 ipfs_Client = ipfs.Client('127.0.0.1', 5001)
 
 apiPostUrl = 'http://www.originstamp.org/api/stamps'
-# other apiKey:
-# 77024f80396895bca0c028db35548c6e
-# abeff668860c14b9643f4406c52a1dc2
 apiKey = '7be3aa0c7f9c2ae0061c9ad4ac680f5c '
 blockSize = 65536
 options = {'quiet': ''}
@@ -173,23 +170,32 @@ def create_png_from_url(url, sha256):
 
 
 def create_html_from_url(doc, hash, url):
-
+    # Detect the encoding of the html for future reference
+    # encoding = chardet.detect(doc.summary().encode()).get('encoding')
+    encoding = 'utf-8'
+    doc.encoding = encoding
+    calc_hash = hashlib.sha256()
+    calc_hash.update(doc.summary().encode(encoding))
+    hash = calc_hash.hexdigest()
     path = basePath + hash + '.html'
     try:
         with open(path, 'w+') as file:
             file.write(doc)
         if os.path.isfile(path):
-            return
+            ipfs_hash = ipfs.add(path)
+            app.logger.info("Added following file to IPFS: " + path)
+            app.logger.info('With Hash:' + ipfs_hash)
+            return ipfs_hash
     except FileNotFoundError as e:
         if not app.config["TESTING"]:
             flash(u'Could not create HTML from ' + url, 'error')
         app.logger.error('Could not create HTML from the: ' + url + '\n' + e.characters_written)
-        return
+        return None
     except AttributeError as att:
         if not app.config["TESTING"]:
             flash(u'Due to attribute error I could not create HTML from ' + url, 'error')
         app.logger.error('Due to attribute error I could not create HTML from the: ' + url + '\n' + att.args)
-        return
+        return None
 
 
 def create_pdf_from_url(url, sha256):
@@ -207,6 +213,7 @@ def create_pdf_from_url(url, sha256):
     except OSError as e:
 
         app.logger.error('Could not create PDF from the URL: ' + url)
+        app.logger.error(e)
         if os.path.isfile(path):
             app.logger.error('But local PDF exists at: ' + path)
             return
@@ -223,6 +230,22 @@ def calculate_hash_for_html_doc(doc):
     """
     app.logger.info('Creating HTML and Hash')
 
+    text = preprocess_doc(doc)
+    sha256 = save_file_ipfs(text)
+
+    app.logger.info('Hash:' + sha256)
+    app.logger.info('HTML:' + text)
+    return sha256, text
+
+
+def preprocess_doc(doc):
+    """
+    Calculate hash for given html document.
+    :param doc: html doc to hash
+    :returns: calculated hash for given URL and the document used to create the hash
+    """
+    app.logger.info('Preprocessing Document')
+
     # Detect the encoding of the html for future reference
     # encoding = chardet.detect(doc.summary().encode()).get('encoding')
     encoding = 'utf-8'
@@ -235,14 +258,9 @@ def calculate_hash_for_html_doc(doc):
            + '<h1>' + doc.title().split(sep='|')[0] + '</h1>'
 
     text += doc.summary() + '</body>'
-    # TODO IPFS implementation
 
-    calc_hash = hashlib.sha256()
-    calc_hash.update(doc.summary().encode(encoding))
-    sha256 = calc_hash.hexdigest()
-    app.logger.info('Hash:' + sha256)
-    app.logger.info('HTML:' + text)
-    return sha256, text
+    app.logger.info('Preprocessing done')
+    return text
 
 
 def submit(sha256, title=None):
@@ -404,11 +422,24 @@ def getHashOfFile(fname):
 
 
 def get_text_timestamp(text):
-    ipfs_hash = ipfs_Client.add_str(text)
-    # hash_object = hashlib.sha256(text)
-    # hex_dig = hash_object.hexdigest()
-    results = submitHash(ipfs_hash)
+    """
+    Generate a timestamp for a text and submit that text to ipfs.
+    Method is tested in terms of IPFS Hash and in terms of submission to Originstamp.
+    :param text: The text to be timestamped
+    :return: ReturnResults
+    """
+    results = submitHash(save_file_ipfs(text))
     return results
+
+
+def save_file_ipfs(text):
+    path = basePath + "tempfile.txt"
+    try:
+        with open(path, "w") as f:
+            f.write(str(text))
+    except:
+        app.logger.error("could not create tempfile to save text in " + path)
+    return ipfs_Client.add(path)['Hash']
 
 
 def get_hash_history(hash):
@@ -445,7 +476,7 @@ def get_url_history(url):
     try:
         sha256, html_text = calculate_hash_for_html_doc(doc)
         # if check_database_for_hash(sha256) < 1:
-        originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
+        originstamp_result = save_render_zip_submit(html_text, sha256, url, doc.title())
 
     except Exception as e:
 
@@ -457,7 +488,7 @@ def get_url_history(url):
         return ReturnResults(None, sha256, doc.title())
 
     # return json.dumps(check_database_for_url(url), default=date_handler)
-    return ReturnResults(originStampResult, sha256, doc.title())
+    return ReturnResults(originstamp_result, sha256, doc.title())
 '''
 # Deprecated Method of old STW
 def load_zip_submit(url, soup, enc):
@@ -494,10 +525,10 @@ def save_render_zip_submit(doc, sha256, url, title):
     # os.remove(basePath + sha256 + '.html')
     # archive.write(basePath + sha256 + '.png')
     # os.remove(basePath + sha256 + '.png')
-    originStampResult = submit_add_to_db(url, sha256, title)
+    originstamp_result = submit_add_to_db(url, sha256, title)
 
     # moved image creation behind Timestamping so images are only created for new Stamps if no eror occurred
-    if originStampResult.status_code == 200:
+    if originstamp_result.status_code == 200:
         try:
             create_png_from_url(url, sha256)
             # TODO  pdf creation throws error on server - check
@@ -506,21 +537,21 @@ def save_render_zip_submit(doc, sha256, url, title):
             # can only occur if data was submitted successfully but png or pdf creation failed
             if not app.config["TESTING"]:
                 flash(u'FileNotFoundError while creating image and pdf: ' + fileError.strerror +
-                      '\n Originstamp Result was: ' + str(originStampResult.status_code), 'error')
+                      '\n Originstamp Result was: ' + str(originstamp_result.status_code), 'error')
             app.logger.error('FileNotFoundError while creating image and pdf: ' +
-                             fileError.strerror + '\n Originstamp Result was: ' + str(originStampResult.status_code))
-            originStampResult.error = fileError
-            return originStampResult
+                             fileError.strerror + '\n Originstamp Result was: ' + str(originstamp_result.status_code))
+            originstamp_result.error = fileError
+            return originstamp_result
         except Exception as e:
             # can only occur if data was submitted successfully but png or pdf creation failed
             if not app.config["TESTING"]:
                 flash(u'Internal System Error while creating image and pdf: ' + e.args +
-                      '\n Originstamp Result was: ' + str(originStampResult.status_code), 'error')
+                      '\n Originstamp Result was: ' + str(originstamp_result.status_code), 'error')
             app.logger.error('Internal System Error while creating image and pdf: ' +
-                             e.args + '\n Originstamp Result was: ' + str(originStampResult.status_code))
-            originStampResult.error = e
-            return originStampResult
-    return originStampResult
+                             e.args + '\n Originstamp Result was: ' + str(originstamp_result.status_code))
+            originstamp_result.error = e
+            return originstamp_result
+    return originstamp_result
 
 
 def main():
