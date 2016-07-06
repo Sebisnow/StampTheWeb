@@ -9,7 +9,7 @@ import zipfile
 import traceback
 import ipfsApi as ipfs
 from readability.readability import Document
-from subprocess import call, DEVNULL
+from subprocess import check_output, call, DEVNULL
 from app import db
 import pdfkit
 from . import main
@@ -169,32 +169,37 @@ def create_png_from_url(url, sha256):
     return
 
 
-def create_html_from_url(doc, hash, url):
-    # Detect the encoding of the html for future reference
-    # encoding = chardet.detect(doc.summary().encode()).get('encoding')
-    encoding = 'utf-8'
-    doc.encoding = encoding
-    calc_hash = hashlib.sha256()
-    calc_hash.update(doc.summary().encode(encoding))
-    hash = calc_hash.hexdigest()
-    path = basePath + hash + '.html'
+def create_html_from_url(html_text, ipfs_hash, url):
+    path = basePath + ipfs_hash + '.html'
+
+    # fetch the to IPFS submitted html text to store on disk
     try:
-        with open(path, 'w+') as file:
-            file.write(doc)
-        if os.path.isfile(path):
-            ipfs_hash = ipfs.add(path)
-            app.logger.info("Added following file to IPFS: " + path)
-            app.logger.info('With Hash:' + ipfs_hash)
-            return ipfs_hash
-    except FileNotFoundError as e:
-        if not app.config["TESTING"]:
-            flash(u'Could not create HTML from ' + url, 'error')
-        app.logger.error('Could not create HTML from the: ' + url + '\n' + e.characters_written)
-        return None
-    except AttributeError as att:
-        if not app.config["TESTING"]:
-            flash(u'Due to attribute error I could not create HTML from ' + url, 'error')
-        app.logger.error('Due to attribute error I could not create HTML from the: ' + url + '\n' + att.args)
+        os.chdir(basePath)
+        out = check_output(['ipfs', 'get', hash['Hash']], stderr=DEVNULL)
+        os.rename(basePath + ipfs_hash, basePath + ipfs_hash + '.html')
+        app.logger.info(out)
+    except Exception:
+
+        app.logger.info('Could not submit to IPFS or rather get from IPFS trying again.')
+        try:
+            with open(path, 'w+') as file:
+                file.write(html_text)
+            if os.path.isfile(path):
+                ip = ipfs_Client.add(path)
+                ipfs_hash = ip[1]["Hash"]
+                app.logger.info("Added following file to IPFS: " + path)
+                app.logger.info('With Hash:' + ipfs_hash)
+                return ipfs_hash
+        except FileNotFoundError as e:
+            if not app.config["TESTING"]:
+                flash(u'Could not create HTML from ' + url, 'error')
+            app.logger.error('Could not create HTML from the: ' + url + '\n' + e.characters_written)
+            return None
+        except AttributeError as att:
+            if not app.config["TESTING"]:
+                flash(u'Due to attribute error I could not create HTML from ' + url, 'error')
+            app.logger.error('Due to attribute error I could not create HTML from the: ' + url + '\n' + att.args)
+            return None
         return None
 
 
@@ -436,10 +441,12 @@ def save_file_ipfs(text):
     path = basePath + "tempfile.txt"
     try:
         with open(path, "w") as f:
-            f.write(str(text))
+            f.write(text)
     except:
         app.logger.error("could not create tempfile to save text in " + path)
-    return ipfs_Client.add(path)['Hash']
+    ipfs_hash = ipfs_Client.add(path)
+    print(ipfs_hash[1]['Hash'])
+    return ipfs_hash[1]['Hash']
 
 
 def get_hash_history(hash):
@@ -510,10 +517,10 @@ def load_zip_submit(url, soup, enc):
 '''
 
 
-def save_render_zip_submit(doc, sha256, url, title):
+def save_render_zip_submit(html_text, sha256, url, title):
 
     try:
-        create_html_from_url(doc, sha256, url)
+        create_html_from_url(html_text, sha256, url)
     except FileNotFoundError as fileError:
             # can only occur if data was submitted successfully but png or pdf creation failed
             if not app.config["TESTING"]:
