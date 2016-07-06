@@ -206,11 +206,9 @@ def create_pdf_from_url(url,sha256):
     try:
         # TODO throws error
         pdfkit.from_url(url, path)
-
-    except IOError as e:
+    except OSError as e:
 
         app.logger.error('Could not create PDF from the URL: ' + url)
-        app.logger.error(traceback.format_exc(), e)
         if os.path.isfile(path):
             app.logger.error('But local PDF exists at: ' + path)
             return
