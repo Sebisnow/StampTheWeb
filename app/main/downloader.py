@@ -37,10 +37,10 @@ options = {'quiet': ''}
 
 
 class ReturnResults(object):
-    def __init__(self, originStampResult, hashValue, webTitle, errors=None):
-        self.originStampResult = originStampResult
-        self.hashValue = hashValue
-        self.webTitle = webTitle
+    def __init__(self, originstamp_result, hash_value, web_title, errors=None):
+        self.originStampResult = originstamp_result
+        self.hashValue = hash_value
+        self.webTitle = web_title
         self.errors = errors
 
 
@@ -76,12 +76,11 @@ class RequestError(Exception):
 
     def __init__(self, message, req):
         super(RequestError, self).__init__(message)
-        request = req
+        self.request = req
 
 
 def remove_unwanted_data_regular():
-    basePath = 'app/pdf/world-population.geo.json'
-    with open(basePath) as data_file:
+    with open('app/pdf/world-population.geo.json') as data_file:
         data = json.load(data_file)
     a = 0
     while a < 211:
@@ -101,8 +100,7 @@ def remove_unwanted_data_regular():
 
 
 def remove_unwanted_data():
-    basePath = 'app/pdf/world-population.geo.json'
-    with open(basePath) as data_file:
+    with open('app/pdf/world-population.geo.json') as data_file:
         data = json.load(data_file)
     a = 0
     while a < 211:
@@ -121,11 +119,11 @@ def get_text_from_other_country(china, usa, uk, url):
     if china is True:
         proxy = app.config['STW_CHINA_PROXY']
         hash, text = update_and_send(proxy, url)
-        return hash,text
+        return hash, text
 
     if usa is True:
         proxy = app.config['STW_USA_PROXY']
-        hash, text = update_and_send(proxy,url)
+        hash, text = update_and_send(proxy, url)
         return hash, text
     if uk:
         proxy = app.config['STW_UK_PROXY']
@@ -194,7 +192,7 @@ def create_html_from_url(doc, hash, url):
         return
 
 
-def create_pdf_from_url(url,sha256):
+def create_pdf_from_url(url, sha256):
     """
     :param url: url to retrieve
     :param sha256: the hash of the url which is important for the filename
@@ -220,7 +218,7 @@ def create_pdf_from_url(url,sha256):
 def calculate_hash_for_html_doc(doc):
     """
     Calculate hash for given html document.
-    :param html_doc: html doc to hash
+    :param doc: html doc to hash
     :returns: calculated hash for given URL and the document used to create the hash
     """
     app.logger.info('Creating HTML and Hash')
@@ -268,36 +266,36 @@ def submit_add_to_db(url, sha256, title):
     :param title: Title of the document behind the URL
     :param sha256: hash to name file after
     """
-    originStampResult = submit(sha256, title)
-    app.logger.info(originStampResult.text)
-    app.logger.info('Origin Stamp Response:' + originStampResult.text)
-    if originStampResult.status_code >= 400:
+    originstamp_result = submit(sha256, title)
+    app.logger.info(originstamp_result.text)
+    app.logger.info('Origin Stamp Response:' + originstamp_result.text)
+    if originstamp_result.status_code >= 400:
         if not app.config["TESTING"]:
-            flash(u'Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
-                  '\n ErrorMessage: ' + originStampResult.text, 'error')
-        app.logger.error('Could not submit hash to originstamp. Error Code: ' + originStampResult.status_code +
-                         '\n ErrorMessage: ' + originStampResult.text)
-        return originStampResult
+            flash(u'Could not submit hash to originstamp. Error Code: ' + originstamp_result.status_code +
+                  '\n ErrorMessage: ' + originstamp_result.text, 'error')
+        app.logger.error('Could not submit hash to originstamp. Error Code: ' + originstamp_result.status_code +
+                         '\n ErrorMessage: ' + originstamp_result.text)
+        return originstamp_result
         # raise OriginstampError('Could not submit hash to Originstamp', r)
-    elif originStampResult.status_code >= 300:
+    elif originstamp_result.status_code >= 300:
         if not app.config["TESTING"]:
-            flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
-                  '\n ErrorMessage: ' + originStampResult.text, 'error')
+            flash(u'Internal System Error. Error Code: ' + originstamp_result.status_code +
+                  '\n ErrorMessage: ' + originstamp_result.text, 'error')
         app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
-        return originStampResult
-    elif originStampResult.status_code == 200:
+        return originstamp_result
+    elif originstamp_result.status_code == 200:
         # if not app.config["TESTING"]: flash(u'URL already submitted to OriginStamp'+ url + ' Hash '+sha256)
         # app.logger.error('URL already submitted to OriginStamp')
-        return originStampResult
-    elif "errors" in originStampResult.json():
+        return originstamp_result
+    elif "errors" in originstamp_result.json():
         if not app.config["TESTING"]:
-            flash(u'Internal System Error. Error Code: ' + originStampResult.status_code +
-                  '\n ErrorMessage: ' + originStampResult.text, 'error')
-        app.logger.error('An Error occurred. Error Code: ' + originStampResult.status_code +
-                         '\n ErrorMessage: ' + originStampResult.text)
-        return originStampResult
+            flash(u'Internal System Error. Error Code: ' + originstamp_result.status_code +
+                  '\n ErrorMessage: ' + originstamp_result.text, 'error')
+        app.logger.error('An Error occurred. Error Code: ' + originstamp_result.status_code +
+                         '\n ErrorMessage: ' + originstamp_result.text)
+        return originstamp_result
 
-    return originStampResult
+    return originstamp_result
 
 
 def load_images(soup):
@@ -370,27 +368,27 @@ def check_database_for_url(url):
 
 
 def submitHash(hash):
-    originStampResult = submit(hash, "")
-    app.logger.info(originStampResult.text)
-    app.logger.info('Origin Stamp Response:' + originStampResult.text)
-    if originStampResult.status_code >= 300:
+    originstamp_result = submit(hash, "")
+    app.logger.info(originstamp_result.text)
+    app.logger.info('Origin Stamp Response:' + originstamp_result.text)
+    if originstamp_result.status_code >= 300:
         if not app.config["TESTING"]:
             flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
         app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return ReturnResults(None, hash, "None")
-    elif originStampResult.status_code == 200:
+    elif originstamp_result.status_code == 200:
         if not app.config["TESTING"]:
             flash(u'Hash already submitted to OriginStamp' + ' Hash '+hash)
         app.logger.error('Hash already submitted to OriginStamp')
-        return ReturnResults(originStampResult, hash, "")
+        return ReturnResults(originstamp_result, hash, "")
         # raise OriginstampError('Could not submit hash to Originstamp', r)
-    elif "errors" in originStampResult.json():
+    elif "errors" in originstamp_result.json():
         if not app.config["TESTING"]:
             flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
         app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return ReturnResults(None, hash, "None")
     else:
-        return ReturnResults(originStampResult, hash, "")
+        return ReturnResults(originstamp_result, hash, "")
 
 
 def getHashOfFile(fname):
@@ -460,7 +458,6 @@ def get_url_history(url):
 
     # return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originStampResult, sha256, doc.title())
-
 '''
 # Deprecated Method of old STW
 def load_zip_submit(url, soup, enc):
@@ -492,11 +489,11 @@ def save_render_zip_submit(doc, sha256, url, title):
                 flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
             app.logger.error('Internal System Error while creating HTML,: ' +
                              fileError.strerror + "\n Maybe chack the path, current base path: " + basePath)
-    #archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
-    #archive.write(basePath + sha256 + '.html')
-    #os.remove(basePath + sha256 + '.html')
-    #archive.write(basePath + sha256 + '.png')
-    #os.remove(basePath + sha256 + '.png')
+    # archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
+    # archive.write(basePath + sha256 + '.html')
+    # os.remove(basePath + sha256 + '.html')
+    # archive.write(basePath + sha256 + '.png')
+    # os.remove(basePath + sha256 + '.png')
     originStampResult = submit_add_to_db(url, sha256, title)
 
     # moved image creation behind Timestamping so images are only created for new Stamps if no eror occurred
