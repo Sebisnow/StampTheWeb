@@ -1,3 +1,3 @@
-Stamp The Web
+Web Stamps
 ==========
 

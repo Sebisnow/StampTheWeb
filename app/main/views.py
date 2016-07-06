@@ -47,10 +47,11 @@ def index():
         if already_exist is not None:
             flash('The URL was already submitted and the content of the website ahs not changed since!')
             post_old = Post.query.get_or_404(already_exist.id)
-            return render_template('post.html', posts=[post_old], single=True)
+            return render_template('post.html', posts=[post_old],single=True)
         else:
             post_new = Post(body=form.body.data, urlSite=url_site, hashVal=sha256, webTitl=title,
-                            origStampTime=orig_stamp_time, author=current_user._get_current_object())
+                            origStampTime=orig_stamp_time,
+                            author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
         return redirect(url_for('.index'))
@@ -77,7 +78,8 @@ def index():
             post_new = already_exist
         else:
             post_new = Post(body=form_freq.body.data, urlSite=url_site, hashVal=sha256, webTitl=title,
-                            origStampTime=orig_stamp_time, author=current_user._get_current_object())
+                            origStampTime=orig_stamp_time,
+                            author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
         #  = Post.query.filter(and_(Post.url_site.like(url_site),
@@ -87,9 +89,11 @@ def index():
         db.session.commit()
         page = request.args.get('page', 1, type=int)
         pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)
+            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            error_out=False)
         posts = pagination.items
-        return render_template('regular.html', form=form_freq, posts=posts, pagination=pagination)
+        return render_template('regular.html', form=form_freq, posts=posts,
+                               pagination=pagination)
 
     else:
         domain_name = downloader.get_all_domain_names(Post)
@@ -102,7 +106,8 @@ def index():
 
         page = request.args.get('page', 1, type=int)
         pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)
+            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            error_out=False)
         posts = pagination.items
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
                                doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
@@ -111,7 +116,8 @@ def index():
 @main.route('/compare', methods=['GET', 'POST'])
 def compare():
     form = PostVerify()
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+            form.validate_on_submit():
         search_keyword = form.urlSite.data
         if not validators.url(search_keyword):
             domain = search_keyword
@@ -122,7 +128,8 @@ def compare():
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)
+                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
                                    pagination=pagination, domain=domain, search=True)
@@ -131,7 +138,8 @@ def compare():
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)
+                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
                                    pagination=pagination, search=True, domain=search_keyword)
@@ -147,10 +155,11 @@ def compare():
                 domain_name_unique.add(name + ';'+str(count))
     page = request.args.get('page', 1, type=int)
     pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)
+        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
-                           pagination=pagination, doman_name=domain_name_unique, comp_page="active")
+                           pagination=pagination,doman_name=domain_name_unique, comp_page="active")
 
 
 @main.route('/compare_options/<ids>', methods=['GET', 'POST'])
@@ -168,7 +177,7 @@ def compare_options(ids):
             domain = search_keyword
             search_keyword = '%'+search_keyword+'%'
             posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
-                                          Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
+                                          Post.webTitl.like(search_keyword),Post.body.like(search_keyword)))
 
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
@@ -187,11 +196,11 @@ def compare_options(ids):
                 error_out=False)
             posts = pagination.items
             return render_template('search_options.html', verify=posts,
-                                   pagination=pagination, last_post=post_1, form=form, form_choice=form_choice,
+                                   pagination=pagination, last_post = post_1,form=form,form_choice=form_choice,
                                    last=str(post_1.id))
 
     elif current_user.can(Permission.WRITE_ARTICLES) and\
-            form_choice.validate_on_submit():
+                form_choice.validate_on_submit():
         china = form_choice.china.data
         usa = form_choice.usa.data
         uk = form_choice.uk.data
@@ -207,15 +216,15 @@ def compare_options(ids):
             else:
                 flash('Change in the content found')
 
-            return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
-                                   dateRight=datetime.utcnow(), right=Markup(text_right), search=False)
+            return render_template('very.html',double=True,left=Markup(text_left),dateLeft = post_1.timestamp,
+                                   dateRight = datetime.utcnow(),right=Markup(text_right),search=False)
         else:
             text_1 = verification.get_file_text(post_1.hashVal)
             text_left = verification.remove_tags(text_1)
             text_left = htmldiff(text_left, text_left)
             flash('The selected page is blocked in this country')
-            return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
-                                   dateRight=datetime.utcnow(), search=False)
+            return render_template('very.html',double=True,left=Markup(text_left),dateLeft = post_1.timestamp,
+                                   dateRight = datetime.utcnow(),search=False)
 
     if not validators.url(search_keyword):
         domain = search_keyword
@@ -223,19 +232,21 @@ def compare_options(ids):
         posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
                                         Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
 
+
         page = request.args.get('page', 1, type=int)
-        pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
+        pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('search_options.html', verify=posts, form=form, form_choice=form_choice,
-                               pagination=pagination, last_post=post_1, domain=domain, last=str(post_1.id))
+                               pagination=pagination,last_post = post_1, domain=domain,last=str(post_1.id))
+
 
     elif validators.url(search_keyword):
         posts = Post.query.filter(Post.urlSite.contains(search_keyword))
         verification.writePostsData(posts)
         page = request.args.get('page', 1, type=int)
-        pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
+        pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
@@ -243,39 +254,39 @@ def compare_options(ids):
                                pagination=pagination, last_post = post_1,form=form,form_choice=form_choice,
                                last=str(post_1.id), comp_page="active")
 
-
 @main.route('/block',  methods=['GET', 'POST'])
 def block():
     form = PostBlock()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         sha256 = None
-        date_time_gmt=None
-        url_site = form.urlSite.data
+        dateTimeGMT=None
+        urlSite=form.urlSite.data
         china = form.china.data
         usa = form.usa.data
         uk = form.uk.data
-        results = downloader.get_url_history(url_site)
-        originstamp_result = results.originStampResult
+        results = downloader.get_url_history(urlSite)
+        originStampResult = results.originStampResult
         sha256 = results.hashValue
         title = results.webTitle
-        if originstamp_result is not None:
-            date_time_gmt = originstamp_result.headers['Date']
-            originstamp_time = datetime.strptime(date_time_gmt, "%a, %d %b %Y %H:%M:%S %Z")
+        if originStampResult is not None:
+            dateTimeGMT=originStampResult.headers['Date']
+            origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z")
         else:
-            originstamp_time = datetime.now()
+            origStampTime = datetime.now()
 
-        already_exist = Post.query.filter(and_(Post.urlSite.like(url_site),
-                                               Post.hashVal.like(sha256))).first()
+        already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
+                                            Post.hashVal.like(sha256))).first()
         if already_exist is not None:
             post_new = already_exist
         else:
-            post_new = Post(body=form.body.data, urlSite=url_site, hashVal=sha256, webTitl=title,
-                            origStampTime=originstamp_time, author=current_user._get_current_object())
+            post_new = Post(body=form.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title,
+                            origStampTime=origStampTime,
+                            author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
 
-        # check if it is blocked in any country
-        hash_2, text_2 = downloader.get_text_from_other_country(china, usa, uk, url_site)
+        #check if it is blocked in any country
+        hash_2, text_2 = downloader.get_text_from_other_country(china,usa,uk,urlSite)
 
         if text_2 is not None:
             flash("The Article is not blocked in this country")
@@ -283,69 +294,63 @@ def block():
             return render_template('very.html', verify=[post], single=True, search = False)
         else:
 
-            block_new = Block(china=china, uk=uk, usa=usa, postID=post_new)
+            block_new = Block(china=china,uk=uk,usa=usa,postID=post_new)
             db.session.add(block_new)
             db.session.commit()
             flash("This Article is blocked in this country")
             return redirect(url_for('.block'))
     page = request.args.get('page', 1, type=int)
     pagination = Block.query.order_by(Block.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)
+        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        error_out=False)
     posts = pagination.items
     return render_template('block.html', form=form, posts=posts,
                            pagination=pagination, block_page="active")
 
-
 @main.route('/statistics')
 def statistics():
     domain_name = downloader.get_all_domain_names(Post)
-    domain_name_unique = set(domain_name)
-    counter_stat = {}
-    for domain in domain_name_unique:
+    doman_name_unique = set(domain_name)
+    countr_stat = {}
+    for domain in doman_name_unique:
         loc = Location.query.filter_by(ip=domain).first()
         if loc:
             percentage = domain_name.count(domain)/len(domain_name) * 100
-            if loc.country_code in counter_stat.keys():
-                counter_stat[loc.country_code][1] = counter_stat[loc.country_code][1] + '<br>'+domain + ' (' +\
-                                                    str(percentage) + '%)'
-                counter_stat[loc.country_code][2] = counter_stat[loc.country_code][2] + percentage
+            if loc.country_code in countr_stat.keys():
+                countr_stat[loc.country_code][1] = countr_stat[loc.country_code][1] + '<br>'+domain +' (' +str(percentage) +'%)'
+                countr_stat[loc.country_code][2] = countr_stat[loc.country_code][2] + percentage
             else:
-                counter_stat[loc.country_code] = [loc.country_name, domain + ' (' + str(percentage) + '%)', percentage]
+                countr_stat[loc.country_code]=[loc.country_name, domain +' (' +str(percentage) +'%)', percentage]
         else:
             ip = socket.gethostbyname(domain)
             url = 'http://freegeoip.net/json/' + ip
             try:
                 response = requests.get(url)
             except:
-                flash("An Error occured while finding the location of a URL")
+                flash("An Error occure while finding the location of a URL")
             js = response.json()
             percentage = domain_name.count(domain)/len(domain_name) * 100
-            if js['country_code'] in counter_stat.keys():
-                counter_stat[js['country_code']][1] = counter_stat[js['country_code']][1] + '<br>'+domain + ' (' +\
-                                                      str(percentage) + '%)'
-                counter_stat[js['country_code']][2] = counter_stat[js['country_code']][2] + percentage
+            if js['country_code'] in countr_stat.keys():
+                countr_stat[js['country_code']][1] = countr_stat[js['country_code']][1] + '<br>'+domain +' (' +str(percentage) +'%)'
+                countr_stat[js['country_code']][2] = countr_stat[js['country_code']][2] + percentage
             else:
-                counter_stat[js['country_code']] = [js['country_name'], domain + ' (' + str(percentage) + '%)',
-                                                    percentage]
+                countr_stat[js['country_code']]=[js['country_name'], domain +' (' +str(percentage) +'%)', percentage]
             location = Location(ip=domain, country_code=js['country_code'], country_name=js['country_name'])
             db.session.add(location)
             db.session.commit()
 
     data = downloader.remove_unwanted_data()
-    for key in counter_stat:
+    for key in countr_stat:
         a = 0
         while a < 210:
-            a += 1
-            if data["features"][a]["properties"]["Country_Code"] == key and \
-               counter_stat[key][0] == data["features"][a]["properties"]["NAME"]:
-
-                data["features"][a]["properties"]["URLS"] = counter_stat[key][1]
-                data["features"][a]["properties"]["Percentage"] = counter_stat[key][2]
+            a+=1
+            if data["features"][a]["properties"]["Country_Code"] == key and countr_stat[key][0] == data["features"][a]["properties"]["NAME"]:
+                data["features"][a]["properties"]["URLS"] = countr_stat[key][1]
+                data["features"][a]["properties"]["Percentage"] = countr_stat[key][2]
 
     json.dump(data, open("app/pdf/world-population.geo1.json",'w'))
 
     return render_template('statistics.html', stat_page="active")
-
 
 @main.route('/compare_country', methods=['GET', 'POST'])
 def compare_country():
@@ -353,118 +358,122 @@ def compare_country():
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         freq = form.frequency.data
         sha256 = None
-        date_time_gmt = None
+        dateTimeGMT=None
         china = form.china.data
         usa = form.usa.data
         uk = form.uk.data
-        url_site = form.urlSite.data
+        urlSite=form.urlSite.data
         email = form.email.data
-        results = downloader.get_url_history(url_site)
-        originstamp_result = results.originStampResult
+        results = downloader.get_url_history(urlSite)
+        originStampResult = results.originStampResult
         sha256 = results.hashValue
         title = results.webTitle
-        if originstamp_result is not None:
-            date_time_gmt = originstamp_result.headers['Date']
-            originstamp_time = datetime.strptime(date_time_gmt, "%a, %d %b %Y %H:%M:%S %Z")
+        if originStampResult is not None:
+            dateTimeGMT=originStampResult.headers['Date']
+            origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z")
         else:
-            originstamp_time = datetime.now()
+            origStampTime = datetime.now()
 
-        already_exist = Post.query.filter(and_(Post.urlSite.like(url_site), Post.hashVal.like(sha256))).first()
+        already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
+                                            Post.hashVal.like(sha256))).first()
         if already_exist is not None:
             post_new = already_exist
         else:
-            post_new = Post(body=form.body.data, urlSite=url_site, hashVal=sha256, webTitl=title,
-                            origStampTime=originstamp_time, author=current_user._get_current_object())
+            post_new = Post(body=form.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title,
+                            origStampTime=origStampTime,
+                            author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
 
-        regular_new = Regular(frequency=freq, china=china, uk=uk, usa=usa, postID=post_new, email=email)
+        regular_new = Regular(frequency=freq,china=china,uk=uk,usa=usa,postID=post_new,email=email)
         db.session.add(regular_new)
         db.session.commit()
         return redirect(url_for('.compare_country'))
     page = request.args.get('page', 1, type=int)
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'], error_out=False)
+        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        error_out=False)
     posts = pagination.items
 
     data = downloader.remove_unwanted_data_regular()
-    # Getting locations of our proxies
+    #Getting locations of our proxies
     ips = []
     ips.append(current_app.config['CHINA_PROXY'])
     ips.append(current_app.config['USA_PROXY'])
     ips.append(current_app.config['UK_PROXY'])
     ips.append("")
 
-    x = 1
+    x=1
     for ip in ips:
         loc = Location.query.filter_by(ip=ip).first()
-        location = None
-        country_code = None
+        locat = None
+        country_code=None
         if loc:
-            location = loc.country_name
-            country_code = loc.country_code
+            locat = loc.country_name
+            country_code=loc.country_code
         else:
             url = 'http://freegeoip.net/json/' + ip
-            response = None
+            response=None
             try:
                 response = requests.get(url)
             except:
                 flash("An Error occur while finding the location of a URL")
             if response:
                 js = response.json()
-                location = js['country_name'] + ' ' + js['region_name'] + ' ' + js['city']
-                country_code = js['country_code']
-                location = Location(ip=ip, country_code=js['country_code'], country_name=location)
+                locat = js['country_name'] +' '+ js['region_name'] +' '+ js['city']
+                country_code=js['country_code']
+                location = Location(ip=ip, country_code=js['country_code'], country_name=locat)
                 db.session.add(location)
                 db.session.commit()
         a = 0
         while a < 210:
-            a += 1
+            a+=1
             if data["features"][a]["properties"]["Country_Code"] == country_code:
                 if x == 4:
-                    data["features"][a]["properties"]["Location"] = "(Default) "+location
+                    data["features"][a]["properties"]["Location"]= "(Default) "+locat
 
                 else:
-                    data["features"][a]["properties"]["Location"] = location
-                data["features"][a]["properties"]["Location_no"] = x
-                x += 1
+                    data["features"][a]["properties"]["Location"]= locat
+                data["features"][a]["properties"]["Location_no"]= x
+                x+=1
                 break
+
 
     json.dump(data, open("app/pdf/world-population.geo2.json",'w'))
 
     return render_template('compare_country.html', form=form, posts=posts,
                            pagination=pagination, reg_sch="active", regular="active")
 
-
 @main.route('/regular', methods=['GET', 'POST'])
 def regular():
-    form_freq = PostFreq()
-    if current_user.can(Permission.WRITE_ARTICLES) and form_freq.validate_on_submit():
+    formFreq = PostFreq()
+    if current_user.can(Permission.WRITE_ARTICLES) and formFreq.validate_on_submit():
         sha256 = None
-        date_time_gmt=None
-        url_site = form_freq.urlSite.data
-        freq = form_freq.frequency.data
-        email = form_freq.email.data
-        results = downloader.get_url_history(url_site)
-        originstamp_result = results.originStampResult
+        dateTimeGMT=None
+        urlSite=formFreq.urlSite.data
+        freq = formFreq.frequency.data
+        email = formFreq.email.data
+        results = downloader.get_url_history(urlSite)
+        originStampResult = results.originStampResult
         sha256 = results.hashValue
         title = results.webTitle
-        if originstamp_result is not None:
-            date_time_gmt = originstamp_result.headers['Date']
-            originstamp_time = datetime.strptime(date_time_gmt, "%a, %d %b %Y %H:%M:%S %Z")
+        if originStampResult is not None:
+            dateTimeGMT=originStampResult.headers['Date']
+            origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z")
         else:
-            originstamp_time = datetime.now()
+            origStampTime = datetime.now()
 
-        already_exist = Post.query.filter(and_(Post.urlSite.like(url_site),
-                                               Post.hashVal.like(sha256))).first()
+        already_exist = Post.query.filter(and_(Post.urlSite.like(urlSite),
+                                            Post.hashVal.like(sha256))).first()
         if already_exist is not None:
             post_new = already_exist
         else:
-            post_new = Post(body=form_freq.body.data, urlSite=url_site, hashVal=sha256, webTitl=title,
-                            origStampTime=originstamp_time, author=current_user._get_current_object())
+            post_new = Post(body=formFreq.body.data, urlSite=urlSite, hashVal=sha256, webTitl=title,
+                            origStampTime=origStampTime,
+                            author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
-        regular_new = Regular(frequency=freq, postID=post_new, email=email)
+        regular_new = Regular(frequency=freq,postID=post_new,email=email)
         db.session.add(regular_new)
         db.session.commit()
         return redirect(url_for('.regular'))
@@ -473,9 +482,8 @@ def regular():
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
-    return render_template('regular.html', form=form_freq, posts=posts,
+    return render_template('regular.html', form=formFreq, posts=posts,
                            pagination=pagination, reg_page="active", regular="active")
-
 
 @main.route('/user/<username>')
 def user(username):
@@ -536,56 +544,49 @@ def edit_profile_admin(id):
 @main.route('/check_selected', methods=['GET','POST'])
 def check_selected():
     global selected
-    posts = request.args.get('post', 0, type=int)
+    post = request.args.get('post', 0, type=int)
     if 'selected' in globals():
         if selected is not None:
-            result = str(selected)+':'+str(posts)
+            result = str(selected)+':'+str(post)
             selected = None
-            return json.dumps({'result': result})
+            return json.dumps({'result': result});
         else:
-            selected = posts
-            return json.dumps({'result': str(posts)})
+            selected = post
+            return json.dumps({'result': str(post)});
     else:
-        selected = posts
-        return json.dumps({'result': str(posts)})
-
+        selected = post
+        return json.dumps({'result': str(post)});
 
 @main.route('/post/<int:id>')
 def post(id):
-    posts = Post.query.get_or_404(id)
-    return render_template('post.html', posts=[posts], single=True)
-
-
+    post = Post.query.get_or_404(id)
+    return render_template('post.html', posts=[post], single=True)
 @main.route('/very/<int:id>')
 def very(id):
-    ver = Post.query.get_or_404(id)
-    return render_template('very.html', verify=ver, single=True, search=False)
-
-
+    very = Post.query.get_or_404(id)
+    return render_template('very.html', verify=[very], single=True,search = False)
 @main.route('/comp/<int:id>')
 def comp(id):
-    com = Post.query.get_or_404(id)
-    return render_template('comp.html', verify=[com], single=True, search=False)
-
+    comp = Post.query.get_or_404(id)
+    return render_template('comp.html', verify=[comp],single=True,search = False)
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
 def verifyID(id):
-    posts = Post.query.get_or_404(id)
-    result_verify = verification.get_url_history(posts.urlSite)
-    text_previous = verification.get_file_text(posts.hashVal)
+    post = Post.query.get_or_404(id)
+    result_verify = verification.get_url_history(post.urlSite)
+    text_previous = verification.get_file_text(post.hashVal)
     text_left = verification.remove_tags(text_previous)
     text_right = verification.remove_tags(result_verify.html_text)
     text_left = htmldiff(text_left, text_left)
     text_right = htmldiff(text_left, text_right)
-    if result_verify.hashValue == posts.hashVal:
+    if result_verify.hashValue == post.hashVal:
         flash('The content in the url is not changed')
     else:
         flash('Change in the content found')
 
-    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=posts.timestamp,
+    return render_template('very.html',double=True,left=Markup(text_left),dateLeft = post.timestamp,
                            dateRight=datetime.now(), right=Markup(text_right), search=False, comp_page="active")
-
 
 @main.route('/verify_two/<ids>', methods=['GET', 'POST'])
 @login_required
@@ -593,7 +594,7 @@ def verify_two(ids):
     a_split = ids.split(':')
     post_1 = Post.query.get_or_404(a_split[0])
     post_2 = Post.query.get_or_404(a_split[1])
-    # result_verify_1 = verification.get_url_history(post_1.urlSite)
+    #result_verify_1 = verification.get_url_history(post_1.urlSite)
     text_1 = verification.get_file_text(post_1.hashVal)
     text_2 = verification.get_file_text(post_2.hashVal)
     text_left = verification.remove_tags(text_1)
@@ -605,37 +606,35 @@ def verify_two(ids):
     else:
         flash('Change in the content found')
 
-    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
-                           dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active")
-
+    return render_template('very.html',double=True,left=Markup(text_left),dateLeft = post_1.timestamp,
+                           dateRight = post_2.timestamp,right=Markup(text_right),search=False, comp_page="active")
 
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required
 @nocache
-def verify_domain(domain):
+def verifyDomain(domain):
     posts = Post.query.filter(Post.urlSite.contains(domain))
     verification.writePostsData(posts)
     page = request.args.get('page', 1, type=int)
-    pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
+    pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
         page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('search_domains.html', verify=posts,
-                           pagination=pagination, domain=domain, comp_page="active")
-
+                           pagination=pagination,domain=domain, comp_page="active")
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
-    posts = Post.query.get_or_404(id)
-    if current_user != posts.author and \
+    post = Post.query.get_or_404(id)
+    if current_user != post.author and \
             not current_user.can(Permission.ADMINISTER):
         abort(403)
     form = PostEdit()
     if form.validate_on_submit():
-        posts.body = form.body.data
-        db.session.add(posts)
+        post.body = form.body.data
+        db.session.add(post)
         flash('The post has been updated.')
-        return redirect(url_for('.post', id=posts.id))
-    form.body.data = posts.body
+        return redirect(url_for('.post', id=post.id))
+    form.body.data = post.body
     return render_template('edit_post.html', form=form)

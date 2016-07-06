@@ -99,11 +99,6 @@ class SearchPost(Form):
     urlSite = TextField("",validators=[Required()], render_kw={"placeholder": "Search"})
     submit = SubmitField('Search')
 
-
-class URL_Status(Form):
-    urlSite = URLField("Enter URL to check where it is blocked?",validators=[url(), Required()], render_kw={"placeholder": "http://www.example.com"})
-    submit = SubmitField('Search')
-
 class SearchOptions(Form):
     #china = RadioField('', choices=[('china','China')])
     #usa = RadioField('', choices=[('usa','USA')])

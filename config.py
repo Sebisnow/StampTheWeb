@@ -5,22 +5,22 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
-    MAIL_SERVER = 'smtp.uni-konstanz.de'
+    MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    MAIL_SUBJECT_PREFIX = '[Stamp The Web]'
-    MAIL_SENDER = 'Stamp The Web Admin <waqar.detho@uni-konstanz.de>'
-    #ADMIN = os.environ.get('ADMIN')
-    ADMIN = 'waqar.detho@uni-konstanz.de'
-    POSTS_PER_PAGE = 20
-    CHINA_PROXY_PORT = "101.201.42.44:3128"
-    USA_PROXY_PORT = "169.50.87.252:80"
-    UK_PROXY_PORT = "89.34.97.132:8080"
-    CHINA_PROXY = "101.201.42.44"
-    USA_PROXY = "169.50.87.252"
-    UK_PROXY = "89.34.97.132"
+    MAIL_USERNAME = 'stamptheweb@gmail.com'
+    MAIL_PASSWORD = 'hD7BieuJFM7Zi2ZsJh6kb8Sn'
+    FLASKY_MAIL_SUBJECT_PREFIX = '[StampTheWeb]'
+    FLASKY_MAIL_SENDER = 'StampTheWeb Admin <stamptheweb@gmail.com>'
+    #FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
+    FLASKY_ADMIN = 'stamptheweb@gmail.com'
+    FLASKY_POSTS_PER_PAGE = 20
+    FLASKY_CHINA_PROXY = "http://60.216.40.135:9999"
+    FLASKY_USA_PROXY = "http://199.115.117.212:80"
+    FLASKY_UK_PROXY = "http://90.216.222.23:8080"
+    CHINA_PROXY = "60.216.40.135"
+    USA_PROXY = "199.115.117.212"
+    UK_PROXY = "90.216.222.23"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
@@ -42,13 +42,13 @@ class TestingConfig(Config):
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+        'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+
 
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
     'production': ProductionConfig,
-    'heroku': DevelopmentConfig,
 
     'default': DevelopmentConfig
 }
