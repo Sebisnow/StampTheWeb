@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "_macros.html" as macros %}
-{% block title %}WEB Stamps{% endblock %}
+{% block title %}Stamp The Web{% endblock %}
 {% block page_content %}
 
 <div class="page-header">
@@ -10,7 +10,7 @@
 <h2>Trusted Timestamping of Web Pages</h2>
 <div style="width: 50%">
     <p lingdex="0">
-WEB Stamps is a trusted timestamping service for web-based content that can be used free of charge. The service enables users to automatically create trusted timestamps to preserve the existence of online content at a particular point in time, such as news paper articles, blog posts, etc. <br> This enables users to prove that certain information online existed in a particular state at the time it was 'trusted timestamped' using WEB Stamps.    </p>
+Stamp The Web is a trusted timestamping service for web-based content that can be used free of charge. The service enables users to automatically create trusted timestamps to preserve the existence of online content at a particular point in time, such as news paper articles, blog posts, etc. <br> This enables users to prove that certain information online existed in a particular state at the time it was 'trusted timestamped' using Stamp The Web.    </p>
 </div>
 {% if current_user.can(Permission.WRITE_ARTICLES) %}
 <div class="container">
