@@ -119,16 +119,16 @@ def remove_unwanted_data():
 
 def get_text_from_other_country(china, usa, uk, url):
     if china is True:
-        proxy = app.config['FLASKY_CHINA_PROXY']
+        proxy = app.config['STW_CHINA_PROXY']
         hash, text = update_and_send(proxy, url)
         return hash,text
 
     if usa is True:
-        proxy = app.config['FLASKY_USA_PROXY']
+        proxy = app.config['STW_USA_PROXY']
         hash, text = update_and_send(proxy,url)
         return hash, text
     if uk:
-        proxy = app.config['FLASKY_UK_PROXY']
+        proxy = app.config['STW_UK_PROXY']
         hash, text = update_and_send(proxy, url)
         return hash, text
 

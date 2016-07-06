@@ -1,6 +1,6 @@
 Dear {{ user.username }},
 
-Welcome to Flasky!
+Welcome to Stamp The Web!
 
 You are receiving this email, since you have created a regular stamps. We would like to inform you that
     we found a change in your timestamped page. To view your changed post click here.

@@ -89,7 +89,7 @@ def index():
         db.session.commit()
         page = request.args.get('page', 1, type=int)
         pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('regular.html', form=form_freq, posts=posts,
@@ -106,7 +106,7 @@ def index():
 
         page = request.args.get('page', 1, type=int)
         pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
@@ -128,7 +128,7 @@ def compare():
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
@@ -138,7 +138,7 @@ def compare():
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
@@ -155,7 +155,7 @@ def compare():
                 domain_name_unique.add(name + ';'+str(count))
     page = request.args.get('page', 1, type=int)
     pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
@@ -181,7 +181,7 @@ def compare_options(ids):
 
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_options.html', verify=posts, form=form, form_choice=form_choice,
@@ -192,7 +192,7 @@ def compare_options(ids):
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
             pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-                page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+                page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_options.html', verify=posts,
@@ -235,7 +235,7 @@ def compare_options(ids):
 
         page = request.args.get('page', 1, type=int)
         pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('search_options.html', verify=posts, form=form, form_choice=form_choice,
@@ -247,7 +247,7 @@ def compare_options(ids):
         verification.writePostsData(posts)
         page = request.args.get('page', 1, type=int)
         pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-            page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+            page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
             error_out=False)
         posts = pagination.items
         return render_template('search_options.html', verify=posts,
@@ -301,7 +301,7 @@ def block():
             return redirect(url_for('.block'))
     page = request.args.get('page', 1, type=int)
     pagination = Block.query.order_by(Block.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('block.html', form=form, posts=posts,
@@ -391,7 +391,7 @@ def compare_country():
         return redirect(url_for('.compare_country'))
     page = request.args.get('page', 1, type=int)
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
 
@@ -479,7 +479,7 @@ def regular():
         return redirect(url_for('.regular'))
     page = request.args.get('page', 1, type=int)
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('regular.html', form=formFreq, posts=posts,
@@ -490,7 +490,7 @@ def user(username):
     user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
     pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('user.html', user=user, posts=posts,
@@ -617,7 +617,7 @@ def verifyDomain(domain):
     verification.writePostsData(posts)
     page = request.args.get('page', 1, type=int)
     pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-        page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('search_domains.html', verify=posts,
