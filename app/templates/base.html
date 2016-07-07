@@ -36,7 +36,15 @@
                         <li class="{{ reg_page }}"><a href="{{ url_for('main.regular') }}" >Schedule recurring URL timestamps</a></li>
                         <li class="{{ reg_sch }}"><a href="{{ url_for('main.compare_country') }}" >Schedule recurring URL timestamps from different locations</a></li>
                     </ul>
-                <li class="{{ block_page }}"><a href="{{ url_for('main.block') }}">Block Articles</a></li>
+                <li class="dropdown {{ block_page }}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            Block Articles <b class="caret"></b>
+                        </a>
+                    <ul class="dropdown-menu">
+                        <li class="{{ block_block }}"><a href="{{ url_for('main.block') }}">Find for a location</a></li>
+                        <li class="{{ block_country }}"><a href="{{ url_for('main.block_country') }}" >Find Block map</a></li>
+                    </ul>
+                </li>
                 <li class="{{ stat_page }}"><a href="{{ url_for('main.statistics') }}">Statistics</a></li>
                 {% endif %}
             </ul>
