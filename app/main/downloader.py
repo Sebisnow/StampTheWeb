@@ -122,7 +122,7 @@ def remove_unwanted_data_block_country():
     a = 0
     while a < 211:
         data["features"][a]["properties"]["Block"] = 0
-        data["features"][a]["properties"]["Block_Status"] = ""
+        data["features"][a]["properties"]["Block_Status"] = "Unknown"
         del data["features"][a]["properties"]["ISO_3_CODE"]
         del data["features"][a]["properties"]["NAME_1"]
         del data["features"][a]["properties"]["GMI_CNTRY"]
@@ -152,7 +152,7 @@ def search_for_url(url):
 
     for k in proxy_list:
         proxy_list[k][2] = q.get()
-        # print(proxy_list[k][2], proxy_list[k][0])  #for Debugging open this
+        print(proxy_list[k][2], proxy_list[k][0])  #for Debugging open this
 
     return proxy_list
 

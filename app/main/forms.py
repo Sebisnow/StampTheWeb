@@ -125,9 +125,8 @@ class SearchPost(Form):
 
 
 class URL_Status(Form):
-    urlSite = URLField("Enter URL to check where it is blocked?", validators=[url(), Required()],
-                       render_kw={"placeholder": "http://www.example.com"})
-submit = SubmitField('Search')
+    urlSite = URLField("Enter URL to check where it is blocked?", validators=[url(), Required()], render_kw={"placeholder": "http://www.example.com"})
+    submit = SubmitField('Search')
 
 
 class SearchOptions(Form):

@@ -347,19 +347,37 @@ def statistics():
 
     return render_template('statistics.html', stat_page="active")
 
-
+@nocache
 @main.route('/block_country', methods=['GET', 'POST'])
 def block_country():
     form = URL_Status()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         block_list = downloader.search_for_url(form.urlSite.data)
         data = downloader.remove_unwanted_data_block_country()
+        for k in block_list:
+            a = 0
+            while a < 210:
+                if data["features"][a]["properties"]["NAME"] == block_list[k][0]:
+                    if block_list[k][2] == 200:
+                        data["features"][a]["properties"]["Block"] = 1
+                        data["features"][a]["properties"]["Block_Status"] = "Not Blocked in this country [200]"
+                    elif block_list[k][2] == 404:
+                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block_Status"] = "The URL not found [404]"
+                    elif block_list[k][2] == 403:
+                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block_Status"] = "The URL is fobidden in this country [403]"
+                    else:
+                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block_Status"] = "The URL is blocked in this country"
+                a += 1
+
         json.dump(data, open("app/pdf/block-data-country.geo.json",'w'))
         return render_template('block_country.html', block_country="active", block_page="active",
-                               form=form, file='block-data-country.geo.json')
+                           form=form, file='block-data-country.geo.json')
 
     return render_template('block_country.html', block_country="active", block_page="active",
-                           form=form, file='temp-world.geo.json')
+                           form=form, file='tempelate_block_country.json')
 
 
 @main.route('/compare_country', methods=['GET', 'POST'])
@@ -637,7 +655,6 @@ def verify_domain(domain):
     posts = pagination.items
     return render_template('search_domains.html', verify=posts,
                            pagination=pagination, domain=domain, comp_page="active")
-
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
