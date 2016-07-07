@@ -12,6 +12,9 @@ from readability.readability import Document
 from subprocess import check_output, call, DEVNULL
 from app import db
 import pdfkit
+import queue
+import threading
+import csv
 from . import main
 from flask import flash
 import logging
@@ -110,6 +113,61 @@ def remove_unwanted_data():
         a += 1
 
     return data
+
+
+def remove_unwanted_data_block_country():
+    basePath = 'app/pdf/temp-world.geo.json'
+    with open(basePath) as data_file:
+        data = json.load(data_file)
+    a = 0
+    while a < 211:
+        data["features"][a]["properties"]["Block"] = 0
+        data["features"][a]["properties"]["Block_Status"] = ""
+        del data["features"][a]["properties"]["ISO_3_CODE"]
+        del data["features"][a]["properties"]["NAME_1"]
+        del data["features"][a]["properties"]["GMI_CNTRY"]
+        del data["features"][a]["properties"]["NAME_12"]
+        del data["features"][a]["properties"]["AREA"]
+        del data["features"][a]["properties"]["Percentage"]
+        del data["features"][a]["properties"]["URLS"]
+        a += 1
+
+    return data
+
+
+def search_for_url(url):
+    index = 0
+    proxy_list = {}
+    with open(basePath+"proxy_list.tsv", "rt", encoding="utf8") as tsv:
+        for line in csv.reader(tsv, delimiter="\t"):
+            proxy_list[index] = [line[0], line[1], None]
+            index += 1
+
+    q = queue.Queue()
+    for k in proxy_list:
+        p = proxy_list[k][1]
+        t = threading.Thread(target=get_url, args=(q, p, url))
+        t.daemon = True
+        t.start()
+
+    for k in proxy_list:
+        proxy_list[k][2] = q.get()
+        # print(proxy_list[k][2], proxy_list[k][0])  #for Debugging open this
+
+    return proxy_list
+
+
+def get_url(q, p, url):
+    r = None
+    try:
+        r = requests.get(url, proxies={"http": p})
+    except:
+        q.put(r)
+
+    if r is not None:
+        q.put(r.status_code)
+    else:
+        q.put(None)
 
 
 def get_text_from_other_country(china, usa, uk, url):
