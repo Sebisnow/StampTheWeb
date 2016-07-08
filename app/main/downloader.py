@@ -249,6 +249,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
             os.rename(ipfs_hash, ipfs_hash + ".html")
             app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
         except Exception as e:
+            print(e)
             app.logger.error("Error while trying to fetch from IPFS" + e + "\n" + traceback.print_last())
 
         app.logger.info("Fetched the html from ipfs: " + str(os.path.exists(ipfs_hash)))
@@ -257,8 +258,8 @@ def create_html_from_url(html_text, ipfs_hash, url):
         app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
     except FileNotFoundError as f:
         app.logger.error("FileNotFoundError while trying to get file through IPFS\n" + f.strerror)
-    except Exception:
-
+    except Exception as e:
+        print(e)
         app.logger.info('Could not fetch from IPFS, trying again in another way.')
         try:
             with open(path, 'w') as file:
