@@ -241,7 +241,8 @@ def create_html_from_url(html_text, ipfs_hash, url):
         app.logger.info("Trying to fetch the HTML from IPFS")
         try:
             out = check_output(['ipfs', 'get', ipfs_hash], shell=True, stderr=DEVNULL)
-            app.logger.info("ipfs command completed. Fetched File present: " + str(os.path.exists(ipfs_hash)))
+            app.logger.info("ipfs command completed. Fetched File present: " +
+                            str(os.path.exists(basePath + ipfs_hash)))
         except FileNotFoundError as e:
             app.logger.info(e.strerror + " ipfs command not found trying another way.")
             out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], shell=True, stderr=DEVNULL)
@@ -249,7 +250,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
             app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
         except Exception as e:
             app.logger.error("Error while trying to fetch from IPFS" + e + "\n" + traceback.print_last())
-            
+
         app.logger.info("Fetched the html from ipfs: " + str(os.path.exists(ipfs_hash)))
         os.rename(ipfs_hash, ipfs_hash + ".html")
         app.logger.info("Renamed the fetched HTML to have the .html ending")
@@ -258,7 +259,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
         app.logger.error("FileNotFoundError while trying to get file through IPFS\n" + f.strerror)
     except Exception:
 
-        app.logger.info('Could not submit to IPFS or rather get from IPFS, trying again.')
+        app.logger.info('Could not fetch from IPFS, trying again in another way.')
         try:
             with open(path, 'w') as file:
                 file.write(html_text)
