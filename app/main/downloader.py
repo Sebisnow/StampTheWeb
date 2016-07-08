@@ -244,6 +244,8 @@ def create_html_from_url(html_text, ipfs_hash, url):
         except FileNotFoundError as e:
             app.logger.info(e.strerror + " ipfs command not found trying another way.")
             out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], shell=True, stderr=DEVNULL)
+            os.rename(ipfs_hash, ipfs_hash + ".html")
+            app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
         app.logger.info("Fetched the html from ipfs: " + os.path.exists())
         os.rename(ipfs_hash, ipfs_hash + ".html")
         app.logger.info("Renamed the fetched HTML to have the .html ending")
@@ -520,9 +522,13 @@ def save_file_ipfs(text):
         with open(path, "w") as f:
             f.write(text)
     except FileNotFoundError as e:
-        app.logger.error("Due to FileNotFoundError could not create tempfile to save text in " + path)
+        app.logger.error("Due to FileNotFoundError could not create tempfile to save text in " + path +
+                         "\n Current working directory is: " + os.getcwd())
         app.logger.error(e.characters_written)
         app.logger.error(e.strerror)
+    except AttributeError as e:
+        app.logger.error("Due to AttributeError could not create tempfile to save text in " + path)
+        app.logger.error(e.args)
     except Exception as e:
         app.logger.error("could not create tempfile to save text in " + path)
         app.logger.error(e)
