@@ -240,17 +240,18 @@ def create_html_from_url(html_text, ipfs_hash, url):
         #TODO make sure the output of the system call returns what it should
         app.logger.info("Trying to fetch the HTML from IPFS")
         try:
-            out = check_output(['ipfs', 'get', ipfs_hash], shell=True, stderr=DEVNULL)
+            out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
             app.logger.info("ipfs command completed. Fetched File present: " +
                             str(os.path.exists(basePath + ipfs_hash)))
         except FileNotFoundError as e:
             app.logger.info(e.strerror + " ipfs command not found trying another way.")
-            out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], shell=True, stderr=DEVNULL)
+            out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
             os.rename(ipfs_hash, ipfs_hash + ".html")
             app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
         except Exception as e:
             app.logger.error("Error while trying to fetch from IPFS" + str(e) + "\n")
-            out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], shell=True, stderr=DEVNULL)
+            out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
+            app.logger.info("There is a file called " + path + ": " + str(os.path.exists(basePath + ipfs_hash)))
             os.rename(ipfs_hash, ipfs_hash + ".html")
             app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
 
