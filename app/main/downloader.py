@@ -239,7 +239,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
         os.chdir(basePath)
         #TODO make sure the output of the system call returns what it should
         app.logger.info("Trying to fetch the HTML from IPFS")
-        out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
+        out = check_output(['ipfs', 'get', ipfs_hash], shell=True, stderr=DEVNULL)
         app.logger.info("Fetched the html from ipfs: " + os.path.exists())
         os.rename(ipfs_hash, ipfs_hash + ".html")
         app.logger.info("Renamed the fetched HTML to have the .html ending")
