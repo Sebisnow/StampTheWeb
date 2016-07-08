@@ -258,7 +258,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
         except FileNotFoundError as e:
             if not app.config["TESTING"]:
                 flash(u'Could not create HTML from ' + url, 'error')
-            app.logger.error('Could not create HTML from the: ' + url + '\n' + e.characters_written)
+            app.logger.error('Could not create HTML from the: ' + url + '\n' + e.strerror)
             return None
         except AttributeError as att:
             if not app.config["TESTING"]:
@@ -304,7 +304,7 @@ def calculate_hash_for_html_doc(doc):
     sha256 = save_file_ipfs(text)
 
     app.logger.info('Hash:' + sha256)
-    app.logger.info('HTML:' + text)
+    # app.logger.info('HTML:' + text)
     return sha256, text
 
 
