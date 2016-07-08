@@ -239,13 +239,15 @@ def create_html_from_url(html_text, ipfs_hash, url):
         os.chdir(basePath)
         #TODO make sure the output of the system call returns what it should
         out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
+        app.logger.info("Fetched the html from ipfs.")
         os.rename(basePath + ipfs_hash, path)
-        app.logger.info(out)
+        app.logger.info("Renamed the fetched HTML to have the .html ending")
+        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
     except Exception:
 
         app.logger.info('Could not submit to IPFS or rather get from IPFS, trying again.')
         try:
-            with open(path, 'w+') as file:
+            with open(path, 'w') as file:
                 file.write(html_text)
             if os.path.isfile(path):
                 ip = ipfs_Client.add(path)
