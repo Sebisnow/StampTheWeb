@@ -507,8 +507,13 @@ def save_file_ipfs(text):
     path = basePath + "tempfile.html"
     app.logger.info("Trying to create temporary file:" + path)
     try:
+        os.remove(path)
         with open(path, "w") as f:
             f.write(text)
+    except FileNotFoundError as e:
+        app.logger.error("Due to FileNotFoundError could not create tempfile to save text in " + path)
+        app.logger.error(e.characters_written)
+        app.logger.error(e.strerror)
     except Exception as e:
         app.logger.error("could not create tempfile to save text in " + path)
         app.logger.error(e)
