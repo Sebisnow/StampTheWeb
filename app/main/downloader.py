@@ -244,7 +244,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
             app.logger.info("ipfs command completed. Fetched File present: " +
                             str(os.path.exists(basePath + ipfs_hash)))
         except FileNotFoundError as e:
-            app.logger.info(e.strerror + " ipfs command not found trying another way.")
+            app.logger.info(e.strerror + " ipfs command not found trying another way." + type(ipfs_hash))
             out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
             os.rename(ipfs_hash, ipfs_hash + ".html")
             app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
