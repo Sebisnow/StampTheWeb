@@ -505,7 +505,7 @@ def get_text_timestamp(text):
 
 def save_file_ipfs(text):
     path = basePath + "temp.html"
-    app.logger.info("Trying to create temporary file:" + path)
+    app.logger.info("Working Directory: " + os.getcwd() + "trying to create temporary file:" + path)
     try:
         os.remove(path)
         app.logger.info(path + " File exists before modification " + str(os.path.exists(path)))
