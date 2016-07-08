@@ -1,9 +1,12 @@
 import unittest
+import requests
 from app.main import downloader as down
 from flask import current_app
 from app import create_app, db
 import ipfsApi as ipfs
 import os
+import logging
+from readability import Document
 from subprocess import check_output, DEVNULL
 
 
@@ -14,6 +17,10 @@ class BasicsTestCase(unittest.TestCase):
         self.app_context.push()
         self.client = ipfs.Client()
         db.create_all()
+        down.basePath = "/home/sebastian/testing-stw/"
+        log_handler = logging.FileHandler('/home/sebastian/testing-stw/STW.log')
+        log_handler.setLevel(logging.INFO)
+        self.app.logger.setLevel(logging.INFO)
 
     def tearDown(self):
         db.session.remove()
@@ -74,6 +81,8 @@ class BasicsTestCase(unittest.TestCase):
         self.sys_data_test(result)
 
     def sys_data_test(self, result):
+        # Helper Method for test_sys
+
         hash_val = result.hashValue
         print("    Check for HTML")
         self.assertTrue(os.path.exists(down.basePath + hash_val + ".html"), "HTML was not created")
@@ -91,6 +100,8 @@ class BasicsTestCase(unittest.TestCase):
         print("    Testing the resulting Hash Values for consistency")
         thread2 = down.get_url_history("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
                                        "-oelflut-ist-zu-ende-1.3047480")
+        print(thread1.hashValue)
+        print(thread2.hashValue)
         print("    Second function call finished")
         thread3 = down.get_url_history("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
                                        "-oelflut-ist-zu-ende-1.3047480")
@@ -99,3 +110,29 @@ class BasicsTestCase(unittest.TestCase):
         self._baseAssertEqual(thread1.hashValue, thread2.hashValue, "The Hash Values of 1 and 2 do not match")
         print("    Checking the second two of three hashes")
         self._baseAssertEqual(thread2.hashValue, thread3.hashValue, "The Hash Values of 2 and 3 do not match")
+
+    def test_save_file_ipfs(self):
+        down.basePath = '/home/sebastian/testing-stw/'
+        test_sha = "QmREyeWxAGtuQ5UiiTs13zp5ZamjkVBYpnDCF1bTgn7Atc"
+        # :param test_sha: this is the IPFS hash of the example.html content
+        print("Testing the save_file_ipfs with test hash and example input file to verify the IPFS saving steps")
+        with open(down.basePath + "example.html", "r") as f:
+            ex_text = f.read()
+        sha256 = down.save_file_ipfs(ex_text)
+        print("    The example hash: " + test_sha)
+        print("    The returned hash: " + sha256)
+        self.assertEqual(sha256, test_sha)
+
+    def test_create_html_from_url(self):
+        down.basePath = '/home/sebastian/testing-stw/'
+        test_sha = "QmREyeWxAGtuQ5UiiTs13zp5ZamjkVBYpnDCF1bTgn7Atc"
+        # :param test_sha: this is the IPFS hash of the example.html content
+        print("Testing the create_html_from_url method to verify IPFS gets the file and it is renamed to have a .html "
+              "ending.")
+        with open(down.basePath + "example.html", "r") as f:
+            ex_text = f.read()
+        down.create_html_from_url(ex_text, test_sha, "test-URL")
+        print("    There is a file called " + test_sha + ".html: " + str(os.path.exists(
+            down.basePath + test_sha + '.html')))
+        self.assertTrue(os.path.exists(down.basePath + test_sha + '.html'))
+
