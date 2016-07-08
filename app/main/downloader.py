@@ -508,8 +508,10 @@ def save_file_ipfs(text):
     try:
         with open(path, "w") as f:
             f.write(text)
-    except:
+    except Exception as e:
         app.logger.error("could not create tempfile to save text in " + path)
+        app.logger.error(e)
+    app.logger.info("    There is a file called " + path + ": " + str(os.path.exists(path)))
     ipfs_hash = ipfs_Client.add(path)
     print(ipfs_hash[0]['Hash'])
     return ipfs_hash[0]['Hash']
