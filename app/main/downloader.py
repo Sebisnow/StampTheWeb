@@ -249,7 +249,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
                 file.write(html_text)
             if os.path.isfile(path):
                 ip = ipfs_Client.add(path)
-                ipfs_hash = ip[1]["Hash"]
+                ipfs_hash = ip[0]["Hash"]
                 app.logger.info("Added following file to IPFS: " + path)
                 app.logger.info('With Hash:' + ipfs_hash)
                 return ipfs_hash
@@ -509,8 +509,8 @@ def save_file_ipfs(text):
     except:
         app.logger.error("could not create tempfile to save text in " + path)
     ipfs_hash = ipfs_Client.add(path)
-    print(ipfs_hash[1]['Hash'])
-    return ipfs_hash[1]['Hash']
+    print(ipfs_hash[0]['Hash'])
+    return ipfs_hash[0]['Hash']
 
 
 def get_hash_history(sha256):
