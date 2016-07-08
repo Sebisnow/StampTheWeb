@@ -91,6 +91,8 @@ class BasicsTestCase(unittest.TestCase):
         print("    Testing the resulting Hash Values for consistency")
         thread2 = down.get_url_history("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
                                        "-oelflut-ist-zu-ende-1.3047480")
+        print(thread1.hashValue)
+        print(thread2.hashValue)
         print("    Second function call finished")
         thread3 = down.get_url_history("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
                                        "-oelflut-ist-zu-ende-1.3047480")

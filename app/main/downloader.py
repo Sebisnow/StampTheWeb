@@ -8,6 +8,7 @@ import shutil
 import zipfile
 import traceback
 import ipfsApi as ipfs
+from docutils.nodes import author
 from readability.readability import Document
 from subprocess import check_output, call, DEVNULL
 from app import db
@@ -37,6 +38,10 @@ options = {'quiet': ''}
 
 
 class ReturnResults(object):
+    """
+    :author: Waqar and Sebastian
+    Helper class to return the results from downloader to the views. Therefore this class is equivalent to an API.
+    """
     def __init__(self, originstamp_result, hash_value, web_title, errors=None):
         self.originStampResult = originstamp_result
         self.hashValue = hash_value
@@ -138,7 +143,7 @@ def remove_unwanted_data_block_country():
 def search_for_url(url):
     index = 0
     proxy_list = {}
-    with open(basePath+"proxy_list.tsv", "rt", encoding="utf8") as tsv:
+    with open(basePath + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
         for line in csv.reader(tsv, delimiter="\t"):
             proxy_list[index] = [line[0], line[1], None]
             index += 1
@@ -152,7 +157,7 @@ def search_for_url(url):
 
     for k in proxy_list:
         proxy_list[k][2] = q.get()
-        print(proxy_list[k][2], proxy_list[k][0])  #for Debugging open this
+        print(proxy_list[k][2], proxy_list[k][0])  # TODO for Debugging open this
 
     return proxy_list
 
@@ -173,17 +178,17 @@ def get_url(q, p, url):
 def get_text_from_other_country(china, usa, uk, url):
     if china is True:
         proxy = app.config['STW_CHINA_PROXY']
-        hash, text = update_and_send(proxy, url)
-        return hash, text
+        sha256, text = update_and_send(proxy, url)
+        return sha256, text
 
     if usa is True:
         proxy = app.config['STW_USA_PROXY']
-        hash, text = update_and_send(proxy, url)
-        return hash, text
+        sha256, text = update_and_send(proxy, url)
+        return sha256, text
     if uk:
         proxy = app.config['STW_UK_PROXY']
-        hash, text = update_and_send(proxy, url)
-        return hash, text
+        sha256, text = update_and_send(proxy, url)
+        return sha256, text
 
 
 def update_and_send(proxy, url):
@@ -203,7 +208,7 @@ class OriginstampError(Exception):
 
     def __init__(self, message, req):
         super(OriginstampError, self).__init__(message)
-        request = req
+        self.request = req
 
 
 def create_png_from_url(url, sha256):
@@ -212,10 +217,9 @@ def create_png_from_url(url, sha256):
     :param url: url to retrieve
     :param sha256: name of the downloaded png
     :returns: path to the created png """
-    app.logger.info('Creating PNG from URL:'+url)
+    app.logger.info('Creating PNG from URL:' + url)
     path = basePath + sha256 + '.png'
-    app.logger.info('PNG Path:'+path)
-    # call(['wkhtmltoimage', url, path, '--quality 20'], stderr=nullDevice)
+    app.logger.info('PNG Path:' + path)
     call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
     # call(["webkit2png", "-o", path, "-g", "1000", "1260", "-t", "30", url
     # subprocess.Popen(['wget', '-O', path, 'http://images.websnapr.com/?url='+url+'&size=s&nocache=82']).wait()
@@ -223,22 +227,23 @@ def create_png_from_url(url, sha256):
         return
     if not app.config["TESTING"]:
         flash(u'Could not create PNG from ' + url, 'error')
-    app.logger.error('Could not create PNG from the URL : '+url)
+    app.logger.error('Could not create PNG from the URL : ' + url)
     return
 
 
 def create_html_from_url(html_text, ipfs_hash, url):
     path = basePath + ipfs_hash + '.html'
-
+    app.logger.info("Fetching the HTML file from IPFS to save locally.")
     # fetch the to IPFS submitted html text to store on disk
     try:
         os.chdir(basePath)
-        out = check_output(['ipfs', 'get', hash['Hash']], stderr=DEVNULL)
-        os.rename(basePath + ipfs_hash, basePath + ipfs_hash + '.html')
+        #TODO make sure the output of the system call returns what it should
+        out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
+        os.rename(basePath + ipfs_hash, path)
         app.logger.info(out)
     except Exception:
 
-        app.logger.info('Could not submit to IPFS or rather get from IPFS trying again.')
+        app.logger.info('Could not submit to IPFS or rather get from IPFS, trying again.')
         try:
             with open(path, 'w+') as file:
                 file.write(html_text)
@@ -269,7 +274,7 @@ def create_pdf_from_url(url, sha256):
     """
     app.logger.info('Creating PDF from URL:' + url)
     path = basePath + sha256 + '.pdf'
-    app.logger.info('PDF Path:'+path)
+    app.logger.info('PDF Path:' + path)
     try:
         # TODO throws error
         pdfkit.from_url(url, path)
@@ -342,10 +347,11 @@ def submit(sha256, title=None):
 def submit_add_to_db(url, sha256, title):
     """
     submit hash to originStamp and store in DB.
+    # TODO store in WARC file that is described by the URL and append changed hashes of a URL to the same WARC.
 
     :param url: URL downloaded
     :param title: Title of the document behind the URL
-    :param sha256: hash to name file after
+    :param sha256: Hash to name file after
     """
     originstamp_result = submit(sha256, title)
     app.logger.info(originstamp_result.text)
@@ -429,7 +435,7 @@ def compress_files(files, js_files):
     sha256 = sha256_calc.hexdigest()
     try:
         os.rename(filename, sha256 + ".zip")
-    except FileExistsError as e:
+    except FileExistsError:
         # is needed on on windows, where os.rename can't override existing files.
         os.remove(sha256 + ".zip")
         os.rename(filename, sha256 + ".zip")
@@ -448,28 +454,28 @@ def check_database_for_url(url):
 """
 
 
-def submitHash(hash):
-    originstamp_result = submit(hash, "")
+def submitHash(sha256):
+    originstamp_result = submit(sha256, "")
     app.logger.info(originstamp_result.text)
     app.logger.info('Origin Stamp Response:' + originstamp_result.text)
     if originstamp_result.status_code >= 300:
         if not app.config["TESTING"]:
-            flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
-        return ReturnResults(None, hash, "None")
+            flash(u'300 Internal System Error. Could not submit sha256 to originstamp.', 'error')
+        app.logger.error('300 Internal System Error. Could not submit sha256 to originstamp')
+        return ReturnResults(None, sha256, "None")
     elif originstamp_result.status_code == 200:
         if not app.config["TESTING"]:
-            flash(u'Hash already submitted to OriginStamp' + ' Hash '+hash)
+            flash(u'Hash already submitted to OriginStamp' + ' Hash ' + sha256)
         app.logger.error('Hash already submitted to OriginStamp')
-        return ReturnResults(originstamp_result, hash, "")
-        # raise OriginstampError('Could not submit hash to Originstamp', r)
+        return ReturnResults(originstamp_result, sha256, "")
+        # raise OriginstampError('Could not submit sha256 to Originstamp', r)
     elif "errors" in originstamp_result.json():
         if not app.config["TESTING"]:
-            flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
-        return ReturnResults(None, hash, "None")
+            flash(u'300 Internal System Error. Could not submit sha256 to originstamp.', 'error')
+        app.logger.error('300 Internal System Error. Could not submit sha256 to originstamp')
+        return ReturnResults(None, sha256, "None")
     else:
-        return ReturnResults(originstamp_result, hash, "")
+        return ReturnResults(originstamp_result, sha256, "")
 
 
 def getHashOfFile(fname):
@@ -496,7 +502,7 @@ def get_text_timestamp(text):
 
 
 def save_file_ipfs(text):
-    path = basePath + "tempfile.txt"
+    path = basePath + "tempfile.html"
     try:
         with open(path, "w") as f:
             f.write(text)
@@ -507,11 +513,11 @@ def save_file_ipfs(text):
     return ipfs_hash[1]['Hash']
 
 
-def get_hash_history(hash):
+def get_hash_history(sha256):
     """
-    :parm hash: the hash which needs to verify from OriginStamps
+    :parm sha256: the sha256 which needs to verify from OriginStamps
     """
-    results = submitHash(hash)
+    results = submitHash(sha256)
     return results
 
 
@@ -576,7 +582,17 @@ def load_zip_submit(url, soup, enc):
 
 
 def save_render_zip_submit(html_text, sha256, url, title):
-
+    """
+    After IPFS has done it's magic this is the main handler for everything after the hash creation.
+    save_render_zip_submit creates(fetches from IPFS) the HTML file. Submits the sha256 hash to originstamp and creates
+    pdf and png of the website behind the URL.
+    :author: Sebastian
+    :param html_text: The HTML text as string.
+    :param sha256: The hash value associated with the HTML.
+    :param url: The URL that is being Timestamped.
+    :param title: The Title the user chose for this Timestamp.
+    :return: Returns an OriginstampResult object.
+    """
     try:
         create_html_from_url(html_text, sha256, url)
     except FileNotFoundError as fileError:
@@ -584,7 +600,7 @@ def save_render_zip_submit(html_text, sha256, url, title):
             if not app.config["TESTING"]:
                 flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
             app.logger.error('Internal System Error while creating HTML,: ' +
-                             fileError.strerror + "\n Maybe chack the path, current base path: " + basePath)
+                             fileError.strerror + "\n Maybe check the path, current base path is: " + basePath)
     # archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
     # archive.write(basePath + sha256 + '.html')
     # os.remove(basePath + sha256 + '.html')
@@ -623,17 +639,26 @@ def main():
     # url = 'http://www.theverge.com/2015/12/11/9891068/oneplus-x-review-android'
     # url = 'http://www.theverge.com/2016/1/29/10868232/starry-high-speed-internet-millimeter-wave'
     # url = 'http://www.sueddeutsche.de/wirtschaft/kommentar-gefaehrlich-verfuehrerisch-1.2833295'
-    # url = 'http://www.suedkurier.de/nachrichten/politik/Deutschland-weist-pro-Tag-bis-zu-200-Fluechtlinge-ab;art410924,8467176'
-    # url = 'http://www.nytimes.com/2016/01/29/us/politics/republican-debate.html?hp&action=click&pgtype=Homepage&clickSource=story-heading&module=a-lede-package-region&region=top-news&WT.nav=top-news'
-    # url = 'http://www.theguardian.com/uk-news/2016/jan/29/maoist-cult-leader-jailed-for-23-years-as-slave-daughter-goes-public'
-    # url = 'http://www.suedkurier.de/region/kreis-konstanz/kreis-konstanz/Birgit-Homburger-Haemmerle-handelt-unverantwortlich;art372432,8486747'
-    # url = 'http://www.theguardian.com/world/2016/feb/01/aung-san-suu-kyi-leads-party-into-myanmar-parliament-to-claim-power'
+    # url = 'http://www.suedkurier.de/nachrichten/politik/Deutschland-weist-pro-Tag-bis-zu-200-Fluechtlinge-
+    # ab;art410924,8467176'
+    # url = 'http://www.nytimes.com/2016/01/29/us/politics/republican-debate.html?hp&action=click&pgtype=Homepage&
+    # clickSource=story-heading&module=a-lede-package-region&region=top-news&WT.nav=top-news'
+    # url = 'http://www.theguardian.com/uk-news/2016/jan/29/maoist-cult-leader-jailed-for-23-years-as-slave-
+    # daughter-goes-public'
+    # url = 'http://www.suedkurier.de/region/kreis-konstanz/kreis-konstanz/Birgit-Homburger-Haemmerle-handelt-
+    # unverantwortlich;art372432,8486747'
+    # url = 'http://www.theguardian.com/world/2016/feb/01/aung-san-suu-kyi-leads-party-into-myanmar-parliament-to
+    # -claim-power'
     # url = 'http://www.theverge.com/2016/1/31/10880394/samsung-internet-android-ad-content-blocker-adblock-fast'
-    # url = 'http://www.suedkurier.de/region/kreis-konstanz/konstanz/Katamarane-verkehren-wieder-nach-Fahrplan;art372448,7538479'
+    # url = 'http://www.suedkurier.de/region/kreis-konstanz/konstanz/Katamarane-verkehren-wieder-nach-Fahrplan;
+    # art372448,7538479'
     # url = 'http://www.theverge.com/2016/2/1/10881470/airmail-ios-email-app-launch'
-    # url = 'http://www.suedkurier.de/region/linzgau-zollern-alb/zollernalbkreis/Obduktion-soll-toedlichen-Fastnachtsunfall-aufklaeren;art372549,8488507'
+    # url = 'http://www.suedkurier.de/region/linzgau-zollern-alb/zollernalbkreis/Obduktion-soll-toedlichen-
+    # Fastnachtsunfall-aufklaeren;art372549,8488507'
     # url = 'http://www.theverge.com/2016/1/31/10878834/spotify-dont-turn-into-itunes'
-    url = 'https://www.washingtonpost.com/politics/a-more-agitated-sanders-tries-to-fend-off-attacks-of-nervous-establishment/2016/01/31/15922f0c-c83b-11e5-a7b2-5a2f824b02c9_story.html?hpid=hp_hp-top-table-main_sandersmoment1045p%3Ahomepage%2Fstory'
+    url = 'https://www.washingtonpost.com/politics/a-more-agitated-sanders-tries-to-fend-off-attacks-of-nervous-' \
+          'establishment/2016/01/31/15922f0c-c83b-11e5-a7b2-5a2f824b02c9_story.html?hpid=hp_hp-top-table-main_' \
+          'sandersmoment1045p%3Ahomepage%2Fstory'
     print(get_url_history(url))
 
 
