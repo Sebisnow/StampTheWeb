@@ -238,11 +238,14 @@ def create_html_from_url(html_text, ipfs_hash, url):
     try:
         os.chdir(basePath)
         #TODO make sure the output of the system call returns what it should
+        app.logger.info("Trying to fetch the HTML from IPFS")
         out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
         app.logger.info("Fetched the html from ipfs: " + os.path.exists())
         os.rename(ipfs_hash, ipfs_hash + ".html")
         app.logger.info("Renamed the fetched HTML to have the .html ending")
         app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
+    except FileNotFoundError as f:
+        app.logger.error("FileNotFoundError while trying to get file through IPFS\n" + f.strerror)
     except Exception:
 
         app.logger.info('Could not submit to IPFS or rather get from IPFS, trying again.')
@@ -255,6 +258,8 @@ def create_html_from_url(html_text, ipfs_hash, url):
                 app.logger.info("Added following file to IPFS: " + path)
                 app.logger.info('With Hash:' + ipfs_hash)
                 return ipfs_hash
+            else:
+                print("writing the file failed.")
         except FileNotFoundError as e:
             if not app.config["TESTING"]:
                 flash(u'Could not create HTML from ' + url, 'error')
