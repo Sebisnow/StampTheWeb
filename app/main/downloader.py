@@ -274,6 +274,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
             if not app.config["TESTING"]:
                 flash(u'Could not create HTML from ' + url, 'error')
             app.logger.error('Could not create HTML from the: ' + url + '\n' + e.strerror + "\n" + e.filename)
+            app.logger.error(traceback.print_last())
             return None
         except AttributeError as att:
             if not app.config["TESTING"]:
