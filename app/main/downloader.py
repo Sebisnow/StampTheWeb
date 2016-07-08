@@ -259,9 +259,10 @@ def create_html_from_url(html_text, ipfs_hash, url):
     except FileNotFoundError as f:
         app.logger.error("FileNotFoundError while trying to get file through IPFS\n" + f.strerror)
     except Exception as e:
-        print(e)
-        app.logger.info('Could not fetch from IPFS, trying again in another way.')
+
+        app.logger.info('Could not fetch from IPFS, trying again in another way.\n ' + e)
         try:
+            app.logger.info("Writing text to file " + path)
             with open(path, 'w') as file:
                 file.write(html_text)
             if os.path.isfile(path):
