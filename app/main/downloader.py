@@ -505,12 +505,14 @@ def get_text_timestamp(text):
 
 def save_file_ipfs(text):
     path = basePath + "tempfile.html"
+    app.logger.info("Trying to create temporary file:" + path)
     try:
         with open(path, "w") as f:
             f.write(text)
     except Exception as e:
         app.logger.error("could not create tempfile to save text in " + path)
         app.logger.error(e)
+        app.logger.error(traceback.print_exc())
     app.logger.info("    There is a file called " + path + ": " + str(os.path.exists(path)))
     ipfs_hash = ipfs_Client.add(path)
     print(ipfs_hash[0]['Hash'])
