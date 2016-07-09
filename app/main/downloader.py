@@ -85,7 +85,8 @@ class RequestError(Exception):
 
 
 def remove_unwanted_data_regular():
-    with open('app/pdf/world-population.geo.json') as data_file:
+    basePath = 'app/pdf/temp-world.geo.json'
+    with open(basePath) as data_file:
         data = json.load(data_file)
     a = 0
     while a < 211:
@@ -105,7 +106,8 @@ def remove_unwanted_data_regular():
 
 
 def remove_unwanted_data():
-    with open('app/pdf/world-population.geo.json') as data_file:
+    basePath = 'app/pdf/temp-world.geo.json'
+    with open(basePath) as data_file:
         data = json.load(data_file)
     a = 0
     while a < 211:

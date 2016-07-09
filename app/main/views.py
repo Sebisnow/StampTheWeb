@@ -18,6 +18,7 @@ from sqlalchemy import or_, and_
 import socket
 import requests
 import json
+from random import randint
 
 
 global selected
@@ -347,8 +348,9 @@ def statistics():
 
     return render_template('statistics.html', stat_page="active")
 
-@nocache
+
 @main.route('/block_country', methods=['GET', 'POST'])
+@nocache
 def block_country():
     form = URL_Status()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
@@ -359,25 +361,25 @@ def block_country():
             while a < 210:
                 if data["features"][a]["properties"]["NAME"] == block_list[k][0]:
                     if block_list[k][2] == 200:
-                        data["features"][a]["properties"]["Block"] = 1
+                        data["features"][a]["properties"]["Block"] = 2
                         data["features"][a]["properties"]["Block_Status"] = "Not Blocked in this country [200]"
                     elif block_list[k][2] == 404:
-                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block"] = 1
                         data["features"][a]["properties"]["Block_Status"] = "The URL not found [404]"
                     elif block_list[k][2] == 403:
-                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block"] = 1
                         data["features"][a]["properties"]["Block_Status"] = "The URL is fobidden in this country [403]"
                     else:
-                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block"] = 1
                         data["features"][a]["properties"]["Block_Status"] = "The URL is blocked in this country"
                 a += 1
 
         json.dump(data, open("app/pdf/block-data-country.geo.json",'w'))
         return render_template('block_country.html', block_country="active", block_page="active",
-                           form=form, file='block-data-country.geo.json')
+                           form=form, file='block-data-country.geo.json', version=randint(0,1000))
 
     return render_template('block_country.html', block_country="active", block_page="active",
-                           form=form, file='tempelate_block_country.json')
+                           form=form, file='tempelate_block_country.json', version=randint(0,1000))
 
 
 @main.route('/compare_country', methods=['GET', 'POST'])
