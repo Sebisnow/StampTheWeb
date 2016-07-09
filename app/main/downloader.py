@@ -236,8 +236,10 @@ def create_html_from_url(html_text, ipfs_hash, url):
     app.logger.info("Fetching the HTML file from IPFS to save locally.")
     # fetch the to IPFS submitted html text to store on disk
     try:
+        cur_dir = os.getcwd()
         os.chdir(basePath)
-        #TODO make sure the output of the system call returns what it should
+        #TODO make sure the output of the system call returns what it should, possibly
+        # move try catch block out of the other
         app.logger.info("Trying to fetch the HTML from IPFS")
         try:
             out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
@@ -247,20 +249,22 @@ def create_html_from_url(html_text, ipfs_hash, url):
             app.logger.info(e.strerror + " ipfs command not found trying another way." + str(type(ipfs_hash)))
             out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
 
-            app.logger.info("There is a file called " + path + ipfs_hash + ": " + str(os.path.exists(basePath + ipfs_hash)))
+            app.logger.info("There is a file called " + path + ipfs_hash + ": " +
+                            str(os.path.exists(basePath + ipfs_hash)))
             os.rename(ipfs_hash, ipfs_hash + ".html")
             app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
         except Exception as e:
-            app.logger.error("Error while trying to fetch from IPFS" + str(e) + "\n")
+
+            app.logger.error("Error while trying to fetch from IPFS or renaming" + str(e) + "\n" +
+                             "Could be a Permission problem on the Server")
             out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
             app.logger.info("There is a file called " + path + ": " + str(os.path.exists(basePath + ipfs_hash)))
-            os.rename(ipfs_hash, ipfs_hash + ".html")
-            app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
 
         app.logger.info("Fetched the html from ipfs: " + str(os.path.exists(ipfs_hash)))
         os.rename(ipfs_hash, ipfs_hash + ".html")
         app.logger.info("Renamed the fetched HTML to have the .html ending")
-        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
+        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(ipfs_hash + '.html')))
+        os.chdir(cur_dir)
     except FileNotFoundError as f:
         app.logger.error("FileNotFoundError while trying to get file through IPFS\n" + f.strerror + "\n" + f.filename +
                          "\n" + str(f))
@@ -268,6 +272,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
 
         app.logger.info('Could not fetch from IPFS, trying again in another way.\n ' + str(e))
         try:
+            # TODO the following part can be refactored and almost deleted
             app.logger.info("Writing text to file " + path)
             with open(path, 'w') as file:
                 file.write(html_text)
