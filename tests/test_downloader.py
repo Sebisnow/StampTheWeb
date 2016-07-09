@@ -126,9 +126,13 @@ class BasicsTestCase(unittest.TestCase):
     def test_create_html_from_url(self):
         down.basePath = '/home/sebastian/testing-stw/'
         test_sha = "QmREyeWxAGtuQ5UiiTs13zp5ZamjkVBYpnDCF1bTgn7Atc"
-        # :param test_sha: this is the IPFS hash of the example.html content
         print("Testing the create_html_from_url method to verify IPFS gets the file and it is renamed to have a .html "
               "ending.")
+        os.remove(down.basePath + test_sha + ".html")
+        print("    There is a file called " + test_sha + ".html: " + str(os.path.exists(
+            down.basePath + test_sha + '.html')))
+        # :param test_sha: this is the IPFS hash of the example.html content
+
         with open(down.basePath + "example.html", "r") as f:
             ex_text = f.read()
         down.create_html_from_url(ex_text, test_sha, "test-URL")

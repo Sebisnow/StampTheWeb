@@ -238,17 +238,44 @@ def create_html_from_url(html_text, ipfs_hash, url):
     app.logger.info("Fetching the HTML file from IPFS to save locally.")
     # fetch the to IPFS submitted html text to store on disk
     try:
+        cur_dir = os.getcwd()
         os.chdir(basePath)
-        #TODO make sure the output of the system call returns what it should
-        out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
-        app.logger.info("Fetched the html from ipfs.")
-        os.rename(basePath + ipfs_hash, path)
-        app.logger.info("Renamed the fetched HTML to have the .html ending")
-        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
-    except Exception:
-
-        app.logger.info('Could not submit to IPFS or rather get from IPFS, trying again.')
+        #TODO make sure the output of the system call returns what it should, possibly
+        # move try catch block out of the other
+        app.logger.info("Trying to fetch the HTML from IPFS")
         try:
+            out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
+            app.logger.info("ipfs command completed. Fetched File present: " +
+                            str(os.path.exists(basePath + ipfs_hash)))
+        except FileNotFoundError as e:
+            app.logger.info(e.strerror + " ipfs command not found trying another way." + str(type(ipfs_hash)))
+            out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
+
+            app.logger.info("There is a file called " + path + ipfs_hash + ": " +
+                            str(os.path.exists(basePath + ipfs_hash)))
+            os.rename(ipfs_hash, ipfs_hash + ".html")
+            app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
+        except Exception as e:
+
+            app.logger.error("Error while trying to fetch from IPFS or renaming" + str(e) + "\n" +
+                             "Could be a Permission problem on the Server")
+            out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
+            app.logger.info("There is a file called " + path + ": " + str(os.path.exists(basePath + ipfs_hash)))
+
+        app.logger.info("Fetched the html from ipfs: " + str(os.path.exists(ipfs_hash)))
+        os.rename(ipfs_hash, ipfs_hash + ".html")
+        app.logger.info("Renamed the fetched HTML to have the .html ending")
+        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(ipfs_hash + '.html')))
+        os.chdir(cur_dir)
+    except FileNotFoundError as f:
+        app.logger.error("FileNotFoundError while trying to get file through IPFS\n" + f.strerror + "\n" + f.filename +
+                         "\n" + str(f))
+    except Exception as e:
+
+        app.logger.info('Could not fetch from IPFS, trying again in another way.\n ' + str(e))
+        try:
+            # TODO the following part can be refactored and almost deleted
+            app.logger.info("Writing text to file " + path)
             with open(path, 'w') as file:
                 file.write(html_text)
             if os.path.isfile(path):
@@ -258,9 +285,12 @@ def create_html_from_url(html_text, ipfs_hash, url):
                 app.logger.info('With Hash:' + ipfs_hash)
                 return ipfs_hash
         except FileNotFoundError as e:
+
             if not app.config["TESTING"]:
                 flash(u'Could not create HTML from ' + url, 'error')
-            app.logger.error('Could not create HTML from the: ' + url + '\n' + e.characters_written)
+            app.logger.error('Could not create HTML from the: ' + url + '\n' + e.strerror + "\n" +
+                             e.filename + "\n" + str(e))
+            app.logger.error(e.args)
             return None
         except AttributeError as att:
             if not app.config["TESTING"]:
@@ -306,7 +336,7 @@ def calculate_hash_for_html_doc(doc):
     sha256 = save_file_ipfs(text)
 
     app.logger.info('Hash:' + sha256)
-    app.logger.info('HTML:' + text)
+    # app.logger.info('HTML:' + text)
     return sha256, text
 
 
@@ -506,11 +536,20 @@ def get_text_timestamp(text):
 
 
 def save_file_ipfs(text):
-    path = basePath + "tempfile.html"
-    app.logger.info("Trying to create temporary file:" + path)
+    path = basePath + "temp.html"
+    app.logger.info("Working Directory: " + os.getcwd() + "trying to create temporary file:" + path)
     try:
+        app.logger.info(path + " File exists before modification " + str(os.path.exists(path)))
         with open(path, "w") as f:
             f.write(text)
+    except FileNotFoundError as e:
+        app.logger.error("Due to FileNotFoundError could not create tempfile to save text in " + path +
+                         "\n Current working directory is: " + os.getcwd())
+        app.logger.error(e.characters_written)
+        app.logger.error(e.strerror)
+    except AttributeError as e:
+        app.logger.error("Due to AttributeError could not create tempfile to save text in " + path)
+        app.logger.error(e.args)
     except Exception as e:
         app.logger.error("could not create tempfile to save text in " + path)
         app.logger.error(e)
