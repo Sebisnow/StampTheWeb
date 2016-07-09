@@ -13,8 +13,8 @@
 <script type="text/javascript" src="/pdf/bower_components/jquery/jquery.min.js" cache="no"></script>
 <script type="text/javascript" src="/pdf/bower_components/d3/d3.min.js" cache="no"></script>
 <script type="text/javascript" src="/pdf/bower_components/topojson/topojson.js" cache="no"></script>
-<script type="text/javascript" src="/pdf/lib/js/simple-map-d3-block-country.js?version={{version}}"></script>
-<!--<script type="text/javascript" src="/pdf/lib/js/simple-map-d3-block-country.js"></script>-->
+<!--<script type="text/javascript" src="/pdf/lib/js/simple-map-d3-block-country.js?version={{version}}"></script>-->
+<script type="text/javascript" src="/pdf/lib/js/simple-map-d3-block-country.js"></script>
 
 <script type="text/javascript">
   (function($) {
@@ -42,7 +42,7 @@
 
 <div class="tab-content">
     <div id="home" class="tab-pane fade in active">
-      <h3>Check where in the world an article is blocked</h3>
+      <h3>Check Where is this URL blocked</h3>
       {% if current_user.can(Permission.WRITE_ARTICLES) %}
         {{ wtf.quick_form(form, button_map={'submit':'primary'}) }}
         {% endif %}

@@ -153,7 +153,7 @@ function SimpleMapD3(o) {
   // Get data
   smd.getData = function() {
 	var noCache = new Date().getTime();
-    d3.json(smd.options.datasource, function(data) {
+    d3.json(smd.options.datasource +'?' + Math.floor(Math.random() * 1000), function(data) {
       smd.data = data;
       smd.loadData();
     });
