@@ -592,14 +592,14 @@ def post(id):
 
 
 @main.route('/very/<int:id>')
-def very(ids):
-    ver = Post.query.get_or_404(ids)
+def very(id):
+    ver = Post.query.get_or_404(id)
     return render_template('very.html', verify=ver, single=True, search=False)
 
 
 @main.route('/comp/<int:id>')
-def comp(ids):
-    com = Post.query.get_or_404(ids)
+def comp(id):
+    com = Post.query.get_or_404(id)
     return render_template('comp.html', verify=[com], single=True, search=False)
 
 
@@ -640,8 +640,8 @@ def verify_two(ids):
     else:
         flash('Change in the content found')
 
-    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
-                           dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active")
+    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp, hash2=post_2.hashVal,
+                           dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active", hash1=post_1.hashVal)
 
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required
