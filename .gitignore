@@ -1,5 +1,8 @@
 venv
 *.pyc
+*.pdf
+*.png
+*.html
 data-dev.sqlite	
 debuginfo.txt
 webStamps.log

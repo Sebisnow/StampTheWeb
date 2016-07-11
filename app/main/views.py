@@ -18,6 +18,7 @@ from sqlalchemy import or_, and_
 import socket
 import requests
 import json
+from random import randint
 
 
 global selected
@@ -107,50 +108,52 @@ def index():
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
                                doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
 
-
 @main.route('/compare', methods=['GET', 'POST'])
 def compare():
     form = PostVerify()
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-        search_keyword = form.urlSite.data
-        if not validators.url(search_keyword):
-            domain = search_keyword
-            search_keyword = '%'+search_keyword+'%'
-            posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
-                                          Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+            form.validate_on_submit():
+        searchkeyword = form.urlSite.data
+        if not validators.url(searchkeyword):
+            domain = searchkeyword
+            searchkeyword = '%'+searchkeyword+'%'
+            posts = Post.query.filter(or_(Post.urlSite.like(searchkeyword),
+                                            Post.webTitl.like(searchkeyword), Post.body.like(searchkeyword)))
 
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
                 page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
-                                   pagination=pagination, domain=domain, search=True)
-        elif validators.url(search_keyword):
-            posts = Post.query.filter(Post.urlSite.contains(search_keyword))
+                                   pagination=pagination,domain=domain, search = True)
+        elif validators.url(searchkeyword):
+            posts = Post.query.filter(Post.urlSite.contains(searchkeyword))
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-                page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+                page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
+                error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
-                                   pagination=pagination, search=True, domain=search_keyword)
-    domain_name_unique = []
-    # Getting Domains user visited
+                                   pagination=pagination,search = True, domain=searchkeyword)
+    doman_name_unique=[]
+    #Getting Domains user visited
     if not current_user.is_anonymous:
         domain_name = downloader.get_all_domain_names(Post)
-        domain_name_unique = set(domain_name)
-        for name in domain_name_unique:
+        doman_name_unique = set(domain_name)
+        for name in doman_name_unique:
             if ';' not in name:
-                count = domain_name.count(name)
-                domain_name_unique.remove(name)
-                domain_name_unique.add(name + ';'+str(count))
+                count=domain_name.count(name)
+                doman_name_unique.remove(name)
+                doman_name_unique.add(name+ ';'+str(count))
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-        page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
+    pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
+        error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
-                           pagination=pagination, doman_name=domain_name_unique, comp_page="active")
+                           pagination=pagination,doman_name=doman_name_unique, comp_page="active")
 
 
 @main.route('/compare_options/<ids>', methods=['GET', 'POST'])
@@ -347,8 +350,9 @@ def statistics():
 
     return render_template('statistics.html', stat_page="active")
 
-@nocache
+
 @main.route('/block_country', methods=['GET', 'POST'])
+@nocache
 def block_country():
     form = URL_Status()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
@@ -359,25 +363,25 @@ def block_country():
             while a < 210:
                 if data["features"][a]["properties"]["NAME"] == block_list[k][0]:
                     if block_list[k][2] == 200:
-                        data["features"][a]["properties"]["Block"] = 1
+                        data["features"][a]["properties"]["Block"] = 2
                         data["features"][a]["properties"]["Block_Status"] = "Not Blocked in this country [200]"
                     elif block_list[k][2] == 404:
-                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block"] = 1
                         data["features"][a]["properties"]["Block_Status"] = "The URL not found [404]"
                     elif block_list[k][2] == 403:
-                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block"] = 1
                         data["features"][a]["properties"]["Block_Status"] = "The URL is fobidden in this country [403]"
                     else:
-                        data["features"][a]["properties"]["Block"] = 0
+                        data["features"][a]["properties"]["Block"] = 1
                         data["features"][a]["properties"]["Block_Status"] = "The URL is blocked in this country"
                 a += 1
 
         json.dump(data, open("app/pdf/block-data-country.geo.json",'w'))
         return render_template('block_country.html', block_country="active", block_page="active",
-                           form=form, file='block-data-country.geo.json')
+                           form=form, file='block-data-country.geo.json', version=randint(0,1000))
 
     return render_template('block_country.html', block_country="active", block_page="active",
-                           form=form, file='tempelate_block_country.json')
+                           form=form, file='tempelate_block_country.json', version=randint(0,1000))
 
 
 @main.route('/compare_country', methods=['GET', 'POST'])
@@ -590,14 +594,14 @@ def post(id):
 
 
 @main.route('/very/<int:id>')
-def very(ids):
-    ver = Post.query.get_or_404(ids)
+def very(id):
+    ver = Post.query.get_or_404(id)
     return render_template('very.html', verify=ver, single=True, search=False)
 
 
 @main.route('/comp/<int:id>')
-def comp(ids):
-    com = Post.query.get_or_404(ids)
+def comp(id):
+    com = Post.query.get_or_404(id)
     return render_template('comp.html', verify=[com], single=True, search=False)
 
 
@@ -638,8 +642,8 @@ def verify_two(ids):
     else:
         flash('Change in the content found')
 
-    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
-                           dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active")
+    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp, hash2=post_2.hashVal,
+                           dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active", hash1=post_1.hashVal)
 
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required

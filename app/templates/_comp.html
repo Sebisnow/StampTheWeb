@@ -94,7 +94,7 @@
                 {% if single %}
                 <a href="https://twitter.com/share" class="twitter-share-button" data-url="{{ url_for('.very', id=very.id) }}" data-layout="button">Tweet</a>
                     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                <a class="fb-share-button" data-href="{{ url_for('.very', id=very.id) }}" data-layout="button" data-mobile-iframe="false"></a>
+                <a class="fb-share-button" data-href="{{ url_for('.very', id=very.id) }}" data-layout="button" data-mobile-iframe="false" style="vertical-align:top;></a>
                 {% else %}
                 <a href="{{ url_for('.very', id=very.id) }}" target="_blank">
                     <span class="label label-default">Share</span>

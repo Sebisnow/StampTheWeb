@@ -115,7 +115,7 @@ class FormSubmit(Form):
 
 
 class PostVerify(Form):
-    urlSite = TextAreaField("Search by URL or text", validators=[Required()], render_kw={"placeholder": "search"})
+    urlSite = TextField("Search by URL or text", validators=[Required()], render_kw={"placeholder": "search"})
     submit = SubmitField('Submit')
 
 
