@@ -608,8 +608,8 @@ def comp(id):
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
-def verifyID(ids):
-    posts = Post.query.get_or_404(ids)
+def verifyID(id):
+    posts = Post.query.get_or_404(id)
     result_verify = verification.get_url_history(posts.urlSite)
     text_previous = verification.get_file_text(posts.hashVal)
     text_left = verification.remove_tags(text_previous)
@@ -621,8 +621,8 @@ def verifyID(ids):
     else:
         flash('Change in the content found')
 
-    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=posts.timestamp,
-                           dateRight=datetime.now(), right=Markup(text_right), search=False, comp_page="active")
+    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=posts.timestamp, dateRight=datetime.now(),
+                 right=Markup(text_right), search=False, comp_page="active", hash2=result_verify.hashValue, hash1=posts.hashVal)
 
 
 @main.route('/verify_two/<ids>', methods=['GET', 'POST'])
@@ -642,6 +642,8 @@ def verify_two(ids):
         flash('The content in the url is not changed')
     else:
         flash('Change in the content found')
+    global selected
+    selected = None
 
     return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp, hash2=post_2.hashVal,
                            dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active", hash1=post_1.hashVal)

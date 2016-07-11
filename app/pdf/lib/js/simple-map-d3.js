@@ -33,7 +33,7 @@ function SimpleMapD3(o) {
     projection: 'albersUsa',
     legendFormatter: d3.format(','),
     legendOn: true,
-    legendTitle: 'Legend',
+    legendTitle: 'Legend (%age)',
     legendOffset: [10, 10],
     styles: {},
     stylesHover: {},
