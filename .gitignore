@@ -7,3 +7,4 @@ webStamps.log.1
 app/pdf/*
 !*/
 *.log
+.idea/*
