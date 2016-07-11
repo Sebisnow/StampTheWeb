@@ -12,7 +12,7 @@
 
   <div class="tab-content">
     <div id="home" class="tab-pane fade in active">
-      <h3>Block Articles</h3>
+      <h3>Blocked Articles</h3>
       <p>Please provide a URL in order to find if it is blocked.</p>
         {% if current_user.can(Permission.WRITE_ARTICLES) %}
         {{ wtf.quick_form(form, button_map={'submit':'primary'}) }}

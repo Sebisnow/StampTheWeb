@@ -107,6 +107,7 @@ class PostBlock(Form):
     china = BooleanField('Check if it is Blocked in China')
     usa = BooleanField('Check if it is Blocked in USA')
     uk = BooleanField('Check if it is Blocked in UK')
+    russia = BooleanField('Check if it is Blocked in Russia')
     submit = SubmitField('Submit')
 
 

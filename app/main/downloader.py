@@ -177,7 +177,7 @@ def get_url(q, p, url):
         q.put(None)
 
 
-def get_text_from_other_country(china, usa, uk, url):
+def get_text_from_other_country(china, usa, uk, russia, url):
     if china is True:
         proxy = app.config['STW_CHINA_PROXY']
         sha256, text = update_and_send(proxy, url)
@@ -189,6 +189,10 @@ def get_text_from_other_country(china, usa, uk, url):
         return sha256, text
     if uk:
         proxy = app.config['STW_UK_PROXY']
+        sha256, text = update_and_send(proxy, url)
+        return sha256, text
+    if russia:
+        proxy = app.config['STW_RUSSIA_PROXY']
         sha256, text = update_and_send(proxy, url)
         return sha256, text
 

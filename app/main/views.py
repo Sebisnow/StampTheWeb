@@ -257,6 +257,7 @@ def block():
         china = form.china.data
         usa = form.usa.data
         uk = form.uk.data
+        russia = form.russia.data
         results = downloader.get_url_history(url_site)
         originstamp_result = results.originStampResult
         sha256 = results.hashValue
@@ -278,7 +279,7 @@ def block():
             db.session.commit()
 
         # check if it is blocked in any country
-        hash_2, text_2 = downloader.get_text_from_other_country(china, usa, uk, url_site)
+        hash_2, text_2 = downloader.get_text_from_other_country(china, usa, uk, russia, url_site)
 
         if text_2 is not None:
             flash("The Article is not blocked in this country")
@@ -616,7 +617,7 @@ def verifyID(ids):
     text_left = htmldiff(text_left, text_left)
     text_right = htmldiff(text_left, text_right)
     if result_verify.hashValue == posts.hashVal:
-        flash('The content in the url is not changed')
+        flash('The content at this url has not changed.')
     else:
         flash('Change in the content found')
 

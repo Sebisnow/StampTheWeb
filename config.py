@@ -15,9 +15,10 @@ class Config:
     #STW_ADMIN = os.environ.get('STW_ADMIN')
     STW_ADMIN = 'stamptheweb@gmail.com'
     STW_POSTS_PER_PAGE = 20
-    STW_CHINA_PROXY = "http://60.216.40.135:9999"
-    STW_USA_PROXY = "http://199.115.117.212:80"
-    STW_UK_PROXY = "http://90.216.222.23:8080"
+    STW_CHINA_PROXY = "101.201.42.44:3128"
+    STW_USA_PROXY = "169.50.87.252:80"
+    STW_UK_PROXY = "89.34.97.132:8080"
+    STW_RUSSIA_PROXY = "80.240.114.77:8000"
     CHINA_PROXY = "60.216.40.135"
     USA_PROXY = "199.115.117.212"
     UK_PROXY = "90.216.222.23"
