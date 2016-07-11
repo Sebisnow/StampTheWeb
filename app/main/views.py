@@ -108,50 +108,52 @@ def index():
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
                                doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
 
-
 @main.route('/compare', methods=['GET', 'POST'])
 def compare():
     form = PostVerify()
-    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
-        search_keyword = form.urlSite.data
-        if not validators.url(search_keyword):
-            domain = search_keyword
-            search_keyword = '%'+search_keyword+'%'
-            posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
-                                          Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+            form.validate_on_submit():
+        searchkeyword = form.urlSite.data
+        if not validators.url(searchkeyword):
+            domain = searchkeyword
+            searchkeyword = '%'+searchkeyword+'%'
+            posts = Post.query.filter(or_(Post.urlSite.like(searchkeyword),
+                                            Post.webTitl.like(searchkeyword), Post.body.like(searchkeyword)))
 
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
                 page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
-                                   pagination=pagination, domain=domain, search=True)
-        elif validators.url(search_keyword):
-            posts = Post.query.filter(Post.urlSite.contains(search_keyword))
+                                   pagination=pagination,domain=domain, search = True)
+        elif validators.url(searchkeyword):
+            posts = Post.query.filter(Post.urlSite.contains(searchkeyword))
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-                page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+                page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
+                error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
-                                   pagination=pagination, search=True, domain=search_keyword)
-    domain_name_unique = []
-    # Getting Domains user visited
+                                   pagination=pagination,search = True, domain=searchkeyword)
+    doman_name_unique=[]
+    #Getting Domains user visited
     if not current_user.is_anonymous:
         domain_name = downloader.get_all_domain_names(Post)
-        domain_name_unique = set(domain_name)
-        for name in domain_name_unique:
+        doman_name_unique = set(domain_name)
+        for name in doman_name_unique:
             if ';' not in name:
-                count = domain_name.count(name)
-                domain_name_unique.remove(name)
-                domain_name_unique.add(name + ';'+str(count))
+                count=domain_name.count(name)
+                doman_name_unique.remove(name)
+                doman_name_unique.add(name+ ';'+str(count))
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-        page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
+    pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
+        error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
-                           pagination=pagination, doman_name=domain_name_unique, comp_page="active")
+                           pagination=pagination,doman_name=doman_name_unique, comp_page="active")
 
 
 @main.route('/compare_options/<ids>', methods=['GET', 'POST'])
