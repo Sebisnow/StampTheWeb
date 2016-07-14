@@ -4,6 +4,7 @@
     <list default="true" id="0f879b48-0705-4500-b4f8-f25b843925a0" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/main/views.py" afterPath="$PROJECT_DIR$/app/main/views.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/templates/base.html" afterPath="$PROJECT_DIR$/app/templates/base.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data-dev.sqlite" afterPath="$PROJECT_DIR$/data-dev.sqlite" />
     </list>
     <ignored path="StampTheWeb.iws" />
@@ -28,8 +29,8 @@
       <file leaf-file-name="views.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/main/views.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4783">
-              <caret line="604" column="34" selection-start-line="604" selection-start-column="34" selection-end-line="604" selection-end-column="34" />
+            <state relative-caret-position="479">
+              <caret line="604" column="32" selection-start-line="604" selection-start-column="32" selection-end-line="604" selection-end-column="32" />
               <folding>
                 <element signature="e#0#93#0" expanded="true" />
               </folding>
@@ -876,8 +877,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/main/views.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4783">
-          <caret line="604" column="34" selection-start-line="604" selection-start-column="34" selection-end-line="604" selection-end-column="34" />
+        <state relative-caret-position="479">
+          <caret line="604" column="32" selection-start-line="604" selection-start-column="32" selection-end-line="604" selection-end-column="32" />
           <folding>
             <element signature="e#0#93#0" expanded="true" />
           </folding>

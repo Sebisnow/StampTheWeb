@@ -602,7 +602,7 @@ def very(id):
 
 @main.route('/comp/<int:id>')
 def comp(id):
-    com = Post.query.get_or_404(id)
+    com = Post.query.get_or_404()
     return render_template('comp.html', verify=[com], single=True, search=False)
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
