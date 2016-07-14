@@ -547,8 +547,8 @@ def edit_profile():
 @main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_profile_admin(ids):
-    users = User.query.get_or_404(ids)
+def edit_profile_admin(id):
+    users = User.query.get_or_404(id)
     form = EditProfileAdminForm(user=users)
     if form.validate_on_submit():
         users.email = form.email.data
@@ -596,15 +596,14 @@ def post(id):
 
 @main.route('/very/<int:id>')
 def very(id):
-    ver = Post.query.get_or_404(id)
-    return render_template('very.html', verify=ver, single=True, search=False)
+    posts = Post.query.get_or_404(id)
+    return render_template('post.html', posts=[posts], single=True)
 
 
 @main.route('/comp/<int:id>')
 def comp(id):
     com = Post.query.get_or_404(id)
     return render_template('comp.html', verify=[com], single=True, search=False)
-
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -678,8 +677,8 @@ def verify_domain(domain):
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit(ids):
-    posts = Post.query.get_or_404(ids)
+def edit(id):
+    posts = Post.query.get_or_404(id)
     if current_user != posts.author and \
             not current_user.can(Permission.ADMINISTER):
         abort(403)
