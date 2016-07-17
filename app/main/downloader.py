@@ -359,8 +359,8 @@ def preprocess_doc(doc):
     # TODO all the Header information should be preserved not rewritten
     text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1' \
            '-transitional.dtd">\n' + '<head>\n' + \
-           '<meta http-equiv="Content-Type" content="text/html; ' \
-           'charset=' + encoding + '">\n' + '</head>\n' + '<body>\n' \
+           '<meta http-equiv="Content-Type" content="text/html" ' \
+           'charset="' + encoding + '">\n' + '</head>\n' + '<body>\n' \
            + '<h1>' + doc.title().split(sep='|')[0] + '</h1>'
 
     text += doc.summary() + '</body>'
@@ -587,6 +587,7 @@ def get_url_history(url):
         return ReturnResults(None, None, None)
 
     res = requests.get(url)
+
     if res.status_code >= 300:
         if not app.config["TESTING"]:
             flash('100 Bad URL Could not retrieve URL to create timestamp for it.' + url, 'error')
