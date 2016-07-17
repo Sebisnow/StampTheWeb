@@ -572,6 +572,56 @@ def get_hash_history(sha256):
     return results
 
 
+def get_timestamp_data(timestamp_hash):
+    """
+
+    :param timestamp_hash: The hash to retrieve the data for.
+    :return: Returns the data for the given hash
+    """
+    path = ipfs_get(timestamp_hash)
+    if zipfile.is_zipfile(path):
+        # TODO test and ensure it is extracted and returned
+        zipfile.PyZipFile.extractall(path=basePath + timestamp_hash)
+
+    return
+
+
+def ipfs_get(timestamp):
+    """
+    Get data from IPFS. The data on IPFS is identified by the hash (timestamp variable).
+    We collect the data by making a system call. IPFS has to be installed for this functionality to work.
+    Can be replaced by ipfs python api once that is fully implemented.
+    :param timestamp: The hash describing the data on IPFS.
+    :return: Returns the path to the locally stored data collected from IPFS.
+    """
+
+    path = basePath + timestamp
+    cur_dir = os.getcwd()
+    os.chdir(basePath)
+    app.logger.info("Trying to fetch the HTML from IPFS")
+    try:
+        check_output(['ipfs', 'get', timestamp], stderr=DEVNULL)
+        app.logger.info("ipfs command completed. Fetched File present: " +
+                        str(os.path.exists(basePath + timestamp)))
+    except FileNotFoundError as e:
+        app.logger.info(e.strerror + " ipfs command not found trying another way." + str(type(timestamp)))
+        check_output(['/home/ubuntu/bin/ipfs', 'get', timestamp], stderr=DEVNULL)
+
+        app.logger.info("There is a file called " + path + timestamp + ": " +
+                        str(os.path.exists(basePath + timestamp)))
+        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
+
+    except Exception as e:
+
+        app.logger.error("Error while trying to fetch from IPFS or renaming" + str(e) + "\n" +
+                         "Could be a Permission problem on the Server")
+        check_output(['/home/ubuntu/bin/ipfs', 'get', timestamp], stderr=DEVNULL)
+        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(basePath +
+                                                                                     timestamp)))
+    os.chdir(cur_dir)
+    return path
+
+
 def get_url_history(url):
     """
     Entry point for the downloader
