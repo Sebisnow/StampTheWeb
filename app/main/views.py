@@ -699,12 +699,32 @@ def edit(id):
 @main.route('/timestamp/', methods=['POST'])
 def timestamp_api():
     """
+    Listens for POST queries done by the Stamp The Web WebExtension and starts a distributed timestamp.
 
     :return: Whether the POST request was successful or not.
-    If successful it will contain a link to the data
+    If successful it will contain a link to the data.
     """
     if request.headers['Content-Type'] == 'application/json':
         post_data = request.json
+        result = downloader.distributed_timestamp(post_data.body, post_data.URL)
+        if result.originStampResult.status_code == 200:
+            response = requests.Response
+            response.status_code = 200
+            response.url = "http://stamptheweb.org/timestamp/" + result.hashValue
+            response.content = result.originStampResult
+
+            if post_data.user:
+                response.user = post_data.user
+                return response
+            else:
+                response.user = "BOT"
+                # TODO store with bot reference instead of user
+                return response
+        else:
+            response = requests.Response
+            response.status_code = 400
+            response.reason = "Internal server error. Timestamp could not be created."
+            return response
 
     else:
         return "415 Unsupported Media Type. Only JSON Format allowed!"
