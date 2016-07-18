@@ -206,7 +206,7 @@ def compare_options(ids):
             text_left = htmldiff(text_left, text_left)
             text_right = htmldiff(text_left, text_right)
             if post_1.hashVal == hash:
-                flash('The content in the url is not changed')
+                flash('The content at this url has not changed')
             else:
                 flash('Change in the content found')
 
@@ -604,8 +604,8 @@ def very(id):
 
 @main.route('/comp/<int:id>')
 def comp(id):
-    com = Post.query.get_or_404()
-    return render_template('comp.html', verify=[com], single=True, search=False)
+    posts = Post.query.get_or_404(id)
+    return render_template('post.html', posts=[posts], single=True)
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -640,7 +640,7 @@ def verify_two(ids):
     text_left = htmldiff(text_left, text_left)
     text_right = htmldiff(text_left, text_right)
     if post_1.hashVal == post_2.hashVal:
-        flash('The content in the url is not changed')
+        flash('The content at this url has not changed')
     else:
         flash('Change in the content found')
     global selected
