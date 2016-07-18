@@ -287,7 +287,7 @@ def block():
             return render_template('very.html', verify=[post], single=True, search=False)
         else:
 
-            block_new = Block(china=china, uk=uk, usa=usa, postID=post_new)
+            block_new = Block(china=china, uk=uk, usa=usa, russia=russia, postID=post_new)
             db.session.add(block_new)
             db.session.commit()
             flash("This Article is blocked in this country")
@@ -395,6 +395,7 @@ def compare_country():
         china = form.china.data
         usa = form.usa.data
         uk = form.uk.data
+        russia = form.russia.data
         url_site = form.urlSite.data
         email = form.email.data
         results = downloader.get_url_history(url_site)
@@ -416,7 +417,7 @@ def compare_country():
             db.session.add(post_new)
             db.session.commit()
 
-        regular_new = Regular(frequency=freq, china=china, uk=uk, usa=usa, postID=post_new, email=email)
+        regular_new = Regular(frequency=freq, china=china, uk=uk, usa=usa,russia=russia, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
         return redirect(url_for('.compare_country'))
@@ -431,6 +432,7 @@ def compare_country():
     ips.append(current_app.config['CHINA_PROXY'])
     ips.append(current_app.config['USA_PROXY'])
     ips.append(current_app.config['UK_PROXY'])
+    ips.append(current_app.config['RUSSIA_PROXY'])
     ips.append("")
 
     x = 1
@@ -459,7 +461,7 @@ def compare_country():
         while a < 210:
             a += 1
             if data["features"][a]["properties"]["Country_Code"] == country_code:
-                if x == 4:
+                if x == 5:
                     data["features"][a]["properties"]["Location"] = "(Default) "+location
 
                 else:

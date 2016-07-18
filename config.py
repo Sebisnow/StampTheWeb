@@ -22,6 +22,7 @@ class Config:
     CHINA_PROXY = "60.216.40.135"
     USA_PROXY = "199.115.117.212"
     UK_PROXY = "90.216.222.23"
+    RUSSIA_PROXY = "80.240.114.77"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     @staticmethod
