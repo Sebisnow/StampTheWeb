@@ -706,30 +706,40 @@ def timestamp_api():
     :return: Whether the POST request was successful or not.
     If successful it will contain a link to the data.
     """
-    if request.headers['Content-Type'] == 'application/json':
-        post_data = request.json
-        result = downloader.distributed_timestamp(post_data.body, post_data.URL)
-        if result.originStampResult.status_code == 200:
-            response = requests.Response
-            response.status_code = 200
-            response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
-            response.json = result.originStampResult
+    current_app.logger.info("Received a POST request with following Header: \n" + request.headers)
+    testing = current_app.config["TESTING"]
+    current_app.config["TESTING"] = True
+    try:
+        if request.headers['Content-Type'] == 'application/json':
+            post_data = request.json
+            result = downloader.distributed_timestamp(post_data.body, post_data.URL)
+            if result.originStampResult.status_code == 200:
+                response = requests.Response
+                response.status_code = 200
+                response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
+                response.json = result.originStampResult
 
-            if post_data.user:
-                response.user = post_data.user
-                return response
+                if post_data.user:
+                    response.user = post_data.user
+                    return response
+                else:
+                    response.user = "BOT"
+                    # TODO store with bot reference instead of user
+                    return response
             else:
-                response.user = "BOT"
-                # TODO store with bot reference instead of user
+                response = requests.Response
+                response.status_code = 400
+                response.reason = "Internal server error. Timestamp could not be created."
                 return response
-        else:
-            response = requests.Response
-            response.status_code = 400
-            response.reason = "Internal server error. Timestamp could not be created."
-            return response
 
-    else:
-        return "415 Unsupported Media Type. Only JSON Format allowed!"
+        else:
+            return "415 Unsupported Media Type. Only JSON Format allowed!"
+    except Exception as e:
+        # Catch error and continue, but log the error
+        current_app.logger.error("An exception as thrown on a POST request: " + str(e))
+
+    finally:
+        current_app.config["TESTING"] = testing
 
 
 @main.route('/timestamp/<timestamp>', methods=['GET'])
