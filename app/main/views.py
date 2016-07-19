@@ -710,8 +710,8 @@ def timestamp_api():
         if result.originStampResult.status_code == 200:
             response = requests.Response
             response.status_code = 200
-            response.url = "http://stamptheweb.org/timestamp/" + result.hashValue
-            response.content = result.originStampResult
+            response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
+            response.json = result.originStampResult
 
             if post_data.user:
                 response.user = post_data.user
