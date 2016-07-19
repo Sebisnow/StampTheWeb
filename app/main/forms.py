@@ -94,6 +94,8 @@ class PostCountry(Form):
                        render_kw={"title": "If no location is selected, then Default Location would be used."})
     uk = BooleanField('Compare with the page in UK',
                       render_kw={"title": "If no location is selected, then Default Location would be used."})
+    russia = BooleanField('Compare with the page in Russia',
+                      render_kw={"title": "If no location is selected, then Default Location would be used."})
     email = EmailField('Notify me in case there is any change in content. (email required)',
                        render_kw={"placeholder": "email@example.com"})
     submit = SubmitField('Submit')

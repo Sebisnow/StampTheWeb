@@ -257,6 +257,7 @@ class Regular(db.Model):
     usa = db.Column(db.Boolean)
     uk = db.Column(db.Boolean)
     china = db.Column(db.Boolean)
+    russia = db.Column(db.Boolean)
     email = db.Column(db.String)
 
 class Block(db.Model):

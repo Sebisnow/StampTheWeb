@@ -207,7 +207,7 @@ def compare_options(ids):
             text_left = htmldiff(text_left, text_left)
             text_right = htmldiff(text_left, text_right)
             if post_1.hashVal == hash:
-                flash('The content in the url is not changed')
+                flash('The content at this url has not changed')
             else:
                 flash('Change in the content found')
 
@@ -288,7 +288,7 @@ def block():
             return render_template('very.html', verify=[post], single=True, search=False)
         else:
 
-            block_new = Block(china=china, uk=uk, usa=usa, postID=post_new)
+            block_new = Block(china=china, uk=uk, usa=usa, russia=russia, postID=post_new)
             db.session.add(block_new)
             db.session.commit()
             flash("This Article is blocked in this country")
@@ -396,6 +396,7 @@ def compare_country():
         china = form.china.data
         usa = form.usa.data
         uk = form.uk.data
+        russia = form.russia.data
         url_site = form.urlSite.data
         email = form.email.data
         results = downloader.get_url_history(url_site)
@@ -417,7 +418,7 @@ def compare_country():
             db.session.add(post_new)
             db.session.commit()
 
-        regular_new = Regular(frequency=freq, china=china, uk=uk, usa=usa, postID=post_new, email=email)
+        regular_new = Regular(frequency=freq, china=china, uk=uk, usa=usa,russia=russia, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
         return redirect(url_for('.compare_country'))
@@ -432,6 +433,7 @@ def compare_country():
     ips.append(current_app.config['CHINA_PROXY'])
     ips.append(current_app.config['USA_PROXY'])
     ips.append(current_app.config['UK_PROXY'])
+    ips.append(current_app.config['RUSSIA_PROXY'])
     ips.append("")
 
     x = 1
@@ -460,7 +462,7 @@ def compare_country():
         while a < 210:
             a += 1
             if data["features"][a]["properties"]["Country_Code"] == country_code:
-                if x == 4:
+                if x == 5:
                     data["features"][a]["properties"]["Location"] = "(Default) "+location
 
                 else:
@@ -603,8 +605,8 @@ def very(id):
 
 @main.route('/comp/<int:id>')
 def comp(id):
-    com = Post.query.get_or_404()
-    return render_template('comp.html', verify=[com], single=True, search=False)
+    posts = Post.query.get_or_404(id)
+    return render_template('post.html', posts=[posts], single=True)
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -639,7 +641,7 @@ def verify_two(ids):
     text_left = htmldiff(text_left, text_left)
     text_right = htmldiff(text_left, text_right)
     if post_1.hashVal == post_2.hashVal:
-        flash('The content in the url is not changed')
+        flash('The content at this url has not changed')
     else:
         flash('Change in the content found')
     global selected
