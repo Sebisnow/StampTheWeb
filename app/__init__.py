@@ -37,7 +37,7 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     app.config['UPLOAD_FOLDER'] = 'pdf/' #working
-    #app.config['SERVER_NAME'] = 'http://westamps.herokuapp.com/'
+
 
     #Setting up Logging
     handler = RotatingFileHandler('webStamps.log', maxBytes=10000, backupCount=1)

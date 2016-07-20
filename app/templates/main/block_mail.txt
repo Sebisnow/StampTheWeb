@@ -3,10 +3,10 @@ Dear {{ user.username }},
 You are receiving this email, since you have created a regular stamps at our website. We would like to inform you that
     we found that your created web article regular stamp is blocked in your selected country.
     To view your post click the link below.
-{{ url_for('main.post',id=post.id, _external=True) }}
+{{ server }}/post/{{post.id}}
 
 Alternatively, you can paste the following link in your browser's address bar:
-{{ url_for('main.verify_two',ids=ids, _external=True) }}
+{{ server }}/post/{{post.id}}
 
 Sincerely,
 

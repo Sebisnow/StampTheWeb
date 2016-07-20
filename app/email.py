@@ -24,8 +24,8 @@ def send_email_normal(to, subject, template,**kwargs):
     app = current_app._get_current_object()
     msg = Message(app.config['STW_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
                   sender=app.config['STW_MAIL_SENDER'], recipients=[to])
-    msg.body = render_template(template + '.txt',**kwargs)
-    msg.html = render_template(template + '.html',**kwargs)
+    msg.body = render_template(template + '.txt', **kwargs)
+    msg.html = render_template(template + '.html', **kwargs)
     thr = Thread(target=send_async_email, args=[app, msg])
     thr.start()
     return thr

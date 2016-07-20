@@ -1,9 +1,9 @@
 <p>Dear {{ user.username }},</p>
 <p>You are receiving this email, since you have created a regular stamps. We would like to inform you that
     we found that your created web article regular stamp is blocked in your selected country.
-    To view your post. <a href="{{ url_for('main.post',id=post.id, _external=True) }}">click here</a>.</p>
+    To view your post. <a href= {{ server }}/post/{{post.id}} target="_blank">click here</a>.</p>
 <p>Alternatively, you can paste the following link in your browser's address bar:</p>
-<p>{{ url_for('main.post',id=post.id, _external=True) }}</p>
+<p>{{ server }}/post/{{post.id}} </p>
 
 <p>Sincerely,</p>
 <p>The Stamp The Web Team</p>

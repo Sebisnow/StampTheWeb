@@ -3,13 +3,15 @@ Dear {{ user.username }},
 You are receiving this email, since you have created a regular stamps. We would like to inform you that
     we found a change in your timestamped page. To view your changed post.
 
-{{ url_for('main.post',id=post.id, _external=True) }}
+{{ server }}/post/{{post.id}}
 
 To Compare your previous post with the changed post click the following links:
 
+{{server}}/verify_two/{{ids}}
+
 Alternatively, you can paste the following links in your browser's address bar:
-{{ url_for('main.verify_two',ids=ids, _external=True) }}
-{{ url_for('main.verify_two',ids=ids, _external=True) }}
+{{ server }}/post/{{post.id}}
+{{server}}/verify_two/{{ids}}
 
 Sincerely,
 

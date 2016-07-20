@@ -33,15 +33,15 @@ class OriginstampError(Exception):
 def get_pages_send_email(post,task):
     url = post.urlSite
     if task.china:
-        proxy = current_app.config['STW_CHINA_PROXY']
+        proxy = app.config['STW_CHINA_PROXY']
         if update_and_send(proxy,post,url,'China',True):
             return True
     elif task.usa:
-        proxy = current_app.config['STW_USA_PROXY']
+        proxy = app.config['STW_USA_PROXY']
         if update_and_send(proxy,post,url,'USA',True):
             return True
     elif task.uk:
-        proxy = current_app.config['STW_UK_PROXY']
+        proxy = app.config['STW_UK_PROXY']
         if update_and_send(proxy,post,url,'UK',True):
             return True
     else:
@@ -55,14 +55,14 @@ def update_and_send(proxy,post,url,country,is_proxy):
             r = requests.get(url, proxies={"http":proxy})
         except:
             email.send_email_normal(user.email, 'Your requested web Article Blocked in '+country,
-                               'main/block_mail', user=user,post=post)
+                               'main/block_mail', user=user,post=post, server=app.config['SERVER_URL'])
             return True
     else:
         try:
             r = requests.get(url)
         except:
             email.send_email_normal(user.email, 'Your requested web Article Blocked',
-                               'main/block_mail', user=user,post=post)
+                               'main/block_mail', user=user, post=post, server=app.config['SERVER_URL'])
             return True
     if r:
         doc = Document(r.text)
@@ -87,11 +87,11 @@ def update_and_send(proxy,post,url,country,is_proxy):
             ids = str(post.id) +':'+ str(post_created.id)
             if post_created:
                 email.send_email_normal(user.email, 'Change in the requested Article found',
-                           'main/normal_email', user=user,post=post_created,ids=ids)
+                           'main/normal_email', user=user, post=post_created, ids=ids, server=app.config['SERVER_URL'])
             return True
     else:
         email.send_email_normal(user.email, 'Your requested web Article Blocked in '+country,
-                           'main/block_email', user=user,post=post)
+                           'main/block_email', user=user,post=post, server=app.config['SERVER_URL'])
         return True
 def calculate_hash_for_html_doc(doc):
     """
