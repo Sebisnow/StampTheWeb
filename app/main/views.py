@@ -60,7 +60,7 @@ def index():
             form_freq.validate_on_submit() and form_freq.frequency.data > 0:
         sha256 = None
         date_time_gmt = None
-        url_site = form_freq.urlSite.data
+        url_site = form_freq.url.data
         freq = form_freq.frequency.data
         email = form_freq.email.data
         results = downloader.get_url_history(url_site)
@@ -483,7 +483,7 @@ def regular():
     if current_user.can(Permission.WRITE_ARTICLES) and form_freq.validate_on_submit():
         sha256 = None
         date_time_gmt = None
-        url_site = form_freq.urlSite.data
+        url_site = form_freq.url.data
         freq = form_freq.frequency.data
         email = form_freq.email.data
         results = downloader.get_url_history(url_site)
@@ -633,7 +633,7 @@ def verify_two(ids):
     a_split = ids.split(':')
     post_1 = Post.query.get_or_404(a_split[0])
     post_2 = Post.query.get_or_404(a_split[1])
-    # result_verify_1 = verification.get_url_history(post_1.urlSite)
+    # result_verify_1 = verification.get_url_history(post_1.url)
     text_1 = verification.get_file_text(post_1.hashVal)
     text_2 = verification.get_file_text(post_2.hashVal)
     text_left = verification.remove_tags(text_1)

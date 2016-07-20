@@ -70,8 +70,8 @@ class PostEdit(Form):
 class PostFreq(Form):
     body = TextAreaField("Add a Title (Optional)",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    urlSite = URLField("Enter URL to be regularly timestamped", validators=[url(), Required()],
-                       render_kw={"placeholder": "http://www.example.com"})
+    url = URLField("Enter URL to be regularly timestamped", validators=[url(), Required()],
+                   render_kw={"placeholder": "http://www.example.com"})
     frequency = IntegerField('The frequency (in days) for which timestamps should be created:',
                              [validators.DataRequired('num required.'),
                               validators.NumberRange(min=1, max=30)], default=3)
