@@ -46,7 +46,7 @@ def index():
         already_exist = Post.query.filter(and_(Post.urlSite.like(url_site),
                                                Post.hashVal.like(sha256))).first()
         if already_exist is not None:
-            flash('The URL was already submitted and the content of the website ahs not changed since!')
+            flash('The URL was already submitted and the content of the website has not changed since!')
             post_old = Post.query.get_or_404(already_exist.id)
             return render_template('post.html', posts=[post_old], single=True)
         else:
