@@ -18,6 +18,7 @@ from sqlalchemy import or_, and_
 import socket
 import requests
 import json
+import re
 from random import randint
 
 
@@ -113,30 +114,30 @@ def compare():
     form = PostVerify()
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
-        searchkeyword = form.urlSite.data
-        if not validators.url(searchkeyword):
-            domain = searchkeyword
-            searchkeyword = '%'+searchkeyword+'%'
-            posts = Post.query.filter(or_(Post.urlSite.like(searchkeyword),
-                                            Post.webTitl.like(searchkeyword), Post.body.like(searchkeyword)))
+        search_keyword = form.urlSite.data
+        if not validators.url(search_keyword):
+            domain = search_keyword
+            search_keyword = '%' + search_keyword + '%'
+            posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
+                                          Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
 
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
                 page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
                                    pagination=pagination,domain=domain, search = True)
-        elif validators.url(searchkeyword):
-            posts = Post.query.filter(Post.urlSite.contains(searchkeyword))
+        elif validators.url(search_keyword):
+            posts = Post.query.filter(Post.urlSite.contains(search_keyword))
             verification.writePostsData(posts)
             page = request.args.get('page', 1, type=int)
-            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+            pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
                 page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
                 error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
-                                   pagination=pagination,search = True, domain=searchkeyword)
+                                   pagination=pagination, search=True, domain=search_keyword)
     doman_name_unique=[]
     #Getting Domains user visited
     if not current_user.is_anonymous:
@@ -649,6 +650,7 @@ def verify_two(ids):
     return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp, hash2=post_2.hashVal,
                            dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active", hash1=post_1.hashVal)
 
+
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required
 @nocache
@@ -663,6 +665,7 @@ def verifyDomain(domain):
     return render_template('search_domains.html', verify=posts,
                            pagination=pagination,domain=domain, comp_page="active")
 
+
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required
 @nocache
@@ -676,6 +679,7 @@ def verify_domain(domain):
     posts = pagination.items
     return render_template('search_domains.html', verify=posts,
                            pagination=pagination, domain=domain, comp_page="active")
+
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -692,3 +696,64 @@ def edit(id):
         return redirect(url_for('.post', id=posts.id))
     form.body.data = posts.body
     return render_template('edit_post.html', form=form)
+
+
+@main.route('/timestamp/', methods=['POST'])
+def timestamp_api():
+    """
+    Listens for POST queries done by the Stamp The Web WebExtension and starts a distributed timestamp.
+
+    :return: Whether the POST request was successful or not.
+    If successful it will contain a link to the data.
+    """
+    current_app.logger.info("Received a POST request with following Header: \n" + request.headers)
+    testing = current_app.config["TESTING"]
+    current_app.config["TESTING"] = True
+    try:
+        if request.headers['Content-Type'] == 'application/json':
+            post_data = request.json
+            result = downloader.distributed_timestamp(post_data.body, post_data.URL)
+            if result.originStampResult.status_code == 200:
+                response = requests.Response
+                response.status_code = 200
+                response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
+                response.json = result.originStampResult
+
+                if post_data.user:
+                    response.user = post_data.user
+                    return response
+                else:
+                    response.user = "BOT"
+                    # TODO store with bot reference instead of user
+                    return response
+            else:
+                response = requests.Response
+                response.status_code = 400
+                response.reason = "Internal server error. Timestamp could not be created."
+                return response
+
+        else:
+            return "415 Unsupported Media Type. Only JSON Format allowed!"
+    except Exception as e:
+        # Catch error and continue, but log the error
+        current_app.logger.error("An exception as thrown on a POST request: " + str(e))
+
+    finally:
+        current_app.config["TESTING"] = testing
+
+
+@main.route('/timestamp/<timestamp>', methods=['GET'])
+def timestamp_get(timestamp):
+    """
+    Get the data that was timestamped identified by the given timestamping hash.
+
+    :param timestamp: A timestamp hash.
+    :return: The Data that was timestamped.
+    """
+    if timestamp.isalnum():
+        # downloader.get_hash_history(timestamp)
+        post_old = Post.query.get_or_404(timestamp)
+        return render_template('post.html', posts=[post_old], single=True)
+    else:
+        return "415 Unsupported Data Type. Timestamps are alphanumeric!"
+

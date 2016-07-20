@@ -359,8 +359,8 @@ def preprocess_doc(doc):
     # TODO all the Header information should be preserved not rewritten
     text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1' \
            '-transitional.dtd">\n' + '<head>\n' + \
-           '<meta http-equiv="Content-Type" content="text/html; ' \
-           'charset=' + encoding + '">\n' + '</head>\n' + '<body>\n' \
+           '<meta http-equiv="Content-Type" content="text/html" ' \
+           'charset="' + encoding + '">\n' + '</head>\n' + '<body>\n' \
            + '<h1>' + doc.title().split(sep='|')[0] + '</h1>'
 
     text += doc.summary() + '</body>'
@@ -394,6 +394,7 @@ def submit_add_to_db(url, sha256, title):
     originstamp_result = submit(sha256, title)
     app.logger.info(originstamp_result.text)
     app.logger.info('Origin Stamp Response:' + originstamp_result.text)
+    # TODO should yield different result if the response was different or handling can be left for calling function.
     if originstamp_result.status_code >= 400:
         if not app.config["TESTING"]:
             flash(u'Could not submit hash to originstamp. Error Code: ' + originstamp_result.status_code +
@@ -440,6 +441,7 @@ def load_images(soup):
     return files
 
 
+# deprecated
 def load_amp_js(soup):
     files = list()
     js_ctr = 0
@@ -493,6 +495,12 @@ def check_database_for_url(url):
 
 
 def submitHash(sha256):
+    """
+    Meta method that initiates the submission to Originstamp and handles response messages and errors.
+    :author: Waqar and Sebastian
+    :param sha256: The hash of the file(s) to timestamp.
+    :return: Returns a ReturnResults Object with the result of the submission.
+    """
     originstamp_result = submit(sha256, "")
     app.logger.info(originstamp_result.text)
     app.logger.info('Origin Stamp Response:' + originstamp_result.text)
@@ -517,8 +525,16 @@ def submitHash(sha256):
 
 
 def getHashOfFile(fname):
+    """
+    This method submits a file to IPFS and returns the resulting hash that describes the address of the file on IPFS.
+
+    :author: Sebastian
+    :param fname: The path to the File to get the hash for.
+    :return: Returns the Hash of the file.
+    """
     res = ipfs_Client.add(fname)
     """
+    # deprecated legacy function without IPFS
     hash_sha265 = hashlib.sha256()
     with open(fname, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
@@ -540,6 +556,13 @@ def get_text_timestamp(text):
 
 
 def save_file_ipfs(text):
+    """
+    Saves the file on IPFS and thus creates the hash to be submitted to Originstamp.
+
+    :author: Sebastian
+    :param text: The text to be timestamped.
+    :return: Returns the hash of the stored file, which equals the address on IPFS.
+    """
     path = basePath + "temp.html"
     app.logger.info("Working Directory: " + os.getcwd() + "trying to create temporary file:" + path)
     try:
@@ -572,9 +595,65 @@ def get_hash_history(sha256):
     return results
 
 
+def get_timestamp_data(timestamp_hash):
+    """
+    Takes an existing hash and retrieves the data for it using IPFS.
+    The data needs to be unzipped before the path will eb returned.
+
+    :author: Sebastian
+    :param timestamp_hash: The hash to retrieve the data for.
+    :return: Returns the data for the given hash
+    """
+    path = ipfs_get(timestamp_hash)
+    if zipfile.is_zipfile(path):
+        # TODO test and ensure it is extracted and returned
+        zipfile.PyZipFile.extractall(path=basePath + timestamp_hash)
+
+    return basePath + timestamp_hash
+
+
+def ipfs_get(timestamp):
+    """
+    Get data from IPFS. The data on IPFS is identified by the hash (timestamp variable).
+    We collect the data by making a system call. IPFS has to be installed for this functionality to work.
+    Can be replaced by ipfs python api once that is fully implemented.
+
+    :author: Sebastian
+    :param timestamp: The hash describing the data on IPFS.
+    :return: Returns the path to the locally stored data collected from IPFS.
+    """
+
+    path = basePath + timestamp
+    cur_dir = os.getcwd()
+    os.chdir(basePath)
+    app.logger.info("Trying to fetch the HTML from IPFS")
+    try:
+        check_output(['ipfs', 'get', timestamp], stderr=DEVNULL)
+        app.logger.info("ipfs command completed. Fetched File present: " +
+                        str(os.path.exists(basePath + timestamp)))
+    except FileNotFoundError as e:
+        app.logger.info(e.strerror + " ipfs command not found trying another way." + str(type(timestamp)))
+        check_output(['/home/ubuntu/bin/ipfs', 'get', timestamp], stderr=DEVNULL)
+
+        app.logger.info("There is a file called " + path + timestamp + ": " +
+                        str(os.path.exists(basePath + timestamp)))
+        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
+
+    except Exception as e:
+
+        app.logger.error("Error while trying to fetch from IPFS or renaming" + str(e) + "\n" +
+                         "Could be a Permission problem on the Server")
+        check_output(['/home/ubuntu/bin/ipfs', 'get', timestamp], stderr=DEVNULL)
+        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(basePath +
+                                                                                     timestamp)))
+    os.chdir(cur_dir)
+    return path
+
+
 def get_url_history(url):
     """
     Entry point for the downloader
+    :author: Sebastian
     :param url: the URL to get the history for
     :return: history of the URL in the system
     """
@@ -587,6 +666,7 @@ def get_url_history(url):
         return ReturnResults(None, None, None)
 
     res = requests.get(url)
+
     if res.status_code >= 300:
         if not app.config["TESTING"]:
             flash('100 Bad URL Could not retrieve URL to create timestamp for it.' + url, 'error')
@@ -683,6 +763,21 @@ def save_render_zip_submit(html_text, sha256, url, title):
                              e.args + '\n Originstamp Result was: ' + str(originstamp_result.status_code))
             originstamp_result.error = e
             return originstamp_result
+    return originstamp_result
+
+
+def distributed_timestamp(url, html_body):
+    """
+    Perform a distributed timestamp where no only one file is taken into account but several HTMLs retrieved by
+    proxies from different locations.
+
+    :author: Sebastian
+    :param url: The URL of the website to timestamp
+    :param html_body: The body of the site to timestamp
+    :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
+    originStampResult, hashValue, webTitle and errors
+    """
+    originstamp_result = ReturnResults()
     return originstamp_result
 
 
