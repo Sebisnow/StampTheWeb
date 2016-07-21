@@ -91,7 +91,7 @@ def deploy():
 
 
 if __name__ == '__main__':
-    schedule.every(60).seconds.do(run_every_day)
+    schedule.every(86400).seconds.do(run_every_day)
     t = Thread(target=run_schedule)
     t.start()
     # print ("Start time: " + str(start_time))
