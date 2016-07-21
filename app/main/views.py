@@ -199,7 +199,8 @@ def compare_options(ids):
         china = form_choice.china.data
         usa = form_choice.usa.data
         uk = form_choice.uk.data
-        hash_2, text_2 = downloader.get_text_from_other_country(china, usa, uk, post_1.urlSite)
+        russia = form_choice.russia.data
+        hash_2, text_2 = downloader.get_text_from_other_country(china, usa, uk, russia, post_1.urlSite)
         if text_2 is not None:
             text_1 = verification.get_file_text(post_1.hashVal)
             text_left = verification.remove_tags(text_1)

@@ -139,6 +139,7 @@ class SearchOptions(Form):
     china = BooleanField('Compare with same page in China')
     usa = BooleanField('Compare with same page in USA')
     uk = BooleanField('Compare with same page in UK')
+    russia = BooleanField('Compare with same page in Russia')
     submit = SubmitField('Compare')
 
 

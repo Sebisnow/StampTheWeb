@@ -268,6 +268,7 @@ class Block(db.Model):
     usa = db.Column(db.Boolean)
     uk = db.Column(db.Boolean)
     china = db.Column(db.Boolean)
+    russia = db.Column(db.Boolean)
 
 class Location(db.Model):
     __tablename__ = 'location'
