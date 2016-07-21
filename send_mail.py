@@ -1,5 +1,4 @@
 from app import email
-import hashlib
 import os
 import requests
 import traceback
@@ -12,12 +11,23 @@ from app.models import Post
 from datetime import datetime
 from app import db
 from sqlalchemy import and_
+import ipfsApi as ipfs
+
+
+"""
+:author: Waqar
+This module sends email. In case a scheduled articles is found changed and blocked in a given country.
+Some code from downloader.py is copied here. Since this code works out of application context. The code
+re-usability from downloader.py was not possible.
+"""
 
 basePath = 'app/pdf/'
 apiPostUrl = 'http://www.originstamp.org/api/stamps'
 apiKey = '7be3aa0c7f9c2ae0061c9ad4ac680f5c '
 blockSize = 65536
 options = {'quiet': ''}
+errorCaught = ""
+ipfs_Client = ipfs.Client('127.0.0.1', 5001)
 
 
 class OriginstampError(Exception):
@@ -34,19 +44,19 @@ def get_pages_send_email(post,task):
     url = post.urlSite
     if task.china:
         proxy = app.config['STW_CHINA_PROXY']
-        if update_and_send(proxy,post,url,'China',True):
+        if update_and_send(proxy, post, url, 'China', True):
             return True
     elif task.usa:
         proxy = app.config['STW_USA_PROXY']
-        if update_and_send(proxy,post,url,'USA',True):
+        if update_and_send(proxy, post, url, 'USA', True):
             return True
     elif task.uk:
         proxy = app.config['STW_UK_PROXY']
-        if update_and_send(proxy,post,url,'UK',True):
+        if update_and_send(proxy, post, url, 'UK', True):
             return True
     else:
         proxy = None
-        if update_and_send(proxy,post,url,'UK',False):
+        if update_and_send(proxy, post, url, 'UK', False):
             return True
 def update_and_send(proxy,post,url,country,is_proxy):
     user = post.author
@@ -96,35 +106,97 @@ def update_and_send(proxy,post,url,country,is_proxy):
 def calculate_hash_for_html_doc(doc):
     """
     Calculate hash for given html document.
-
-    :param html_doc: html doc to hash
+    :param doc: html doc to hash
     :returns: calculated hash for given URL and the document used to create the hash
     """
+    app.logger.info('Creating HTML and Hash')
+
+    text = preprocess_doc(doc)
+    sha256 = save_file_ipfs(text)
+
+    app.logger.info('Hash:' + sha256)
+    # app.logger.info('HTML:' + text)
+    return sha256, text
+
+def preprocess_doc(doc):
+    """
+    Calculate hash for given html document.
+    :param doc: html doc to hash
+    :returns: calculated hash for given URL and the document used to create the hash
+    """
+    app.logger.info('Preprocessing Document')
+
+    # Detect the encoding of the html for future reference
+    # encoding = chardet.detect(doc.summary().encode()).get('encoding')
     encoding = 'utf-8'
     doc.encoding = encoding
-
+    # TODO all the Header information should be preserved not rewritten
     text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1' \
            '-transitional.dtd">\n' + '<head>\n' + \
-           '<meta http-equiv="Content-Type" content="text/html; ' \
-           'charset=' + encoding + '">\n' + '</head>\n' + '<body>\n' \
+           '<meta http-equiv="Content-Type" content="text/html" ' \
+           'charset="' + encoding + '">\n' + '</head>\n' + '<body>\n' \
            + '<h1>' + doc.title().split(sep='|')[0] + '</h1>'
 
     text += doc.summary() + '</body>'
-    calc_hash = hashlib.sha256()
-    summary= doc.summary().encode(encoding)
-    #summary = 'This is a Test Value'.encode(encoding)  #Remove this
-    calc_hash.update(summary)
-    sha256 = calc_hash.hexdigest()
-    return sha256, text
 
+    app.logger.info('Preprocessing done')
+    return text
+
+def save_file_ipfs(text):
+    """
+    Saves the file on IPFS and thus creates the hash to be submitted to Originstamp.
+
+    :author: Sebastian
+    :param text: The text to be timestamped.
+    :return: Returns the hash of the stored file, which equals the address on IPFS.
+    """
+    path = basePath + "temp.html"
+    app.logger.info("Working Directory: " + os.getcwd() + "trying to create temporary file:" + path)
+    try:
+        app.logger.info(path + " File exists before modification " + str(os.path.exists(path)))
+        with open(path, "w") as f:
+            f.write(text)
+    except FileNotFoundError as e:
+        app.logger.error("Due to FileNotFoundError could not create tempfile to save text in " + path +
+                         "\n Current working directory is: " + os.getcwd())
+        app.logger.error(e.characters_written)
+        app.logger.error(e.strerror)
+    except AttributeError as e:
+        app.logger.error("Due to AttributeError could not create tempfile to save text in " + path)
+        app.logger.error(e.args)
+    except Exception as e:
+        app.logger.error("could not create tempfile to save text in " + path)
+        app.logger.error(e)
+        app.logger.error(traceback.print_exc())
+    app.logger.info("    There is a file called " + path + ": " + str(os.path.exists(path)))
+    ipfs_hash = ipfs_Client.add(path)
+    print(ipfs_hash[0]['Hash'])
+    return ipfs_hash[0]['Hash']
 
 def save_render_zip_submit(doc, sha256, url, title):
-    create_png_from_html(url, sha256)
-    create_pdf_from_url(url,sha256)
-    create_html_from_url(doc,sha256,url)
-    originStampResult = submit_add_to_db(url, sha256, title)
-    return originStampResult
-
+    try:
+        create_png_from_html(url, sha256)
+    except FileNotFoundError as fileError:
+        # can only occur if data was submitted successfully but png or pdf creation failed
+        if not app.config["TESTING"]:
+            app.logger.error('Internal System Error while creating Screenshot,: ' +
+                         fileError.strerror + "\n Maybe check the path, current base path is: " + basePath+' Background process')
+    try:
+        create_pdf_from_url(url,sha256)
+    except FileNotFoundError as fileError:
+        # can only occur if data was submitted successfully but png or pdf creation failed
+        if not app.config["TESTING"]:
+            app.logger.error('FileNotFoundError while creating pdf: ' +
+                         fileError.strerror + '\n Background process')
+    try:
+        create_html_from_url(doc, sha256, url)
+    except FileNotFoundError as fileError:
+        # can only occur if data was submitted successfully but png or pdf creation failed
+        if not app.config["TESTING"]:
+            app.logger.error('FileNotFoundError while creating HTML file: ' +
+                             fileError.strerror + '\n Background process')
+    origin_stamp_result = submit_add_to_db(url, sha256, title)
+    return origin_stamp_result
 
 def create_png_from_html(url, sha256):
     """

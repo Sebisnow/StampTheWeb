@@ -65,25 +65,6 @@ def get_all_domain_names(post):
     return domain_name
 
 
-class DownloadError(Exception):
-    """
-    Error-Class for problems happening during running wkhtmltopdf/image.
-    """
-
-    def __init__(self, message):
-        super(DownloadError, self).__init__(message)
-
-
-class RequestError(Exception):
-    """
-    Error-Class for problems happening during requesting URL.
-    """
-
-    def __init__(self, message, req):
-        super(RequestError, self).__init__(message)
-        self.request = req
-
-
 def remove_unwanted_data_regular():
     basePath = 'app/pdf/temp-world.geo.json'
     with open(basePath) as data_file:
@@ -458,42 +439,6 @@ def load_amp_js(soup):
     return files
 
 
-def compress_files(files, js_files):
-    filename = str(uuid.uuid4()) + '.zip'
-    archive = zipfile.ZipFile(filename, "w")
-    sha256_calc = hashlib.sha256()
-    for file in files:
-        with open(file, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_calc.update(chunk)
-        archive.write(file)
-        os.remove(file)
-    for file in js_files:
-        archive.write(file)
-        os.remove(file)
-    archive.close()
-    sha256 = sha256_calc.hexdigest()
-    try:
-        os.rename(filename, sha256 + ".zip")
-    except FileExistsError:
-        # is needed on on windows, where os.rename can't override existing files.
-        os.remove(sha256 + ".zip")
-        os.rename(filename, sha256 + ".zip")
-    return sha256
-
-"""
-def check_database_for_hash(sha256):
-    query = 'SELECT COUNT(*) AS c FROM posts WHERE posts.hashVal = '+sha256+';'
-    from sqlalchemy import text
-    sql = text(query)
-    result = db.engine.execute(sql)
-    return result
-def check_database_for_url(url):
-    query = 'SELECT * FROM stampedSites WHERE stampedSites.url = %s ORDER BY datetime ASC;'
-    return db.execute_on_database(query, url)
-"""
-
-
 def submitHash(sha256):
     """
     Meta method that initiates the submission to Originstamp and handles response messages and errors.
@@ -595,23 +540,6 @@ def get_hash_history(sha256):
     return results
 
 
-def get_timestamp_data(timestamp_hash):
-    """
-    Takes an existing hash and retrieves the data for it using IPFS.
-    The data needs to be unzipped before the path will eb returned.
-
-    :author: Sebastian
-    :param timestamp_hash: The hash to retrieve the data for.
-    :return: Returns the data for the given hash
-    """
-    path = ipfs_get(timestamp_hash)
-    if zipfile.is_zipfile(path):
-        # TODO test and ensure it is extracted and returned
-        zipfile.PyZipFile.extractall(path=basePath + timestamp_hash)
-
-    return basePath + timestamp_hash
-
-
 def ipfs_get(timestamp):
     """
     Get data from IPFS. The data on IPFS is identified by the hash (timestamp variable).
@@ -711,7 +639,6 @@ def load_zip_submit(url, soup, enc):
     shutil.rmtree(tmp_dir)
 '''
 
-
 def save_render_zip_submit(html_text, sha256, url, title):
     """
     After IPFS has done it's magic this is the main handler for everything after the hash creation.
@@ -808,29 +735,9 @@ def main():
     print(get_url_history(url))
 
 
-def json_error(code, title, detail):
-    return json.dumps({'jsonapi': {'version': '1.0'},
-                       'errors': {'code': code,
-                                  'title': title,
-                                  'detail': detail}})
-
-
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
 
-
-def execute_on_database(query, args):
-    connection = db.session.connection()
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute('USE posts')
-            cursor.fetchall()
-            cursor.execute(query, args)
-            result = cursor.fetchall()
-        connection.commit()
-    finally:
-        connection.close()
-    return result
 
 
 if __name__ == '__main__':
