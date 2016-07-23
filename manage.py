@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 import os
 from app import create_app, db
-from app.models import User, Role, Permission, Post,Regular
-from flask_script import Manager, Shell
+from app.models import User, Role, Permission, Post, Regular
+from flask_script import Manager, Shell, Server
 from flask_migrate import Migrate, MigrateCommand
 from flask import send_from_directory
+from werkzeug import script, serving
 import schedule
 import time
 import datetime
 import send_mail
 from threading import Thread
+import ssl
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -21,6 +23,13 @@ def make_shell_context():
                 Post=Post)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
+app.logger.info(os.getcwd())
+context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+
+context.load_cert_chain('/etc/ssl/certs/StampTheWeb.crt', keyfile='/etc/ssl/private/StampTheWeb-d.key')
+
+# context = ('~/STW.crt', '~/STW.key')
+manager.add_command('runserver', Server(ssl_context=context))
 
 
 @manager.command
@@ -29,6 +38,15 @@ def test():
     import unittest
     tests = unittest.TestLoader().discover('tests')
     unittest.TextTestRunner(verbosity=2).run(tests)
+
+
+#@manager.command
+#def runserver():
+#    """Run the flask HTTPS server"""
+#    context = ('STW.crt', 'STW.key')
+#    app.logger.info("Added HTTPS to flask from : " + str(context))
+#
+#    action = script.make_runserver(app, ssl_context=context)
 
 
 # @app.route('/')
@@ -65,7 +83,7 @@ def run_schedule():
 # continue with the rest of your code
 
 
-@app.route('/uploads/<filename>') # working
+@app.route('/uploads/<filename>')  # working
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
@@ -77,7 +95,7 @@ def profile(length=25, profile_dir=None):
     from werkzeug.contrib.profiler import ProfilerMiddleware
     app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[length],
                                       profile_dir=profile_dir)
-    app.run()
+
 
 
 @manager.command
