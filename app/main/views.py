@@ -698,6 +698,8 @@ def timestamp_api():
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
     response = requests.Response
+    response["Content-Type"] = 'application/json'
+    response.status_code = 200
 
     try:
         if request.headers['Content-Type'] == 'application/json':
