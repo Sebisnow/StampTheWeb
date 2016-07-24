@@ -697,7 +697,7 @@ def timestamp_api():
     # change app config to testing in order to disable flashes od messages.
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
-    response = requests.Response()
+    response = requests.Response
     try:
         if request.headers['Content-Type'] == 'application/json':
             post_data = request.json
@@ -724,7 +724,7 @@ def timestamp_api():
 
     except Exception as e:
         # Catch error and continue, but log the error
-        current_app.logger.error("An exception as thrown on a POST request: " + str(e))
+        current_app.logger.error("An exception was thrown on a POST request: " + str(e))
         response.status_code = 481
         response.reason = "Error in try catch block!"
 
