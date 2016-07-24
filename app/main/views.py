@@ -684,7 +684,7 @@ def edit(id):
     return render_template('edit_post.html', form=form)
 
 
-@main.route('/timestamp', methods=['POST'])
+@main.route('/timestamp', methods=['POST', 'PUT'])
 def timestamp_api():
     """
     Listens for POST queries done by the Stamp The Web WebExtension and starts a distributed timestamp.
@@ -709,27 +709,28 @@ def timestamp_api():
 
                 if post_data.user:
                     response.user = post_data.user
-                    return response
+
                 else:
                     response.user = "BOT"
                     # TODO store with bot reference instead of user
-                    return response
+
             else:
                 response.status_code = 400
                 response.reason = "Really deep internal server error. Timestamp could not be created."
-                return response
 
         else:
             response.status_code = 415
             response.reason = "Unsupported Media Type. Only JSON Format allowed!"
-            return response
 
     except Exception as e:
         # Catch error and continue, but log the error
         current_app.logger.error("An exception as thrown on a POST request: " + str(e))
+        response.status_code = 481
+        response.reason = "Error in try catch block!"
 
     finally:
         current_app.config["TESTING"] = testing
+        return response
 
 
 @main.route('/timestamp/<timestamp>', methods=['GET'])
@@ -745,5 +746,8 @@ def timestamp_get(timestamp):
         post_old = Post.query.get_or_404(timestamp)
         return render_template('post.html', posts=[post_old], single=True)
     else:
-        return "415 Unsupported Data Type. Timestamps are alphanumeric!"
+        response = requests.Response()
+        response.status_code = 415
+        response.reason = "415 Unsupported Data Type. Timestamps are alphanumeric!"
+        return response
 
