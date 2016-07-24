@@ -738,11 +738,12 @@ def timestamp_api():
     except Exception as e:
         # Catch error and continue, but log the error
         current_app.logger.error("An exception was thrown on a POST request: \n" + str(e) + "\n" +
-                                 str(e.with_traceback()) + "\n\n Response so far was " + str(response))
+                                 str(e.args) + "\n\n Response so far was " + str(response))
         response.status = 481
         response.reason = "Error in try catch block!"
 
     finally:
+        current_app.logger.info("cleaning up and returning response")
         current_app.config["TESTING"] = testing
         return response
 
