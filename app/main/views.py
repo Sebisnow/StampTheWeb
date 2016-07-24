@@ -692,7 +692,7 @@ def timestamp_api():
     :return: Whether the POST request was successful or not.
     If successful it will contain a link to the data.
     """
-    current_app.logger.info("Received a POST request with following Header: \n" + request.headers)
+    current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
 
     # change app config to testing in order to disable flashes od messages.
     testing = current_app.config["TESTING"]
