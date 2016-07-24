@@ -698,8 +698,10 @@ def timestamp_api():
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
     response = requests.Response
+
     try:
         if request.headers['Content-Type'] == 'application/json':
+            current_app.logger.info("Content type is json")
             post_data = request.json
             result = downloader.distributed_timestamp(post_data.body, post_data.URL)
             if result.originStampResult.status_code == 200:
