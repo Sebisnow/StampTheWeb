@@ -21,7 +21,6 @@ import json
 import re
 from random import randint
 
-
 global selected
 
 
@@ -108,6 +107,7 @@ def index():
         posts = pagination.items
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
                                doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
+
 
 @main.route('/compare', methods=['GET', 'POST'])
 def compare():
@@ -224,7 +224,7 @@ def compare_options(ids):
 
     if not validators.url(search_keyword):
         domain = search_keyword
-        search_keyword = '%'+search_keyword+'%'
+        search_keyword = '%' + search_keyword+'%'
         posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
                                       Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
 
@@ -249,7 +249,7 @@ def compare_options(ids):
                                last=str(post_1.id), comp_page="active")
 
 
-@main.route('/block',  methods=['GET', 'POST'])
+@main.route('/block', methods=['GET', 'POST'])
 def block():
     form = PostBlock()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
@@ -581,7 +581,7 @@ def check_selected():
     posts = request.args.get('post', 0, type=int)
     if 'selected' in globals():
         if selected is not None:
-            result = str(selected)+':'+str(posts)
+            result = str(selected) + ':' + str(posts)
             selected = None
             return json.dumps({'result': result})
         else:
@@ -655,21 +655,6 @@ def verify_two(ids):
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required
 @nocache
-def verifyDomain(domain):
-    posts = Post.query.filter(Post.urlSite.contains(domain))
-    verification.writePostsData(posts)
-    page = request.args.get('page', 1, type=int)
-    pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
-        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
-        error_out=False)
-    posts = pagination.items
-    return render_template('search_domains.html', verify=posts,
-                           pagination=pagination,domain=domain, comp_page="active")
-
-
-@main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
-@login_required
-@nocache
 def verify_domain(domain):
     posts = Post.query.filter(Post.urlSite.contains(domain))
     verification.writePostsData(posts)
@@ -699,7 +684,7 @@ def edit(id):
     return render_template('edit_post.html', form=form)
 
 
-@main.route('/timestamp/', methods=['POST'])
+@main.route('/timestamp', methods=['POST'])
 def timestamp_api():
     """
     Listens for POST queries done by the Stamp The Web WebExtension and starts a distributed timestamp.
@@ -708,14 +693,16 @@ def timestamp_api():
     If successful it will contain a link to the data.
     """
     current_app.logger.info("Received a POST request with following Header: \n" + request.headers)
+
+    # change app config to testing in order to disable flashes od messages.
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
+    response = requests.Response()
     try:
         if request.headers['Content-Type'] == 'application/json':
             post_data = request.json
             result = downloader.distributed_timestamp(post_data.body, post_data.URL)
             if result.originStampResult.status_code == 200:
-                response = requests.Response
                 response.status_code = 200
                 response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
                 response.json = result.originStampResult
@@ -728,13 +715,15 @@ def timestamp_api():
                     # TODO store with bot reference instead of user
                     return response
             else:
-                response = requests.Response
                 response.status_code = 400
-                response.reason = "Internal server error. Timestamp could not be created."
+                response.reason = "Really deep internal server error. Timestamp could not be created."
                 return response
 
         else:
-            return "415 Unsupported Media Type. Only JSON Format allowed!"
+            response.status_code = 415
+            response.reason = "Unsupported Media Type. Only JSON Format allowed!"
+            return response
+
     except Exception as e:
         # Catch error and continue, but log the error
         current_app.logger.error("An exception as thrown on a POST request: " + str(e))
