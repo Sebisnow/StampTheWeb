@@ -701,17 +701,17 @@ def timestamp_api():
 
     try:
         if request.headers['Content-Type'] == 'application/json':
-            current_app.logger.info("Content type is json")
+            current_app.logger.info("Content type is json:\n" + str(request.json))
             post_data = request.json
-            result = downloader.distributed_timestamp(post_data.body, post_data.URL)
+            result = downloader.distributed_timestamp(post_data["body"], post_data["URL"])
             if result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
                 response.status_code = 200
                 response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
                 response.json = result.originStampResult
 
-                if post_data.user:
-                    response.user = post_data.user
+                if post_data["user"]:
+                    response.user = post_data["user"]
 
                 else:
                     response.user = "BOT"
