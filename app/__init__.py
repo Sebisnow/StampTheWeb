@@ -5,6 +5,7 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_pagedown import PageDown
+from flask_sslify import SSLify
 from config import config
 import logging
 from markupsafe import Markup
@@ -38,6 +39,8 @@ def create_app(config_name):
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     app.config['UPLOAD_FOLDER'] = 'pdf/'  # working
+    app.config['SSLIFY_PERMANENT'] = True
+    app.config['SSLIFY_SUBDOMAINS'] = True
 
     # Setting up Logging
     handler = RotatingFileHandler('webStamps.log', maxBytes=10000, backupCount=1)
@@ -60,4 +63,6 @@ def create_app(config_name):
     app.jinja_env.globals.update(clever_function=clever_function)
     app.jinja_env.add_extension('jinja2.ext.do')
 
-    return app
+    sslify = SSLify(app)
+
+    return sslify.app
