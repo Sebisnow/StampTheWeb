@@ -1,5 +1,4 @@
-from flask import render_template, redirect, url_for, abort, flash, request,\
-    current_app
+from flask import abort, flash, current_app, render_template, request, redirect, url_for, Response
 from flask_login import login_required, current_user
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, PostVerify, PostFreq, \
@@ -7,9 +6,8 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, Po
 from .. import db
 from ..models import Permission, Role, User, Post, Regular, Location, Block
 from ..decorators import admin_required
-from app.main import downloader,verification
+from app.main import downloader, verification
 from datetime import datetime
-from flask import render_template, request, redirect, url_for
 from lxml.html.diff import htmldiff
 from markupsafe import Markup
 import validators
@@ -20,7 +18,6 @@ import requests
 import json
 import re
 from random import randint
-
 
 global selected
 
@@ -108,6 +105,7 @@ def index():
         posts = pagination.items
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
                                doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
+
 
 @main.route('/compare', methods=['GET', 'POST'])
 def compare():
@@ -224,7 +222,7 @@ def compare_options(ids):
 
     if not validators.url(search_keyword):
         domain = search_keyword
-        search_keyword = '%'+search_keyword+'%'
+        search_keyword = '%' + search_keyword+'%'
         posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
                                       Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
 
@@ -249,7 +247,7 @@ def compare_options(ids):
                                last=str(post_1.id), comp_page="active")
 
 
-@main.route('/block',  methods=['GET', 'POST'])
+@main.route('/block', methods=['GET', 'POST'])
 def block():
     form = PostBlock()
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
@@ -581,7 +579,7 @@ def check_selected():
     posts = request.args.get('post', 0, type=int)
     if 'selected' in globals():
         if selected is not None:
-            result = str(selected)+':'+str(posts)
+            result = str(selected) + ':' + str(posts)
             selected = None
             return json.dumps({'result': result})
         else:
@@ -608,6 +606,7 @@ def very(id):
 def comp(id):
     posts = Post.query.get_or_404(id)
     return render_template('post.html', posts=[posts], single=True)
+
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
@@ -659,12 +658,12 @@ def verifyDomain(domain):
     posts = Post.query.filter(Post.urlSite.contains(domain))
     verification.writePostsData(posts)
     page = request.args.get('page', 1, type=int)
-    pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+    pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('search_domains.html', verify=posts,
-                           pagination=pagination,domain=domain, comp_page="active")
+                           pagination=pagination, domain=domain, comp_page="active")
 
 
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
@@ -699,7 +698,7 @@ def edit(id):
     return render_template('edit_post.html', form=form)
 
 
-@main.route('/timestamp/', methods=['POST'])
+@main.route('/timestamp', methods=['POST', 'PUT'])
 def timestamp_api():
     """
     Listens for POST queries done by the Stamp The Web WebExtension and starts a distributed timestamp.
@@ -707,40 +706,61 @@ def timestamp_api():
     :return: Whether the POST request was successful or not.
     If successful it will contain a link to the data.
     """
-    current_app.logger.info("Received a POST request with following Header: \n" + request.headers)
+    current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
+
+    # change app config to testing in order to disable flashes od messages.
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
+    response = Response()
+    response.content_type = 'application/json'
+
     try:
         if request.headers['Content-Type'] == 'application/json':
+            current_app.logger.info("Content type is json:\n" + str(request.json))
             post_data = request.json
-            result = downloader.distributed_timestamp(post_data.body, post_data.URL)
-            if result.originStampResult.status_code == 200:
-                response = requests.Response
+            result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
+            if result.originStampResult and result.originStampResult.status_code == 200:
+                current_app.logger.info("Originstamp submission succeeded")
                 response.status_code = 200
-                response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
-                response.json = result.originStampResult
+                current_app.logger.info("status set")
+                response.headers["URL"] = "http://stamptheweb.org/timestamp/" + result.hashValue
+                current_app.logger.info("resp header set")
+                response.response = result.originStampResult
+                current_app.logger.info("resp set")
 
-                if post_data.user:
-                    response.user = post_data.user
-                    return response
+                if post_data["user"]:
+                    response.headers["user"] = post_data["user"]
+
                 else:
-                    response.user = "BOT"
+                    response.headers["user"] = "BOT"
                     # TODO store with bot reference instead of user
-                    return response
+
             else:
-                response = requests.Response
-                response.status_code = 400
-                response.reason = "Internal server error. Timestamp could not be created."
-                return response
+                if result.hashValue:
+                    response.headers["json"] = result.hashValue
+                    response.status_code = 451
+                    response.reason = "Really deep internal server error but we have a hash. " \
+                                      "Timestamp might have been created."
+                else:
+                    response.status_code = 400
+                    response.reason = "Really deep internal server error. " \
+                                      "Timestamp could not be created."
 
         else:
-            return "415 Unsupported Media Type. Only JSON Format allowed!"
+            response.status_code = 415
+            response.reason = "Unsupported Media Type. Only JSON Format allowed!"
+
     except Exception as e:
         # Catch error and continue, but log the error
-        current_app.logger.error("An exception as thrown on a POST request: " + str(e))
+        current_app.logger.error("An exception was thrown on a POST request: \n" + str(e) + "\n" +
+                                 str(e.args) + "\n\n Response so far was " + str(response))
+        response.status_code = 481
+        response.reason = "Error in try catch block!"
 
     finally:
+        current_app.logger.info("cleaning up and returning response")
         current_app.config["TESTING"] = testing
+        return response
 
 
 @main.route('/timestamp/<timestamp>', methods=['GET'])
@@ -756,5 +776,8 @@ def timestamp_get(timestamp):
         post_old = Post.query.get_or_404(timestamp)
         return render_template('post.html', posts=[post_old], single=True)
     else:
-        return "415 Unsupported Data Type. Timestamps are alphanumeric!"
+        response = requests.Response()
+        response.status_code = 415
+        response.reason = "415 Unsupported Data Type. Timestamps are alphanumeric!"
+        return response
 

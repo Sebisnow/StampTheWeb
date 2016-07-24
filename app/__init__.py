@@ -5,6 +5,7 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_pagedown import PageDown
+from flask_sslify import SSLify
 from config import config
 import logging
 from markupsafe import Markup
@@ -21,25 +22,27 @@ login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_iew = 'auth.login'
 
-def clever_function(str,domain):
+
+def clever_function(str, domain):
     #Changes the String to highlight text for html5
     insensitive_domain = re.compile(re.escape(domain), re.IGNORECASE)
     if domain.lower() in str.lower():
-        htmlString = insensitive_domain.sub('<mark>'+domain+'</mark>', str)
+        htmlString = insensitive_domain.sub('<mark>' + domain + '</mark>', str)
         return Markup(htmlString)
     else:
         return Markup(str)
 
 
 def create_app(config_name):
-    app = Flask(__name__,static_folder='pdf') #working
+    app = Flask(__name__, static_folder='pdf')  # working
     #app = Flask(__name__, static_url_path='')
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
-    app.config['UPLOAD_FOLDER'] = 'pdf/' #working
+    app.config['UPLOAD_FOLDER'] = 'pdf/'  # working
+    app.config['SSLIFY_PERMANENT'] = True
+    app.config['SSLIFY_SUBDOMAINS'] = True
 
-
-    #Setting up Logging
+    # Setting up Logging
     handler = RotatingFileHandler('webStamps.log', maxBytes=10000, backupCount=1)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
@@ -51,7 +54,6 @@ def create_app(config_name):
     login_manager.init_app(app)
     pagedown.init_app(app)
 
-
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
@@ -61,8 +63,6 @@ def create_app(config_name):
     app.jinja_env.globals.update(clever_function=clever_function)
     app.jinja_env.add_extension('jinja2.ext.do')
 
-    return app
+    sslify = SSLify(app)
 
-
-
-
+    return sslify.app

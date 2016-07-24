@@ -583,14 +583,14 @@ def get_url_history(url):
     Entry point for the downloader
     :author: Sebastian
     :param url: the URL to get the history for
-    :return: history of the URL in the system
+    :return: a ReturnResults Object with the originStampResult, hashValue and webTitle and optionally an error message
     """
     # validate URL
     sha256 = None
     if not re.match(urlPattern, url):
         if not app.config["TESTING"]:
             flash('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url, 'error')
-        app.logger.error('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url)
+        app.logger.error('100' + 'Bad URL.' + 'URL needs to be valid to create timestamp for it:\n' + url)
         return ReturnResults(None, None, None)
 
     res = requests.get(url)
@@ -638,6 +638,7 @@ def load_zip_submit(url, soup, enc):
     os.chdir(old_path)
     shutil.rmtree(tmp_dir)
 '''
+
 
 def save_render_zip_submit(html_text, sha256, url, title):
     """
@@ -702,9 +703,10 @@ def distributed_timestamp(url, html_body):
     :param url: The URL of the website to timestamp
     :param html_body: The body of the site to timestamp
     :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
-    originStampResult, hashValue, webTitle and errors
+    originStampResult, hashValue, webTitle and errors(defaults to None)
     """
-    originstamp_result = ReturnResults()
+    # TODO do distributed timestamp
+    originstamp_result = get_url_history(url)
     return originstamp_result
 
 
