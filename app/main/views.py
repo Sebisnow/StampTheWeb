@@ -707,8 +707,11 @@ def timestamp_api():
             if result.originStampResult and result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
                 response.status = 200
+                current_app.logger.info("status set")
                 response.headers["URL"] = "http://stamptheweb.org/timestamp/" + result.hashValue
+                current_app.logger.info("resp header set")
                 response.response = result.originStampResult
+                current_app.logger.info("resp set")
 
                 if post_data["user"]:
                     response.headers["user"] = post_data["user"]
@@ -734,8 +737,8 @@ def timestamp_api():
 
     except Exception as e:
         # Catch error and continue, but log the error
-        current_app.logger.error("An exception was thrown on a POST request: \n" + str(e) +
-                                 "\n Response so far was " + str(response))
+        current_app.logger.error("An exception was thrown on a POST request: \n" + str(e) + "\n" +
+                                 str(e.with_traceback()) + "\n\n Response so far was " + str(response))
         response.status = 481
         response.reason = "Error in try catch block!"
 
