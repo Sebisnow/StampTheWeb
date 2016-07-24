@@ -705,6 +705,7 @@ def timestamp_api():
             post_data = request.json
             result = downloader.distributed_timestamp(post_data.body, post_data.URL)
             if result.originStampResult.status_code == 200:
+                current_app.logger.info("Originstamp submission succeeded")
                 response.status_code = 200
                 response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
                 response.json = result.originStampResult
