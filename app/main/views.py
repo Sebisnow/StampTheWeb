@@ -706,7 +706,7 @@ def timestamp_api():
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
             if result.originStampResult and result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
-                response.status = 200
+                response.status_code = 200
                 current_app.logger.info("status set")
                 response.headers["URL"] = "http://stamptheweb.org/timestamp/" + result.hashValue
                 current_app.logger.info("resp header set")
@@ -723,23 +723,23 @@ def timestamp_api():
             else:
                 if result.hashValue:
                     response.headers["json"] = result.hashValue
-                    response.status = 451
+                    response.status_code = 451
                     response.reason = "Really deep internal server error but we have a hash. " \
                                       "Timestamp might have been created."
                 else:
-                    response.status = 400
+                    response.status_code = 400
                     response.reason = "Really deep internal server error. " \
                                       "Timestamp could not be created."
 
         else:
-            response.status = 415
+            response.status_code = 415
             response.reason = "Unsupported Media Type. Only JSON Format allowed!"
 
     except Exception as e:
         # Catch error and continue, but log the error
         current_app.logger.error("An exception was thrown on a POST request: \n" + str(e) + "\n" +
                                  str(e.args) + "\n\n Response so far was " + str(response))
-        response.status = 481
+        response.status_code = 481
         response.reason = "Error in try catch block!"
 
     finally:
