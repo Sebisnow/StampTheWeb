@@ -25,10 +25,11 @@ manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 app.logger.info(os.getcwd())
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+if os.path.exists('/etc/ssl/certs/StampTheWeb.crt') and os.path.exists('/etc/ssl/private/StampTheWeb-d.key'):
+    context.load_cert_chain('/etc/ssl/certs/StampTheWeb.crt', keyfile='/etc/ssl/private/StampTheWeb-d.key')
+else:
+    context.load_cert_chain('StampTheWeb.crt', keyfile='StampTheWeb-d.key')
 
-context.load_cert_chain('/etc/ssl/certs/StampTheWeb.crt', keyfile='/etc/ssl/private/StampTheWeb-d.key')
-
-# context = ('~/STW.crt', '~/STW.key')
 manager.add_command('runserver', Server(ssl_context=context))
 
 
