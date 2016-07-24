@@ -1,5 +1,4 @@
-from flask import render_template, redirect, url_for, abort, flash, request,\
-    current_app
+from flask import abort, flash, current_app, render_template, request, redirect, url_for, Response
 from flask_login import login_required, current_user
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, PostVerify, PostFreq, \
@@ -7,9 +6,8 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, Po
 from .. import db
 from ..models import Permission, Role, User, Post, Regular, Location, Block
 from ..decorators import admin_required
-from app.main import downloader,verification
+from app.main import downloader, verification
 from datetime import datetime
-from flask import render_template, request, redirect, url_for
 from lxml.html.diff import htmldiff
 from markupsafe import Markup
 import validators
@@ -609,6 +607,7 @@ def comp(id):
     posts = Post.query.get_or_404(id)
     return render_template('post.html', posts=[posts], single=True)
 
+
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
 def verifyID(id):
@@ -697,9 +696,8 @@ def timestamp_api():
     # change app config to testing in order to disable flashes od messages.
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
-    response = requests.Response
-    response["Content-Type"] = 'application/json'
-    response.status_code = 200
+    response = Response()
+    response.content_type = 'application/json'
 
     try:
         if request.headers['Content-Type'] == 'application/json':
@@ -708,36 +706,37 @@ def timestamp_api():
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
             if result.originStampResult and result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
-                response.status_code = 200
-                response.URL = "http://stamptheweb.org/timestamp/" + result.hashValue
-                response.json = result.originStampResult
+                response.status = 200
+                response.headers["URL"] = "http://stamptheweb.org/timestamp/" + result.hashValue
+                response.response = result.originStampResult
 
                 if post_data["user"]:
-                    response.user = post_data["user"]
+                    response.headers["user"] = post_data["user"]
 
                 else:
-                    response.user = "BOT"
+                    response.headers["user"] = "BOT"
                     # TODO store with bot reference instead of user
 
             else:
                 if result.hashValue:
-                    response.json["hash"] = result.hashValue
-                    response.status_code = 451
+                    response.headers["json"] = result.hashValue
+                    response.status = 451
                     response.reason = "Really deep internal server error but we have a hash. " \
                                       "Timestamp might have been created."
                 else:
-                    response.status_code = 400
+                    response.status = 400
                     response.reason = "Really deep internal server error. " \
                                       "Timestamp could not be created."
 
         else:
-            response.status_code = 415
+            response.status = 415
             response.reason = "Unsupported Media Type. Only JSON Format allowed!"
 
     except Exception as e:
         # Catch error and continue, but log the error
-        current_app.logger.error("An exception was thrown on a POST request: " + str(e))
-        response.status_code = 481
+        current_app.logger.error("An exception was thrown on a POST request: \n" + str(e) +
+                                 "\n Response so far was " + str(response))
+        response.status = 481
         response.reason = "Error in try catch block!"
 
     finally:
