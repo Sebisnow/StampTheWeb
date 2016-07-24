@@ -590,7 +590,7 @@ def get_url_history(url):
     if not re.match(urlPattern, url):
         if not app.config["TESTING"]:
             flash('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url, 'error')
-        app.logger.error('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url)
+        app.logger.error('100' + 'Bad URL.' + 'URL needs to be valid to create timestamp for it:\n' + url)
         return ReturnResults(None, None, None)
 
     res = requests.get(url)

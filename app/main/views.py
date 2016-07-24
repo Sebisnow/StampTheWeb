@@ -703,7 +703,7 @@ def timestamp_api():
         if request.headers['Content-Type'] == 'application/json':
             current_app.logger.info("Content type is json:\n" + str(request.json))
             post_data = request.json
-            result = downloader.distributed_timestamp(post_data["body"], post_data["URL"])
+            result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
             if result.originStampResult and result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
                 response.status_code = 200
