@@ -152,7 +152,7 @@ def compare():
         error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
-                           pagination=pagination,doman_name=doman_name_unique, comp_page="active")
+                           pagination=pagination, doman_name=doman_name_unique, comp_page="active")
 
 
 @main.route('/compare_options/<ids>', methods=['GET', 'POST'])
@@ -651,7 +651,7 @@ def verify_two(ids):
                            dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active", hash1=post_1.hashVal)
 
 
-@main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
+"""@main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required
 @nocache
 def verifyDomain(domain):
@@ -664,7 +664,7 @@ def verifyDomain(domain):
     posts = pagination.items
     return render_template('search_domains.html', verify=posts,
                            pagination=pagination, domain=domain, comp_page="active")
-
+"""
 
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required

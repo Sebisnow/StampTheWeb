@@ -75,7 +75,7 @@ WEB Stamp is a trusted timestamping service that can be used free of charge. The
       {% for name in doman_name %}
           {% if name.startswith(c) %}
             {% set list = name.split(';') %}
-            <a class="btn btn-primary" href="{{ url_for('.verifyDomain', domain=list[0]) }}" target="_blank"> {{list[0]}}<span class="badge"> {{list[1]}}</span></a>
+            <a class="btn btn-primary" href="{{ url_for('.verify_domain', domain=list[0]) }}" target="_blank"> {{list[0]}}<span class="badge"> {{list[1]}}</span></a>
 
           {% endif %}
       {% endfor %}
@@ -87,7 +87,7 @@ WEB Stamp is a trusted timestamping service that can be used free of charge. The
     {% for name in doman_name %}
       {% if name[0].isdigit() %}
           {% set list = name.split(';') %}
-                <a class="btn btn-primary" href="{{ url_for('.verifyDomain', domain=list[0]) }}" target="_blank"> {{list[0]}}<span class="badge"> {{list[1]}}</span></a>
+                <a class="btn btn-primary" href="{{ url_for('.verify_domain', domain=list[0]) }}" target="_blank"> {{list[0]}}<span class="badge"> {{list[1]}}</span></a>
 
       {% endif %}
     {% endfor %}
