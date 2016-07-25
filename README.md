@@ -128,6 +128,11 @@ To install a python package use the following command.
 $ pip install [python-package]
 ```
 
+To clone this source locally into your computer.
+
+```sh
+$ git clone https://github.com/Sebisnow/StampTheWeb.git
+```
 
 
 ## License
