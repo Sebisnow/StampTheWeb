@@ -52,6 +52,7 @@ def index():
                             origStampTime=orig_stamp_time, author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
+            current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S")+" New Post added")
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_freq.validate_on_submit() and form_freq.frequency.data > 0:
@@ -79,11 +80,13 @@ def index():
                             origStampTime=orig_stamp_time, author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
+            current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
         #  = Post.query.filter(and_(Post.url_site.like(url_site),
         # Post.hashVal.like(sha256))).first()
         regular_new = Regular(frequency=freq, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
+        current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Regular task added")
         page = request.args.get('page', 1, type=int)
         pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
             page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
