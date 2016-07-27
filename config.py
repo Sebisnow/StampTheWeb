@@ -19,12 +19,13 @@ class Config:
     STW_USA_PROXY = "169.50.87.252:80"
     STW_UK_PROXY = "89.34.97.132:8080"
     STW_RUSSIA_PROXY = "80.240.114.77:8000"
+    """To find locations of proxies been used. We require ip addresses only"""
     CHINA_PROXY = "60.216.40.135"
     USA_PROXY = "199.115.117.212"
     UK_PROXY = "90.216.222.23"
     RUSSIA_PROXY = "80.240.114.77"
-    SERVER_URL = 'http://stamptheweb.org'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SERVER_URL = 'https://stamptheweb.org'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False  # added due to an error. Tracks modifications of SQL Alchemy objects.
 
     @staticmethod
     def init_app(app):
@@ -32,18 +33,21 @@ class Config:
 
 
 class DevelopmentConfig(Config):
+    """When used the errors are shown in the Web Browser"""
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 
 class TestingConfig(Config):
+    """Uses a different DB and removes it after the testing is done"""
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
 
 
 class ProductionConfig(Config):
+    """To be used when deployed"""
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
