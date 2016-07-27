@@ -651,21 +651,6 @@ def verify_two(ids):
                            dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active", hash1=post_1.hashVal)
 
 
-"""@main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
-@login_required
-@nocache
-def verifyDomain(domain):
-    posts = Post.query.filter(Post.urlSite.contains(domain))
-    verification.writePostsData(posts)
-    page = request.args.get('page', 1, type=int)
-    pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
-        error_out=False)
-    posts = pagination.items
-    return render_template('search_domains.html', verify=posts,
-                           pagination=pagination, domain=domain, comp_page="active")
-"""
-
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required
 @nocache
