@@ -13,6 +13,8 @@ import send_mail
 from threading import Thread
 import ssl
 
+"""The application runs according the configurations provided in FLASK_CONFIG variable
+    either Configuration, Development or Production"""
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
@@ -59,7 +61,7 @@ start_time = time.time()
 
 
 def run_every_day():
-    # print("Running periodic task!")
+    """This method runs every day and checks the scheduled tasks"""
     with app.app_context():
         tasks = Regular.query.all()
         for task in tasks:
@@ -71,9 +73,9 @@ def run_every_day():
                 if send_mail.get_pages_send_email(post, task):
                     task.timestamp = datetime.datetime.utcnow()
                     db.session.commit()
-                print('Something happened')
+                # print('Something happened') # for Debugging
 
-    print("Elapsed time: " + str(time.time() - start_time))
+    # print("Elapsed time: " + str(time.time() - start_time))  # for Debuggin
 
 
 def run_schedule():
@@ -84,8 +86,10 @@ def run_schedule():
 # continue with the rest of your code
 
 
-@app.route('/uploads/<filename>')  # working
+@app.route('/uploads/<filename>')
 def uploaded_file(filename):
+    """""The root directory of the applicaton from where it will return the requested
+        files"""
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
 
@@ -101,7 +105,8 @@ def profile(length=25, profile_dir=None):
 
 @manager.command
 def deploy():
-    """Run deployment tasks."""
+    """Run deployment tasks.
+        Currently we do not require it """
     from flask_migrate import upgrade
     from app.models import Role, User
 
@@ -110,9 +115,9 @@ def deploy():
 
 
 if __name__ == '__main__':
+    """Starting a schedule task after every 86400 seconds i.e 1 day
+        This will check the schedule comparison requests and check for update"""
     schedule.every(86400).seconds.do(run_every_day)
     t = Thread(target=run_schedule)
     t.start()
-    # print ("Start time: " + str(start_time))
-    # app.run()
     manager.run()

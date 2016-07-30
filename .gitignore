@@ -11,3 +11,5 @@ app/pdf/*
 !*/
 *.log
 .idea/*
+*.crt
+*.key

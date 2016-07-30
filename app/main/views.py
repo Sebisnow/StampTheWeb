@@ -52,6 +52,7 @@ def index():
                             origStampTime=orig_stamp_time, author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
+            current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S")+" New Post added")
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_freq.validate_on_submit() and form_freq.frequency.data > 0:
@@ -79,11 +80,13 @@ def index():
                             origStampTime=orig_stamp_time, author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
+            current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
         #  = Post.query.filter(and_(Post.url_site.like(url_site),
         # Post.hashVal.like(sha256))).first()
         regular_new = Regular(frequency=freq, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
+        current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Regular task added")
         page = request.args.get('page', 1, type=int)
         pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
             page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
@@ -152,7 +155,7 @@ def compare():
         error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
-                           pagination=pagination,doman_name=doman_name_unique, comp_page="active")
+                           pagination=pagination, doman_name=doman_name_unique, comp_page="active")
 
 
 @main.route('/compare_options/<ids>', methods=['GET', 'POST'])
@@ -649,21 +652,6 @@ def verify_two(ids):
 
     return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp, hash2=post_2.hashVal,
                            dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active", hash1=post_1.hashVal)
-
-
-@main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
-@login_required
-@nocache
-def verifyDomain(domain):
-    posts = Post.query.filter(Post.urlSite.contains(domain))
-    verification.writePostsData(posts)
-    page = request.args.get('page', 1, type=int)
-    pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
-        error_out=False)
-    posts = pagination.items
-    return render_template('search_domains.html', verify=posts,
-                           pagination=pagination, domain=domain, comp_page="active")
 
 
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
