@@ -1,4 +1,5 @@
 import os
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -12,7 +13,7 @@ class Config:
     MAIL_PASSWORD = 'hD7BieuJFM7Zi2ZsJh6kb8Sn'
     STW_MAIL_SUBJECT_PREFIX = '[StampTheWeb]'
     STW_MAIL_SENDER = 'StampTheWeb Admin <stamptheweb@gmail.com>'
-    #STW_ADMIN = os.environ.get('STW_ADMIN')
+    # STW_ADMIN = os.environ.get('STW_ADMIN')
     STW_ADMIN = 'stamptheweb@gmail.com'
     STW_POSTS_PER_PAGE = 20
     STW_CHINA_PROXY = "101.201.42.44:3128"
@@ -36,20 +37,20 @@ class DevelopmentConfig(Config):
     """When used the errors are shown in the Web Browser"""
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+                              'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 
 class TestingConfig(Config):
     """Uses a different DB and removes it after the testing is done"""
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+                              'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
 
 
 class ProductionConfig(Config):
     """To be used when deployed"""
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+                              'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
 
 
 config = {

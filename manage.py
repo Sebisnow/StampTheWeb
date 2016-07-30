@@ -23,6 +23,8 @@ migrate = Migrate(app, db)
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role, Permission=Permission,
                 Post=Post)
+
+
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
 app.logger.info(os.getcwd())
@@ -43,8 +45,8 @@ def test():
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 
-#@manager.command
-#def runserver():
+# @manager.command
+# def runserver():
 #    """Run the flask HTTPS server"""
 #    context = ('STW.crt', 'STW.key')
 #    app.logger.info("Added HTTPS to flask from : " + str(context))
@@ -65,7 +67,7 @@ def run_every_day():
     with app.app_context():
         tasks = Regular.query.all()
         for task in tasks:
-            seconds_passed = datetime.timedelta.total_seconds(datetime.datetime.utcnow()-task.timestamp)
+            seconds_passed = datetime.timedelta.total_seconds(datetime.datetime.utcnow() - task.timestamp)
             frequency = task.frequency
             seconds_required = 86400 * frequency
             if seconds_required < seconds_passed:
@@ -73,15 +75,16 @@ def run_every_day():
                 if send_mail.get_pages_send_email(post, task):
                     task.timestamp = datetime.datetime.utcnow()
                     db.session.commit()
-                # print('Something happened') # for Debugging
+                    # print('Something happened') # for Debugging
 
-    # print("Elapsed time: " + str(time.time() - start_time))  # for Debuggin
+                    # print("Elapsed time: " + str(time.time() - start_time))  # for Debuggin
 
 
 def run_schedule():
     while 1:
         schedule.run_pending()
         time.sleep(1)
+
 
 # continue with the rest of your code
 
@@ -100,7 +103,6 @@ def profile(length=25, profile_dir=None):
     from werkzeug.contrib.profiler import ProfilerMiddleware
     app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions=[length],
                                       profile_dir=profile_dir)
-
 
 
 @manager.command
