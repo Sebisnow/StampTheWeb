@@ -11,6 +11,7 @@ def forbidden(e):
 def page_not_found(e):
     return render_template('404.html'), 404
 
+
 @main.app_errorhandler(401)
 def unauthorized(e):
     return render_template('401.html'), 404

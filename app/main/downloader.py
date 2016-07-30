@@ -42,6 +42,7 @@ class ReturnResults(object):
     :author: Waqar and Sebastian
     Helper class to return the results from downloader to the views. Therefore this class is equivalent to an API.
     """
+
     def __init__(self, originstamp_result, hash_value, web_title, errors=None):
         self.originStampResult = originstamp_result
         self.hashValue = hash_value
@@ -225,7 +226,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
     try:
         cur_dir = os.getcwd()
         os.chdir(basePath)
-        #TODO make sure the output of the system call returns what it should, possibly
+        # TODO make sure the output of the system call returns what it should, possibly
         # move try catch block out of the other
         app.logger.info("Trying to fetch the HTML from IPFS")
         try:
@@ -619,6 +620,8 @@ def get_url_history(url):
 
     # return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originstamp_result, sha256, doc.title())
+
+
 '''
 # Deprecated Method of old STW
 def load_zip_submit(url, soup, enc):
@@ -655,11 +658,11 @@ def save_render_zip_submit(html_text, sha256, url, title):
     try:
         create_html_from_url(html_text, sha256, url)
     except FileNotFoundError as fileError:
-            # can only occur if data was submitted successfully but png or pdf creation failed
-            if not app.config["TESTING"]:
-                flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
-            app.logger.error('Internal System Error while creating HTML,: ' +
-                             fileError.strerror + "\n Maybe check the path, current base path is: " + basePath)
+        # can only occur if data was submitted successfully but png or pdf creation failed
+        if not app.config["TESTING"]:
+            flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
+        app.logger.error('Internal System Error while creating HTML,: ' +
+                         fileError.strerror + "\n Maybe check the path, current base path is: " + basePath)
     # archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
     # archive.write(basePath + sha256 + '.html')
     # os.remove(basePath + sha256 + '.html')
@@ -739,7 +742,6 @@ def main():
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
-
 
 
 if __name__ == '__main__':
