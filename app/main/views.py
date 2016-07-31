@@ -686,7 +686,7 @@ def edit(id):
     return render_template('edit_post.html', form=form)
 
 
-@main.route('/timestamp', methods=['POST'])
+@main.route('/timestamp', methods=['POST', 'GET'])
 def timestamp_api():
     """
     Listens for POST queries done by the Stamp The Web WebExtension and starts a distributed timestamp.

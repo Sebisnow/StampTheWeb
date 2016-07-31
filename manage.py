@@ -5,7 +5,6 @@ from app.models import User, Role, Permission, Post, Regular
 from flask_script import Manager, Shell, Server
 from flask_migrate import Migrate, MigrateCommand
 from flask import send_from_directory
-from werkzeug import script, serving
 import schedule
 import time
 import datetime
@@ -13,7 +12,7 @@ import send_mail
 from threading import Thread
 import ssl
 
-"""The application runs according the configurations provided in FLASK_CONFIG variable
+"""The application runs according to the configurations provided in FLASK_CONFIG variable
     either Configuration, Development or Production"""
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
@@ -25,7 +24,6 @@ def make_shell_context():
                 Post=Post)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 manager.add_command('db', MigrateCommand)
-app.logger.info(os.getcwd())
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 if os.path.exists('/etc/ssl/certs/StampTheWeb.crt') and os.path.exists('/etc/ssl/private/StampTheWeb-d.key'):
     context.load_cert_chain('/etc/ssl/certs/StampTheWeb.crt', keyfile='/etc/ssl/private/StampTheWeb-d.key')
