@@ -68,6 +68,7 @@ class BasicsTestCase(unittest.TestCase):
         print("    Response is: " + str(resp))
         print("    " + str(resp.headers))
         # TODO now tests whether it is correct json
+        print("    Testing that non json data returns 415 error")
         self.assertEqual(resp.status_code, 415)
         """with requests.Session() as sess:
             print("    Starting request")
