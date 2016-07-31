@@ -67,7 +67,6 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     very = db.relationship('Verify', backref='author', lazy='dynamic')
 
-
     @staticmethod
     def generate_fake(count=100):
         from sqlalchemy.exc import IntegrityError
@@ -169,7 +168,7 @@ class User(UserMixin, db.Model):
 
     def can(self, permissions):
         return self.role is not None and \
-            (self.role.permissions & permissions) == permissions
+               (self.role.permissions & permissions) == permissions
 
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
@@ -198,6 +197,7 @@ class AnonymousUser(AnonymousUserMixin):
 
     def is_administrator(self):
         return False
+
 
 login_manager.anonymous_user = AnonymousUser
 
@@ -246,19 +246,22 @@ class Post(db.Model):
             markdown(value, output_format='html'),
             tags=allowed_tags, strip=True))
 
+
 db.event.listen(Post.body, 'set', Post.on_changed_body)
+
 
 class Regular(db.Model):
     __tablename__ = 'regular'
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     frequency = db.Column(db.Integer)
-    post_id = db.Column(db.Integer,db.ForeignKey('posts.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
     usa = db.Column(db.Boolean)
     uk = db.Column(db.Boolean)
     china = db.Column(db.Boolean)
     russia = db.Column(db.Boolean)
     email = db.Column(db.String)
+
 
 class Block(db.Model):
     __tablename__ = 'block'
@@ -270,11 +273,13 @@ class Block(db.Model):
     china = db.Column(db.Boolean)
     russia = db.Column(db.Boolean)
 
+
 class Location(db.Model):
     __tablename__ = 'location'
     ip = db.Column(db.Text, primary_key=True)
     country_code = db.Column(db.String)
     country_name = db.Column(db.String)
+
 
 class Verify(db.Model):
     __tablename__ = 'verify'

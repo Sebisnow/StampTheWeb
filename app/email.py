@@ -20,7 +20,7 @@ def send_email(to, subject, template, **kwargs):
     return thr
 
 
-def send_email_normal(to, subject, template,**kwargs):
+def send_email_normal(to, subject, template, **kwargs):
     app = current_app._get_current_object()
     msg = Message(app.config['STW_MAIL_SUBJECT_PREFIX'] + ' ' + subject,
                   sender=app.config['STW_MAIL_SENDER'], recipients=[to])

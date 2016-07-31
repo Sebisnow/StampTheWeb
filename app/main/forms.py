@@ -1,5 +1,5 @@
 from flask_wtf import Form
-from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
+from wtforms import StringField, TextAreaField, BooleanField, SelectField, \
     SubmitField, TextField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError, validators
@@ -95,7 +95,7 @@ class PostCountry(Form):
     uk = BooleanField('Compare with the page in UK',
                       render_kw={"title": "If no location is selected, then Default Location would be used."})
     russia = BooleanField('Compare with the page in Russia',
-                      render_kw={"title": "If no location is selected, then Default Location would be used."})
+                          render_kw={"title": "If no location is selected, then Default Location would be used."})
     email = EmailField('Notify me in case there is any change in content. (email required)',
                        render_kw={"placeholder": "email@example.com"})
     submit = SubmitField('Submit')
@@ -128,7 +128,8 @@ class SearchPost(Form):
 
 
 class URL_Status(Form):
-    urlSite = URLField("Enter URL to check where it is blocked?", validators=[url(), Required()], render_kw={"placeholder": "http://www.example.com"})
+    urlSite = URLField("Enter URL to check where it is blocked?", validators=[url(), Required()],
+                       render_kw={"placeholder": "http://www.example.com"})
     submit = SubmitField('Search')
 
 
@@ -160,4 +161,3 @@ class PostText(Form):
 class Regular_Interval(Form):
     urlSite = URLField("Enter URL to create a timestamp", validators=[url()])
     submit = SubmitField('Submit')
-

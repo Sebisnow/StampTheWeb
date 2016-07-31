@@ -19,4 +19,3 @@ def submit(sha256, title=None):
     headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
     data = {'hash_sha256': sha256, 'title': title}
     return requests.post(apiPostUrl, json=data, headers=headers)
-

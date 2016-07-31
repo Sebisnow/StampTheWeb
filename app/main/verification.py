@@ -7,7 +7,6 @@ import traceback
 import re
 from time import mktime
 
-
 from bs4 import BeautifulSoup
 from readability.readability import Document
 from subprocess import call, DEVNULL
@@ -15,9 +14,9 @@ from os.path import devnull
 from app import db
 import pdfkit
 from . import main
-from flask import abort,flash,current_app
+from flask import abort, flash, current_app
 import logging
-#from manage import app
+# from manage import app
 from app import create_app as app
 
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
@@ -36,93 +35,99 @@ options = {'quiet': ''}
 
 
 class ReturnResults(object):
-  def __init__(self, html_text, hashValue, webTitle):
-     self.html_text = html_text
-     self.hashValue = hashValue
-     self.webTitle = webTitle
+    def __init__(self, html_text, hashValue, webTitle):
+        self.html_text = html_text
+        self.hashValue = hashValue
+        self.webTitle = webTitle
 
 
 def create_png_from_html(url, sha256):
     """Create png from URL. Returns path to file.
     :param url: url to retrieve
     :param sha256: name of the downloaded png"""
-    current_app.logger.info('Creating PNG from URL:'+url)
+    current_app.logger.info('Creating PNG from URL:' + url)
     path = basePath + sha256 + '.png'
-    current_app.logger.info('PNG Path:'+path)
+    current_app.logger.info('PNG Path:' + path)
     call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
     if os.path.isfile(path):
         return
-    flash(u'Could not create PNG from '+ url, 'error')
-    current_app.logger.error('Could not create PNG from the: '+url)
+    flash(u'Could not create PNG from ' + url, 'error')
+    current_app.logger.error('Could not create PNG from the: ' + url)
     return
 
-def create_pdf_from_url(url,sha256):
+
+def create_pdf_from_url(url, sha256):
     #:param url: url to retrieve
-    #method to write pdf file
-    current_app.logger.info('Creating PDF from URL:'+url)
-    path = basePath +sha256+'.pdf'
-    current_app.logger.info('PDF Path:'+path)
+    # method to write pdf file
+    current_app.logger.info('Creating PDF from URL:' + url)
+    path = basePath + sha256 + '.pdf'
+    current_app.logger.info('PDF Path:' + path)
     try:
         pdfkit.from_url(url, path)
     except Exception as e:
         # is needed on on windows, where os.rename can't override existing files.
-        flash(u'Could not create PDF from '+ url, 'error')
-        current_app.logger.error('Could not create PDF from the: '+url)
-        current_app.logger.error(traceback.format_exc(),e)
+        flash(u'Could not create PDF from ' + url, 'error')
+        current_app.logger.error('Could not create PDF from the: ' + url)
+        current_app.logger.error(traceback.format_exc(), e)
     return
+
+
 def get_file_text(hash):
     # Parm hash: value of hash to open the file
-    path = basePath +hash+'.html'
+    path = basePath + hash + '.html'
     try:
         if os.path.isfile(path):
-            file = open(path,encoding="utf-8")
-            text=file.read()
+            file = open(path, encoding="utf-8")
+            text = file.read()
         else:
             flash('HTML not found, due to some internal problem. Hash:' + hash)
-            logging.error('HTML file not found '+path+'Hash:'+hash)
+            logging.error('HTML file not found ' + path + 'Hash:' + hash)
             return ''
     except:
         if os.path.isfile(path):
-            file = open(path,encoding="cp1252")
-            text=file.read()
+            file = open(path, encoding="cp1252")
+            text = file.read()
         else:
             flash('HTML not found, due to some internal problem. Hash:' + hash)
-            logging.error('HTML file not found '+path+'Hash:'+hash)
+            logging.error('HTML file not found ' + path + 'Hash:' + hash)
             return ''
     return text
+
+
 def writePostsData(posts):
-    container={}
-    child=[]
+    container = {}
+    child = []
     for post in posts:
-        item_dict={}
+        item_dict = {}
         item_dict['id'] = str(post.id)
         item_dict['title'] = post.webTitl
-        item_dict['url'] = '/comp/'+str(post.id)
+        item_dict['url'] = '/comp/' + str(post.id)
         item_dict['class'] = 'event-success'
         dt = post.timestamp
-        sec_since_epoch = mktime(dt.timetuple()) + dt.microsecond/1000000.0
+        sec_since_epoch = mktime(dt.timetuple()) + dt.microsecond / 1000000.0
         millis_since_epoch = sec_since_epoch * 1000
         item_dict['start'] = str(millis_since_epoch)
-        item_dict['end'] = str(millis_since_epoch+9000000)
+        item_dict['end'] = str(millis_since_epoch + 9000000)
         child.append(dict(item_dict))
     container['success'] = '1'
     container['result'] = child
-    path = basePath +'events.json.php'
+    path = basePath + 'events.json.php'
     if os.path.isfile(path):
         try:
             os.remove(basePath + 'events.json.php')
             with open(basePath + 'events.json.php', 'w') as outfile:
-                json.dump(container, outfile,sort_keys=True, indent=4, separators=(',', ': '))
+                json.dump(container, outfile, sort_keys=True, indent=4, separators=(',', ': '))
         except:
-            flash(u'Internal System Error. Could not delete timeline file.','error')
-            current_app.logger.error('Internal System Error. Could not delete timeline file.' )
+            flash(u'Internal System Error. Could not delete timeline file.', 'error')
+            current_app.logger.error('Internal System Error. Could not delete timeline file.')
     else:
         try:
             with open(basePath + 'events.json.php', 'w') as outfile:
-                json.dump(container, outfile,sort_keys=True, indent=4, separators=(',', ': '))
+                json.dump(container, outfile, sort_keys=True, indent=4, separators=(',', ': '))
         except:
-            flash(u'Internal System Error. Could not write events to calendar.','error')
+            flash(u'Internal System Error. Could not write events to calendar.', 'error')
             current_app.logger.error('Internal System Error. Could not write events to calendar.')
+
 
 def calculate_hash_for_html_doc(html_doc):
     """Calculate hash for given html document.
@@ -146,8 +151,8 @@ def calculate_hash_for_html_doc(html_doc):
     calc_hash = hashlib.sha256()
     calc_hash.update(doc.summary().encode(encoding))
     sha256 = calc_hash.hexdigest()
-    current_app.logger.info('Hash:' +sha256)
-    current_app.logger.info('HTML:' +text)
+    current_app.logger.info('Hash:' + sha256)
+    current_app.logger.info('HTML:' + text)
     return sha256, text
 
 
@@ -174,34 +179,36 @@ def submit_add_to_db(url, sha256, title):
     """
     originStampResult = submit(sha256, title)
     current_app.logger.info(originStampResult.text)
-    current_app.logger.info('Origin Stamp Response:' +originStampResult.text)
-    if originStampResult.status_code >= 300 :
-        flash(u'An Error occur while submitting hash to originstamp. Hash: '+sha256,'error')
+    current_app.logger.info('Origin Stamp Response:' + originStampResult.text)
+    if originStampResult.status_code >= 300:
+        flash(u'An Error occur while submitting hash to originstamp. Hash: ' + sha256, 'error')
         current_app.logger.error('An Error occur while submitting hash to originstamp. Hash:' + sha256)
         return originStampResult
-        #raise OriginstampError('Could not submit hash to Originstamp', r)
+        # raise OriginstampError('Could not submit hash to Originstamp', r)
     elif "errors" in originStampResult.json():
-        flash(u'An Error occur while submitting hash to originstamp. Hash:'+sha256,'error')
-        current_app.logger.error('An Error occur while submitting hash to originstamp. Hash: '+sha256)
+        flash(u'An Error occur while submitting hash to originstamp. Hash:' + sha256, 'error')
+        current_app.logger.error('An Error occur while submitting hash to originstamp. Hash: ' + sha256)
         return originStampResult
 
     return originStampResult
 
+
 def submitHash(hash):
     originStampResult = submit(hash, "")
     current_app.logger.info(originStampResult.text)
-    current_app.logger.info('Origin Stamp Response:' +originStampResult.text)
-    if originStampResult.status_code >= 300 :
-        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
-        current_app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+    current_app.logger.info('Origin Stamp Response:' + originStampResult.text)
+    if originStampResult.status_code >= 300:
+        flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
+        current_app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return ReturnResults(None, hash, "None")
-        #raise OriginstampError('Could not submit hash to Originstamp', r)
+        # raise OriginstampError('Could not submit hash to Originstamp', r)
     elif "errors" in originStampResult.json():
-        flash(u'300 Internal System Error. Could not submit hash to originstamp.','error')
-        current_app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+        flash(u'300 Internal System Error. Could not submit hash to originstamp.', 'error')
+        current_app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return ReturnResults(None, hash, "None")
     else:
         return ReturnResults(originStampResult, hash, "")
+
 
 def getHashOfFile(fname):
     hash_sha265 = hashlib.sha256()
@@ -210,11 +217,14 @@ def getHashOfFile(fname):
             hash_sha265.update(chunk)
     return hash_sha265.hexdigest()
 
+
 def get_text_timestamp(text):
     hash_object = hashlib.sha256(text)
     hex_dig = hash_object.hexdigest()
     results = submitHash(hex_dig)
     return results
+
+
 def get_hash_history(hash):
     """
     :parm hash: the hash which needs to verify from OriginStamps
@@ -222,63 +232,67 @@ def get_hash_history(hash):
     results = submitHash(hash)
     return results
 
+
 def get_url_history(url):
     """
     Entry point for the downloader
     :param url: the URL to get the history for
     :return: history of the URL in the system
     """
-    #get_hash_history
+    # get_hash_history
     # validate URL
     if not re.match(urlPattern, url):
-        flash('100'+'Bad URL'+'URL needs to be valid to create timestamp for it:'+url,'error')
-        current_app.logger.error('100'+'Bad URL'+'URL needs to be valid to create timestamp for it:' + url)
-        return ReturnResults(None,None,None)
+        flash('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url, 'error')
+        current_app.logger.error('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url)
+        return ReturnResults(None, None, None)
 
     res = requests.get(url)
     if res.status_code >= 300:
-        flash('100 Bad URL Could not retrieve URL to create timestamp for it.'+url,'error')
+        flash('100 Bad URL Could not retrieve URL to create timestamp for it.' + url, 'error')
         current_app.logger.error('100 Bad URL Could not retrieve URL to create timestamp for it:' + url)
-        return ReturnResults(None,None,None)
-    #soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
-    #encoding = chardet.detect(res.text.encode()).get('encoding')
+        return ReturnResults(None, None, None)
+    # soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
+    # encoding = chardet.detect(res.text.encode()).get('encoding')
     doc = Document(res.text)
     try:
         sha256, html_text = calculate_hash_for_html_doc(res.text)
-        f_name=sha256 + 'temporary'
-        with open(basePath +f_name +'.html', 'w') as file:
+        f_name = sha256 + 'temporary'
+        with open(basePath + f_name + '.html', 'w') as file:
             file.write(html_text)
         html_text = get_file_text(f_name)
-        #originStampResult = save_render_zip_submit(doc, sha256, url, soup.title.string)
+        # originStampResult = save_render_zip_submit(doc, sha256, url, soup.title.string)
 
     except:
-        flash(u'A problem occured while creating html for the URL :'+url,'error')
+        flash(u'A problem occured while creating html for the URL :' + url, 'error')
         current_app.logger.error('A problem occured while creating html for the URL:' + url)
         if html_text is not None:
             return ReturnResults(html_text, sha256, doc.title())
         else:
             return ReturnResults(None, sha256, doc.title())
 
-    #return json.dumps(check_database_for_url(url), default=date_handler)
+    # return json.dumps(check_database_for_url(url), default=date_handler)
 
     return ReturnResults(html_text, sha256, doc.title())
+
 
 def remove_tags(text):
     TAG_RE = re.compile(r'<[^>]+>')
     return TAG_RE.sub('', text)
 
+
 def save_render_zip_submit(doc, sha256, url, title):
-    #with open(basePath + sha256 + '.html', 'w') as file:
-        #file.write(doc)
+    # with open(basePath + sha256 + '.html', 'w') as file:
+    # file.write(doc)
     create_png_from_html(url, sha256)
-    create_pdf_from_url(url,sha256)
-    #archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
-    #archive.write(basePath + sha256 + '.html')
-    #os.remove(basePath + sha256 + '.html')
-    #archive.write(basePath + sha256 + '.png')
-    #os.remove(basePath + sha256 + '.png')
+    create_pdf_from_url(url, sha256)
+    # archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
+    # archive.write(basePath + sha256 + '.html')
+    # os.remove(basePath + sha256 + '.html')
+    # archive.write(basePath + sha256 + '.png')
+    # os.remove(basePath + sha256 + '.png')
     originStampResult = submit_add_to_db(url, sha256, title)
     return originStampResult
+
 
 def main():
     # url = 'http://www.theverge.com/2015/12/11/9891068/oneplus-x-review-android'
@@ -304,8 +318,10 @@ def json_error(code, title, detail):
                                   'title': title,
                                   'detail': detail}})
 
+
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
+
 
 def execute_on_database(query, args):
     connection = db.session.connection()
@@ -319,6 +335,7 @@ def execute_on_database(query, args):
     finally:
         connection.close()
     return result
+
 
 if __name__ == '__main__':
     main()
