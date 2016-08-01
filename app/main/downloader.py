@@ -710,20 +710,22 @@ def distributed_timestamp(url, html_body=None):
         return ReturnResults(None, None, None, OriginstampError("The entered URL does not correspond "
                                                                 "to URL specifications", 501))
 
-    index = 5
+    user_triggered = False
     if html_body is not None:
-        index = 4
+        user_triggered = True
 
     proxy_list = {}
+    index = 0
     with open(basePath + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
         for line in csv.reader(tsv, delimiter="\t"):
             proxy_list[index] = [line[0], line[1], None]
+            index += 1
 
-    for k in range(0, index):
-        p = proxy_list[randrange(0, len(proxy_list) + 1)][1]
-        thread = DownloadThread(k, str(k), url)
-        # TODO join threads and evaluate results, submit to ipfs (in Thread and return hash?)
-        thread.run()
+    p = proxy_list[randrange(0, len(proxy_list) + 1)][1]
+    thread1 = DownloadThread(1, url, p)
+    thread1.run()
+
+    # TODO join threads and evaluate results, submit to ipfs (in Thread and return hash?)
     originstamp_result = get_url_history(url)
     return originstamp_result
 
