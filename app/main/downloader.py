@@ -1,28 +1,20 @@
-import hashlib
 import json
 import os
 import re
 import requests
-import uuid
-import shutil
-import zipfile
 import traceback
 import ipfsApi as ipfs
-from docutils.nodes import author
 from readability.readability import Document
 from subprocess import check_output, call, DEVNULL
-from app import db
 import pdfkit
 import queue
 import threading
 import csv
-from . import main
+from random import randrange
 from flask import flash
-import logging
-# from manage import app
 from flask import current_app as app
 from urllib.parse import urlparse
-import codecs
+from app.main.download_thread import DownloadThread
 
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
 urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
@@ -42,6 +34,7 @@ class ReturnResults(object):
     :author: Waqar and Sebastian
     Helper class to return the results from downloader to the views. Therefore this class is equivalent to an API.
     """
+
     def __init__(self, originstamp_result, hash_value, web_title, errors=None):
         self.originStampResult = originstamp_result
         self.hashValue = hash_value
@@ -225,7 +218,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
     try:
         cur_dir = os.getcwd()
         os.chdir(basePath)
-        #TODO make sure the output of the system call returns what it should, possibly
+        # TODO make sure the output of the system call returns what it should, possibly
         # move try catch block out of the other
         app.logger.info("Trying to fetch the HTML from IPFS")
         try:
@@ -619,6 +612,8 @@ def get_url_history(url):
 
     # return json.dumps(check_database_for_url(url), default=date_handler)
     return ReturnResults(originstamp_result, sha256, doc.title())
+
+
 '''
 # Deprecated Method of old STW
 def load_zip_submit(url, soup, enc):
@@ -655,11 +650,11 @@ def save_render_zip_submit(html_text, sha256, url, title):
     try:
         create_html_from_url(html_text, sha256, url)
     except FileNotFoundError as fileError:
-            # can only occur if data was submitted successfully but png or pdf creation failed
-            if not app.config["TESTING"]:
-                flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
-            app.logger.error('Internal System Error while creating HTML,: ' +
-                             fileError.strerror + "\n Maybe check the path, current base path is: " + basePath)
+        # can only occur if data was submitted successfully but png or pdf creation failed
+        if not app.config["TESTING"]:
+            flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
+        app.logger.error('Internal System Error while creating HTML,: ' +
+                         fileError.strerror + "\n Maybe check the path, current base path is: " + basePath)
     # archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
     # archive.write(basePath + sha256 + '.html')
     # os.remove(basePath + sha256 + '.html')
@@ -667,7 +662,7 @@ def save_render_zip_submit(html_text, sha256, url, title):
     # os.remove(basePath + sha256 + '.png')
     originstamp_result = submit_add_to_db(url, sha256, title)
 
-    # moved image creation behind Timestamping so images are only created for new Stamps if no eror occurred
+    # moved image creation behind Timestamping so images are only created for new Stamps if no error occurred
     if originstamp_result.status_code == 200:
         try:
             create_png_from_url(url, sha256)
@@ -694,10 +689,15 @@ def save_render_zip_submit(html_text, sha256, url, title):
     return originstamp_result
 
 
-def distributed_timestamp(url, html_body):
+def distributed_timestamp(url, html_body=None):
     """
-    Perform a distributed timestamp where no only one file is taken into account but several HTMLs retrieved by
-    proxies from different locations.
+    Perform a distributed timestamp where not only one file is taken into account, but several HTMLs retrieved by
+    proxies from different locations. 5 pseudo random locations from the proxy list are used.
+    After fetching all 5 htmls they are added to ipfs and their hashes are compared.
+    If more than one of the htmls are the same, the one with the most
+    votes (EQUAL HASHVALUES) is used as the correct html for the timestamp.
+    Otherwise the distributed timestamp is started again in order for one html to become more than one vote.
+    Store the different html hashes in db or WARC as well, as censored versions.
 
     :author: Sebastian
     :param url: The URL of the website to timestamp
@@ -706,6 +706,26 @@ def distributed_timestamp(url, html_body):
     originStampResult, hashValue, webTitle and errors(defaults to None)
     """
     # TODO do distributed timestamp
+    if not re.match(urlPattern, url):
+        return ReturnResults(None, None, None, OriginstampError("The entered URL does not correspond "
+                                                                "to URL specifications", 501))
+
+    user_triggered = False
+    if html_body is not None:
+        user_triggered = True
+
+    proxy_list = {}
+    index = 0
+    with open(basePath + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
+        for line in csv.reader(tsv, delimiter="\t"):
+            proxy_list[index] = [line[0], line[1], None]
+            index += 1
+
+    p = proxy_list[randrange(0, len(proxy_list) + 1)][1]
+    thread1 = DownloadThread(1, url, p)
+    thread1.run()
+
+    # TODO join threads and evaluate results, submit to ipfs (in Thread and return hash?)
     originstamp_result = get_url_history(url)
     return originstamp_result
 
@@ -739,7 +759,6 @@ def main():
 
 def date_handler(obj):
     return obj.isoformat() if hasattr(obj, 'isoformat') else obj
-
 
 
 if __name__ == '__main__':

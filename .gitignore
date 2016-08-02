@@ -11,5 +11,5 @@ app/pdf/*
 !*/
 *.log
 .idea/*
-StampTheWeb.crt
-StampTheWeb-d.key
+*.crt
+*.key

@@ -5,14 +5,13 @@ import traceback
 from readability.readability import Document
 from subprocess import call, DEVNULL
 import pdfkit
-#from manage import app
+# from manage import app
 from flask import current_app as app
 from app.models import Post
 from datetime import datetime
 from app import db
 from sqlalchemy import and_
 import ipfsApi as ipfs
-
 
 """
 :author: Waqar
@@ -40,7 +39,7 @@ class OriginstampError(Exception):
         request = req
 
 
-def get_pages_send_email(post,task):
+def get_pages_send_email(post, task):
     url = post.urlSite
     if task.china:
         proxy = app.config['STW_CHINA_PROXY']
@@ -58,21 +57,23 @@ def get_pages_send_email(post,task):
         proxy = None
         if update_and_send(proxy, post, url, 'UK', False):
             return True
-def update_and_send(proxy,post,url,country,is_proxy):
+
+
+def update_and_send(proxy, post, url, country, is_proxy):
     user = post.author
     if is_proxy:
         try:
-            r = requests.get(url, proxies={"http":proxy})
+            r = requests.get(url, proxies={"http": proxy})
         except:
-            email.send_email_normal(user.email, 'Your requested web Article Blocked in '+country,
-                               'main/block_mail', user=user,post=post, server=app.config['SERVER_URL'])
+            email.send_email_normal(user.email, 'Your requested web Article Blocked in ' + country,
+                                    'main/block_mail', user=user, post=post, server=app.config['SERVER_URL'])
             return True
     else:
         try:
             r = requests.get(url)
         except:
             email.send_email_normal(user.email, 'Your requested web Article Blocked',
-                               'main/block_mail', user=user, post=post, server=app.config['SERVER_URL'])
+                                    'main/block_mail', user=user, post=post, server=app.config['SERVER_URL'])
             return True
     if r:
         doc = Document(r.text)
@@ -84,25 +85,29 @@ def update_and_send(proxy,post,url,country,is_proxy):
             try:
                 originStampResult = save_render_zip_submit(html_text, sha256, url, doc.title())
             except:
-                app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+                app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
 
-            app.logger.error('Hash: '+ sha256 +' submitted to originstamp' )
-            dateTimeGMT=originStampResult.headers['Date']
-            post_new = Post(body=doc.title(),urlSite=url,hashVal=sha256,webTitl=doc.title(),origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z"),
-                author=user)
+            app.logger.error('Hash: ' + sha256 + ' submitted to originstamp')
+            dateTimeGMT = originStampResult.headers['Date']
+            post_new = Post(body=doc.title(), urlSite=url, hashVal=sha256, webTitl=doc.title(),
+                            origStampTime=datetime.strptime(dateTimeGMT, "%a, %d %b %Y %H:%M:%S %Z"),
+                            author=user)
             db.session.add(post_new)
             db.session.commit()
             post_created = Post.query.filter(and_(Post.urlSite.like(url),
-                                            Post.hashVal.like(sha256))).first()
-            ids = str(post.id) +':'+ str(post_created.id)
+                                                  Post.hashVal.like(sha256))).first()
+            ids = str(post.id) + ':' + str(post_created.id)
             if post_created:
                 email.send_email_normal(user.email, 'Change in the requested Article found',
-                           'main/normal_email', user=user, post=post_created, ids=ids, server=app.config['SERVER_URL'])
+                                        'main/normal_email', user=user, post=post_created, ids=ids,
+                                        server=app.config['SERVER_URL'])
             return True
     else:
-        email.send_email_normal(user.email, 'Your requested web Article Blocked in '+country,
-                           'main/block_email', user=user,post=post, server=app.config['SERVER_URL'])
+        email.send_email_normal(user.email, 'Your requested web Article Blocked in ' + country,
+                                'main/block_email', user=user, post=post, server=app.config['SERVER_URL'])
         return True
+
+
 def calculate_hash_for_html_doc(doc):
     """
     Calculate hash for given html document.
@@ -117,6 +122,7 @@ def calculate_hash_for_html_doc(doc):
     app.logger.info('Hash:' + sha256)
     # app.logger.info('HTML:' + text)
     return sha256, text
+
 
 def preprocess_doc(doc):
     """
@@ -141,6 +147,7 @@ def preprocess_doc(doc):
 
     app.logger.info('Preprocessing done')
     return text
+
 
 def save_file_ipfs(text):
     """
@@ -173,6 +180,7 @@ def save_file_ipfs(text):
     print(ipfs_hash[0]['Hash'])
     return ipfs_hash[0]['Hash']
 
+
 def save_render_zip_submit(doc, sha256, url, title):
     try:
         create_png_from_html(url, sha256)
@@ -180,14 +188,14 @@ def save_render_zip_submit(doc, sha256, url, title):
         # can only occur if data was submitted successfully but png or pdf creation failed
         if not app.config["TESTING"]:
             app.logger.error('Internal System Error while creating Screenshot,: ' +
-                         fileError.strerror + "\n Maybe check the path, current base path is: " + basePath+' Background process')
+                             fileError.strerror + "\n Maybe check the path, current base path is: " + basePath + ' Background process')
     try:
-        create_pdf_from_url(url,sha256)
+        create_pdf_from_url(url, sha256)
     except FileNotFoundError as fileError:
         # can only occur if data was submitted successfully but png or pdf creation failed
         if not app.config["TESTING"]:
             app.logger.error('FileNotFoundError while creating pdf: ' +
-                         fileError.strerror + '\n Background process')
+                             fileError.strerror + '\n Background process')
     try:
         create_html_from_url(doc, sha256, url)
     except FileNotFoundError as fileError:
@@ -198,6 +206,7 @@ def save_render_zip_submit(doc, sha256, url, title):
     origin_stamp_result = submit_add_to_db(url, sha256, title)
     return origin_stamp_result
 
+
 def create_png_from_html(url, sha256):
     """
     Create png from URL. Returns path to file.
@@ -205,37 +214,40 @@ def create_png_from_html(url, sha256):
     :param url: url to retrieve
     :param sha256: name of the downloaded png
     :returns: path to the created png """
-    app.logger.info('Creating PNG from URL:'+url)
+    app.logger.info('Creating PNG from URL:' + url)
     path = basePath + sha256 + '.png'
-    app.logger.info('PNG Path:'+path)
+    app.logger.info('PNG Path:' + path)
     call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
     if os.path.isfile(path):
         return
-    app.logger.error('Could not create PNG from the: '+url)
+    app.logger.error('Could not create PNG from the: ' + url)
     return
 
-def create_html_from_url(doc,hash,url):
+
+def create_html_from_url(doc, hash, url):
     path = basePath + hash + '.html'
-    with open(path,'w' ) as file:
+    with open(path, 'w') as file:
         file.write(doc)
     if os.path.isfile(path):
         return
-    app.logger.error('Could not create HTML from the: '+url)
+    app.logger.error('Could not create HTML from the: ' + url)
     return
-def create_pdf_from_url(url,sha256):
+
+
+def create_pdf_from_url(url, sha256):
     #:param url: url to retrieve
-    #method to write pdf file
-    app.logger.info('Creating PDF from URL:'+url)
-    path = basePath +sha256+'.pdf'
-    app.logger.info('PDF Path:'+path)
+    # method to write pdf file
+    app.logger.info('Creating PDF from URL:' + url)
+    path = basePath + sha256 + '.pdf'
+    app.logger.info('PDF Path:' + path)
     try:
         pdfkit.from_url(url, path)
     except Exception as e:
         # is needed on on windows, where os.rename can't override existing files.
         if os.path.isfile(path):
             return
-        app.logger.error('Could not create PDF from the: '+url)
-        app.logger.error(traceback.format_exc(),e)
+        app.logger.error('Could not create PDF from the: ' + url)
+        app.logger.error(traceback.format_exc(), e)
     return
 
 
@@ -248,15 +260,15 @@ def submit_add_to_db(url, sha256, title):
     :param sha256: hash to name file after
     """
     originStampResult = submit(sha256, title)
-    app.logger.info(originStampResult.text + 'URL '+url)
-    app.logger.info('Origin Stamp Response:' +originStampResult.text)
-    if originStampResult.status_code >= 300 :
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+    app.logger.info(originStampResult.text + 'URL ' + url)
+    app.logger.info('Origin Stamp Response:' + originStampResult.text)
+    if originStampResult.status_code >= 300:
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return originStampResult
     elif originStampResult.status_code == 200:
         return originStampResult
     elif "errors" in originStampResult.json():
-        app.logger.error('300 Internal System Error. Could not submit hash to originstamp' )
+        app.logger.error('300 Internal System Error. Could not submit hash to originstamp')
         return originStampResult
 
     return originStampResult

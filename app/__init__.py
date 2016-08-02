@@ -24,7 +24,7 @@ login_manager.login_iew = 'auth.login'
 
 
 def clever_function(str, domain):
-    #Changes the String to highlight text for html5
+    # Changes the String to highlight text for html5
     insensitive_domain = re.compile(re.escape(domain), re.IGNORECASE)
     if domain.lower() in str.lower():
         htmlString = insensitive_domain.sub('<mark>' + domain + '</mark>', str)
@@ -35,7 +35,7 @@ def clever_function(str, domain):
 
 def create_app(config_name):
     app = Flask(__name__, static_folder='pdf')  # working
-    #app = Flask(__name__, static_url_path='')
+    # app = Flask(__name__, static_url_path='')
     app.config.from_object(config[config_name])
     config[config_name].init_app(app)
     app.config['UPLOAD_FOLDER'] = 'pdf/'  # working
@@ -63,6 +63,7 @@ def create_app(config_name):
     app.jinja_env.globals.update(clever_function=clever_function)
     app.jinja_env.add_extension('jinja2.ext.do')
 
+# TODO not working properly yet, should redirect all http traffic to https (port 80 to 443)
     sslify = SSLify(app)
 
     return sslify.app

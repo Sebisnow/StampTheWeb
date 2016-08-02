@@ -52,6 +52,7 @@ def index():
                             origStampTime=orig_stamp_time, author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
+            current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_freq.validate_on_submit() and form_freq.frequency.data > 0:
@@ -79,11 +80,13 @@ def index():
                             origStampTime=orig_stamp_time, author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
-        #  = Post.query.filter(and_(Post.url_site.like(url_site),
+            current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
+        # = Post.query.filter(and_(Post.url_site.like(url_site),
         # Post.hashVal.like(sha256))).first()
         regular_new = Regular(frequency=freq, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
+        current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Regular task added")
         page = request.args.get('page', 1, type=int)
         pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
             page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
@@ -97,7 +100,7 @@ def index():
             if ';' not in name:
                 count = domain_name.count(name)
                 domain_name_unique.remove(name)
-                domain_name_unique.add(name + ';'+str(count))
+                domain_name_unique.add(name + ';' + str(count))
 
         page = request.args.get('page', 1, type=int)
         pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
@@ -125,7 +128,7 @@ def compare():
                 page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
-                                   pagination=pagination,domain=domain, search = True)
+                                   pagination=pagination, domain=domain, search=True)
         elif validators.url(search_keyword):
             posts = Post.query.filter(Post.urlSite.contains(search_keyword))
             verification.writePostsData(posts)
@@ -136,16 +139,16 @@ def compare():
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
                                    pagination=pagination, search=True, domain=search_keyword)
-    doman_name_unique=[]
-    #Getting Domains user visited
+    doman_name_unique = []
+    # Getting Domains user visited
     if not current_user.is_anonymous:
         domain_name = downloader.get_all_domain_names(Post)
         doman_name_unique = set(domain_name)
         for name in doman_name_unique:
             if ';' not in name:
-                count=domain_name.count(name)
+                count = domain_name.count(name)
                 doman_name_unique.remove(name)
-                doman_name_unique.add(name+ ';'+str(count))
+                doman_name_unique.add(name + ';' + str(count))
     page = request.args.get('page', 1, type=int)
     pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
@@ -168,7 +171,7 @@ def compare_options(ids):
 
         if not validators.url(search_keyword):
             domain = search_keyword
-            search_keyword = '%'+search_keyword+'%'
+            search_keyword = '%' + search_keyword + '%'
             posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
                                           Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
 
@@ -192,7 +195,7 @@ def compare_options(ids):
                                    pagination=pagination, last_post=post_1, form=form, form_choice=form_choice,
                                    last=str(post_1.id))
 
-    elif current_user.can(Permission.WRITE_ARTICLES) and\
+    elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_choice.validate_on_submit():
         china = form_choice.china.data
         usa = form_choice.usa.data
@@ -222,7 +225,7 @@ def compare_options(ids):
 
     if not validators.url(search_keyword):
         domain = search_keyword
-        search_keyword = '%' + search_keyword+'%'
+        search_keyword = '%' + search_keyword + '%'
         posts = Post.query.filter(or_(Post.urlSite.like(search_keyword),
                                       Post.webTitl.like(search_keyword), Post.body.like(search_keyword)))
 
@@ -308,9 +311,9 @@ def statistics():
     for domain in domain_name_unique:
         loc = Location.query.filter_by(ip=domain).first()
         if loc:
-            percentage = domain_name.count(domain)/len(domain_name) * 100
+            percentage = domain_name.count(domain) / len(domain_name) * 100
             if loc.country_code in counter_stat.keys():
-                counter_stat[loc.country_code][1] = counter_stat[loc.country_code][1] + '<br>'+domain + ' (' +\
+                counter_stat[loc.country_code][1] = counter_stat[loc.country_code][1] + '<br>' + domain + ' (' + \
                                                     str(percentage) + '%)'
                 counter_stat[loc.country_code][2] += percentage
             else:
@@ -324,9 +327,9 @@ def statistics():
                 flash("An Error occurred while finding the location of a URL")
                 # TODO response referenced before assignment
             js = response.json()
-            percentage = domain_name.count(domain)/len(domain_name) * 100
+            percentage = domain_name.count(domain) / len(domain_name) * 100
             if js['country_code'] in counter_stat.keys():
-                counter_stat[js['country_code']][1] = counter_stat[js['country_code']][1] + '<br>'+domain + ' (' +\
+                counter_stat[js['country_code']][1] = counter_stat[js['country_code']][1] + '<br>' + domain + ' (' + \
                                                       str(percentage) + '%)'
                 counter_stat[js['country_code']][2] += percentage
             else:
@@ -342,8 +345,7 @@ def statistics():
         while a < 210:
             a += 1
             if data["features"][a]["properties"]["Country_Code"] == key and \
-               counter_stat[key][0] == data["features"][a]["properties"]["NAME"]:
-
+                            counter_stat[key][0] == data["features"][a]["properties"]["NAME"]:
                 data["features"][a]["properties"]["URLS"] = counter_stat[key][1]
                 data["features"][a]["properties"]["Percentage"] = counter_stat[key][2]
 
@@ -377,12 +379,12 @@ def block_country():
                         data["features"][a]["properties"]["Block_Status"] = "The URL is blocked in this country"
                 a += 1
 
-        json.dump(data, open("app/pdf/block-data-country.geo.json",'w'))
+        json.dump(data, open("app/pdf/block-data-country.geo.json", 'w'))
         return render_template('block_country.html', block_country="active", block_page="active",
-                           form=form, file='block-data-country.geo.json', version=randint(0,1000))
+                               form=form, file='block-data-country.geo.json', version=randint(0, 1000))
 
     return render_template('block_country.html', block_country="active", block_page="active",
-                           form=form, file='tempelate_block_country.json', version=randint(0,1000))
+                           form=form, file='tempelate_block_country.json', version=randint(0, 1000))
 
 
 @main.route('/compare_country', methods=['GET', 'POST'])
@@ -417,7 +419,7 @@ def compare_country():
             db.session.add(post_new)
             db.session.commit()
 
-        regular_new = Regular(frequency=freq, china=china, uk=uk, usa=usa,russia=russia, postID=post_new, email=email)
+        regular_new = Regular(frequency=freq, china=china, uk=uk, usa=usa, russia=russia, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
         return redirect(url_for('.compare_country'))
@@ -462,7 +464,7 @@ def compare_country():
             a += 1
             if data["features"][a]["properties"]["Country_Code"] == country_code:
                 if x == 5:
-                    data["features"][a]["properties"]["Location"] = "(Default) "+location
+                    data["features"][a]["properties"]["Location"] = "(Default) " + location
 
                 else:
                     data["features"][a]["properties"]["Location"] = location
@@ -623,8 +625,10 @@ def verifyID(id):
     else:
         flash('Change in the content found')
 
-    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=posts.timestamp, dateRight=datetime.now(),
-                 right=Markup(text_right), search=False, comp_page="active", hash2=result_verify.hashValue, hash1=posts.hashVal)
+    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=posts.timestamp,
+                           dateRight=datetime.now(),
+                           right=Markup(text_right), search=False, comp_page="active", hash2=result_verify.hashValue,
+                           hash1=posts.hashVal)
 
 
 @main.route('/verify_two/<ids>', methods=['GET', 'POST'])
@@ -647,24 +651,11 @@ def verify_two(ids):
     global selected
     selected = None
 
-    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp, hash2=post_2.hashVal,
-                           dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active", hash1=post_1.hashVal)
+    return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
+                           hash2=post_2.hashVal,
+                           dateRight=post_2.timestamp, right=Markup(text_right), search=False, comp_page="active",
+                           hash1=post_1.hashVal)
 
-
-"""@main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
-@login_required
-@nocache
-def verifyDomain(domain):
-    posts = Post.query.filter(Post.urlSite.contains(domain))
-    verification.writePostsData(posts)
-    page = request.args.get('page', 1, type=int)
-    pagination = posts.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
-        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
-        error_out=False)
-    posts = pagination.items
-    return render_template('search_domains.html', verify=posts,
-                           pagination=pagination, domain=domain, comp_page="active")
-"""
 
 @main.route('/verifyDomain/<domain>', methods=['GET', 'POST'])
 @login_required
@@ -698,7 +689,7 @@ def edit(id):
     return render_template('edit_post.html', form=form)
 
 
-@main.route('/timestamp', methods=['POST', 'PUT'])
+@main.route('/timestamp', methods=['POST', 'GET'])
 def timestamp_api():
     """
     Listens for POST queries done by the Stamp The Web WebExtension and starts a distributed timestamp.
@@ -780,4 +771,3 @@ def timestamp_get(timestamp):
         response.status_code = 415
         response.reason = "415 Unsupported Data Type. Timestamps are alphanumeric!"
         return response
-
