@@ -1,7 +1,7 @@
 import threading
 import os
 from selenium import webdriver
-import warc
+from warcat.model import WARC
 from bs4 import BeautifulSoup
 from app.main import downloader as down
 
