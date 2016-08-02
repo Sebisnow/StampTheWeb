@@ -381,7 +381,7 @@ def block_country():
 
         json.dump(data, open("app/pdf/block-data-country.geo.json", 'w'))
         return render_template('block_country.html', block_country="active", block_page="active",
-                               form=form, file='block-data-country.geo.json', version=randint(0, 1000))
+                               form=form, file='block-data-country.geo.json', version=randint(0, 1000),url_site=form.urlSite.data)
 
     return render_template('block_country.html', block_country="active", block_page="active",
                            form=form, file='tempelate_block_country.json', version=randint(0, 1000))
@@ -624,6 +624,9 @@ def verifyID(id):
         flash('The content at this url has not changed.')
     else:
         flash('Change in the content found')
+
+    global selected
+    selected = None
 
     return render_template('very.html', double=True, left=Markup(text_left), dateLeft=posts.timestamp,
                            dateRight=datetime.now(),

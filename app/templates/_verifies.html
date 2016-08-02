@@ -12,6 +12,15 @@
   var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 </script>
 
+<style media="screen" type="text/css">
+    .fb_iframe_widget span
+    {
+        vertical-align: baseline !important;
+    }
+</style>
+
+
+
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
@@ -94,9 +103,9 @@
                     <span class="label label-primary">Edit</span>
                 </a>
                 {% if single %}
-                <a href="https://twitter.com/share" class="twitter-share-button" data-url="{{ url_for('.very', id=very.id) }}" data-layout="button">Tweet</a>
+                <a href="https://twitter.com/share" class="twitter-share-button" data-url="{{ url_for('.very', id=very.id) }}" data-layout="button" style="height:20px; vertical-align: top;">Tweet</a>
                     <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-                <a class="fb-share-button" data-href="{{ url_for('.very', id=very.id) }}" data-layout="button" data-mobile-iframe="false"></a>
+                <a class="fb-share-button" data-href="{{ url_for('.very', id=very.id) }}" data-layout="button" data-mobile-iframe="false" style="height:20px; vertical-align: top;"></a>
                 {% else %}
                 <a href="{{ url_for('.very', id=very.id) }}" target="_blank">
                     <span class="label label-default">Share</span>
