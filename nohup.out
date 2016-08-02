@@ -5565,3 +5565,77 @@ sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: users
 134.34.209.149 - - [02/Aug/2016 12:01:33] "GET /compare?__debugger__=yes&cmd=resource&f=ubuntu.ttf HTTP/1.1" 200 -
 134.34.209.149 - - [02/Aug/2016 12:01:34] "GET /compare?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
 134.34.209.149 - - [02/Aug/2016 12:01:34] "GET /compare?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+134.34.209.149 - - [02/Aug/2016 12:05:57] "GET /compare HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 2000, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1991, in wsgi_app
+    response = self.make_response(self.handle_exception(e))
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1567, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "/usr/local/lib/python3.4/dist-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1988, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1641, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1544, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "/usr/local/lib/python3.4/dist-packages/flask/_compat.py", line 33, in reraise
+    raise value
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1637, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "/usr/local/lib/python3.4/dist-packages/flask/app.py", line 1837, in preprocess_request
+    rv = func()
+  File "/home/ubuntu/StampTheWeb/app/auth/views.py", line 14, in before_request
+    if current_user.is_authenticated:
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/local.py", line 343, in __getattr__
+    return getattr(self._get_current_object(), name)
+  File "/usr/local/lib/python3.4/dist-packages/werkzeug/local.py", line 302, in _get_current_object
+    return self.__local()
+  File "/usr/local/lib/python3.4/dist-packages/flask_login.py", line 47, in <lambda>
+    current_user = LocalProxy(lambda: _get_user())
+  File "/usr/local/lib/python3.4/dist-packages/flask_login.py", line 858, in _get_user
+    current_app.login_manager._load_user()
+  File "/usr/local/lib/python3.4/dist-packages/flask_login.py", line 389, in _load_user
+    return self.reload_user()
+  File "/usr/local/lib/python3.4/dist-packages/flask_login.py", line 351, in reload_user
+    user = self.user_callback(user_id)
+  File "/home/ubuntu/StampTheWeb/app/models.py", line 207, in load_user
+    return User.query.get(int(user_id))
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/orm/query.py", line 831, in get
+    return self._get_impl(ident, loading.load_on_ident)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/orm/query.py", line 864, in _get_impl
+    return fallback_fn(self, key)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/orm/loading.py", line 219, in load_on_ident
+    return q.one()
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/orm/query.py", line 2718, in one
+    ret = list(self)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/orm/query.py", line 2761, in __iter__
+    return self._execute_and_instances(context)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/orm/query.py", line 2776, in _execute_and_instances
+    result = conn.execute(querycontext.statement, self._params)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/engine/base.py", line 914, in execute
+    return meth(self, multiparams, params)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/sql/elements.py", line 323, in _execute_on_connection
+    return connection._execute_clauseelement(self, multiparams, params)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/engine/base.py", line 1010, in _execute_clauseelement
+    compiled_sql, distilled_params
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/engine/base.py", line 1146, in _execute_context
+    context)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/engine/base.py", line 1341, in _handle_dbapi_exception
+    exc_info
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/util/compat.py", line 202, in raise_from_cause
+    reraise(type(exception), exception, tb=exc_tb, cause=cause)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/util/compat.py", line 185, in reraise
+    raise value.with_traceback(tb)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/engine/base.py", line 1139, in _execute_context
+    context)
+  File "/usr/local/lib/python3.4/dist-packages/sqlalchemy/engine/default.py", line 450, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such table: users [SQL: 'SELECT users.id AS users_id, users.email AS users_email, users.username AS users_username, users.role_id AS users_role_id, users.password_hash AS users_password_hash, users.confirmed AS users_confirmed, users.name AS users_name, users.location AS users_location, users.about_me AS users_about_me, users.member_since AS users_member_since, users.last_seen AS users_last_seen, users.avatar_hash AS users_avatar_hash \nFROM users \nWHERE users.id = ?'] [parameters: (1,)]
+134.34.209.149 - - [02/Aug/2016 12:05:58] "GET /compare?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+134.34.209.149 - - [02/Aug/2016 12:05:58] "GET /compare?__debugger__=yes&cmd=resource&f=jquery.js HTTP/1.1" 200 -
+134.34.209.149 - - [02/Aug/2016 12:05:58] "GET /compare?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+134.34.209.149 - - [02/Aug/2016 12:05:58] "GET /compare?__debugger__=yes&cmd=resource&f=ubuntu.ttf HTTP/1.1" 200 -
+134.34.209.149 - - [02/Aug/2016 12:05:58] "GET /compare?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
