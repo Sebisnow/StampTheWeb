@@ -19,7 +19,7 @@ class DownloadThread(threading.Thread):
     Class that subclasses threading.Thread in order to start a new thread with a new download job.
     :author: Sebastian
     """
-    def __init__(self, thread_id, url, prox, base_path='app/pdf/', html=None):
+    def __init__(self, thread_id, url, prox=None, base_path='app/pdf/', html=None):
         """
         Default constructor for the DownloadThread class, that initializes the creation of a new download job in a
         separate thread.
@@ -36,11 +36,12 @@ class DownloadThread(threading.Thread):
         self.threadID = thread_id
         self.url = url
         self.html = html
-        service_args = [
-            '--proxy=' + prox,
-            '--proxy-type=socks5',
-        ]
+
         if not self.html:
+            service_args = [
+                '--proxy=' + prox,
+                '--proxy-type=socks5',
+            ]
             self.phantom = webdriver.PhantomJS(js_path, service_args=service_args)
         self.path = base_path + "/temporary"
         if not os.path.exists(self.path):
@@ -58,6 +59,7 @@ class DownloadThread(threading.Thread):
         identified for further submissions, hash creations and comparisons
         """
         self.download()
+        # TODO return something?
         return self.html
         # TODO download html and images include in warc
 
