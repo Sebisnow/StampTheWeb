@@ -721,14 +721,14 @@ def distributed_timestamp(url, html_body=None):
             proxy_list[index] = [line[0], line[1], None]
             index += 1
     thread1 = None
+    threads = []
     if user_triggered:
-        thread1 = run_thread(url, 1, proxy_list, html_body)
+        threads.append(run_thread(url, 1, proxy_list, html_body))
+
     else:
-        thread1 = run_thread(url, 1)
-    thread2 = run_thread(url, 2, proxy_list, html_body)
-    thread3 = run_thread(url, 3, proxy_list, html_body)
-    thread4 = run_thread(url, 4, proxy_list, html_body)
-    thread5 = run_thread(url, 5, proxy_list, html_body)
+        threads.append(run_thread(url, 1))
+    for n in range(2, 6):
+        threads.append(run_thread(url, n, proxy_list, html_body))
 
     # TODO join threads and evaluate results, submit to ipfs (in Thread and return hash?)
     originstamp_result = get_url_history(url)

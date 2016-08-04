@@ -7,6 +7,7 @@ from selenium import webdriver
 from warcat.model import WARC
 from bs4 import BeautifulSoup
 import ipfsApi as ipfs
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 exitFlag = 0
 urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
@@ -38,17 +39,39 @@ class DownloadThread(threading.Thread):
         self.html = html
 
         if not self.html:
-            service_args = [
-                '--proxy=' + prox,
-                '--proxy-type=socks5',
-            ]
-            self.phantom = webdriver.PhantomJS(js_path, service_args=service_args)
+
+            self.phantom = self.initialize(prox)
         self.path = base_path + "/temporary"
         if not os.path.exists(self.path):
             os.mkdir(self.path)
         self.path = self.path + "/" + str(thread_id)
-        app.logger.info("initialized a new Thread:" + self.threadID)
+        app.logger.info("initialized a new Thread:" + str(self.threadID))
         os.mkdir(self.path)
+
+    def initialize(self, proxy):
+        """
+        Helper method that initializes the PhantomJS Headless browser and sets the proxy.
+        
+        :author: Sebastian
+        :param proxy: The proxy to set.
+        :return: The PhantomJS driver object.
+        """
+        dcap = dict(DesiredCapabilities.PHANTOMJS)
+        dcap[
+            "phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 " \
+                                                   "(KHTML, like Gecko) Chrome/15.0.87"
+
+        phantom = webdriver.PhantomJS(js_path, desired_capabilities=dcap)
+
+        phantom.capabilities["acceptSslCerts"] = True
+        phantom.capabilities["proxy"] = {"proxy": proxy,
+                                         "proxy-type": "http"}
+        max_wait = 30
+
+        phantom.set_window_size(1024, 768)
+        phantom.set_page_load_timeout(max_wait)
+        phantom.set_script_timeout(max_wait)
+        return phantom
 
     def run(self):
         """
@@ -128,3 +151,7 @@ class DownloadThread(threading.Thread):
         res = ipfs_Client.add(fname)
 
         return res['Hash']
+
+    def join(self, timeout=None):
+        threading.Thread.join(self)
+        return self.html
