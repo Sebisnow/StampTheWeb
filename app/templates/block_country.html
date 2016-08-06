@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 {% import "_macros.html" as macros %}
-{% block title %}Web Stamps - Block Map{% endblock %}
+{% block title %}Check if a web page is blocked - Stamp the Web{% endblock %}
 {% block page_content %}
 
 <meta charset='utf-8'>
@@ -52,7 +52,7 @@
 <div id="map" class="tab-pane fade in active" style="width: 50%">
     <h3>Block Map</h3>
     {% if url_site %}
-    <h2>URL: {{url_site}}</h2>
+    <h4>URL: {{url_site}}<h4/>
     {% endif %}
     <div  class="simple-map-d3-world-map" style="background-color: #FFFFFF; width: 100%; height: 400px; border: 1px solid #898989; margin: 0 0 1em 0;">
     </div>
