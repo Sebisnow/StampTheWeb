@@ -711,7 +711,7 @@ def distributed_timestamp(url, html_body=None):
                                                                 "to URL specifications", 501))
 
     user_triggered = False
-    if html_body is not None:
+    if html_body:
         user_triggered = True
 
     proxy_list = {}
@@ -720,14 +720,42 @@ def distributed_timestamp(url, html_body=None):
         for line in csv.reader(tsv, delimiter="\t"):
             proxy_list[index] = [line[0], line[1], None]
             index += 1
+    thread1 = None
+    threads = []
+    if user_triggered:
+        threads.append(run_thread(url, 1, proxy_list, html_body))
 
-    p = proxy_list[randrange(0, len(proxy_list) + 1)][1]
-    thread1 = DownloadThread(1, url, p)
-    thread1.run()
+    else:
+        threads.append(run_thread(url, 1))
+    for n in range(2, 6):
+        threads.append(run_thread(url, n, proxy_list, html_body))
 
     # TODO join threads and evaluate results, submit to ipfs (in Thread and return hash?)
     originstamp_result = get_url_history(url)
     return originstamp_result
+
+
+def run_thread(url, num, proxy_list=None, html=None):
+    """
+    Convencience method to start one new thread with a downloading job.
+
+    :author: sebastian
+    :param url: The URL to download from.
+    :param num: The ID of the thread.
+    :param proxy_list: The proxy to be used for downloading
+    :param html: Defaults to None and is only specified if the user sent an HTML to timestamp.
+    :return: The DownloadThread object that represents the freshly started thread.
+    """
+    thread = None
+    if not html:
+        # TODO thread returns something?!
+        p = proxy_list[randrange(0, len(proxy_list) + 1)][1]
+        thread = DownloadThread(num, url, p)
+        thread.run()
+    else:
+        thread = DownloadThread(num, html)
+        thread.run()
+    return thread
 
 
 def main():

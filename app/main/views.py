@@ -713,6 +713,7 @@ def timestamp_api():
             current_app.logger.info("Content type is json:\n" + str(request.json))
             post_data = request.json
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
+            current_app.logger.info("Result of distributed_timestamp:\n" + str(result))
             if result.originStampResult and result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
                 response.status_code = 200
@@ -736,7 +737,7 @@ def timestamp_api():
                     response.reason = "Really deep internal server error but we have a hash. " \
                                       "Timestamp might have been created."
                 else:
-                    response.status_code = 400
+                    response.status_code = 452
                     response.reason = "Really deep internal server error. " \
                                       "Timestamp could not be created."
 
