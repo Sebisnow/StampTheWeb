@@ -7,6 +7,7 @@ from selenium import webdriver
 from warcat.model import WARC
 from bs4 import BeautifulSoup
 import ipfsApi as ipfs
+import shutil
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 exitFlag = 0
@@ -37,21 +38,24 @@ class DownloadThread(threading.Thread):
         self.threadID = thread_id
         self.url = url
         self.html = html
+        self.path = base_path + "temporary"
 
         if not self.html:
-
             self.phantom = self.initialize(prox)
-        self.path = base_path + "/temporary"
+
         if not os.path.exists(self.path):
             os.mkdir(self.path)
-        self.path = self.path + "/" + str(thread_id)
+        else:
+            shutil.rmtree(self.path)
+            os.mkdir(self.path)
+        self.path = self.path + "/" + str(thread_id) + "/"
         app.logger.info("initialized a new Thread:" + str(self.threadID))
         os.mkdir(self.path)
 
     def initialize(self, proxy):
         """
         Helper method that initializes the PhantomJS Headless browser and sets the proxy.
-        
+
         :author: Sebastian
         :param proxy: The proxy to set.
         :return: The PhantomJS driver object.
@@ -60,9 +64,7 @@ class DownloadThread(threading.Thread):
         dcap[
             "phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 " \
                                                    "(KHTML, like Gecko) Chrome/15.0.87"
-
         phantom = webdriver.PhantomJS(js_path, desired_capabilities=dcap)
-
         phantom.capabilities["acceptSslCerts"] = True
         phantom.capabilities["proxy"] = {"proxy": proxy,
                                          "proxy-type": "http"}
