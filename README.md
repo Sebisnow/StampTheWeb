@@ -24,6 +24,7 @@ Both these blue_prints contain different set of files, folders and other related
 
 ## Documentation
 Please follow the link to get the technical documentation of this system.
+https://github.com/waqaralidetho/documentation/blob/master/technical_doc.pdf
 
 ## Tests
 By using the main file 'manage.py' from terminal execute the following command.
