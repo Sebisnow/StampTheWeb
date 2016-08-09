@@ -133,7 +133,7 @@ def search_for_url(url):
 
     for k in proxy_list:
         proxy_list[k][2] = q.get()
-        print(proxy_list[k][2], proxy_list[k][0])  # TODO for Debugging open this
+        #print(proxy_list[k][2], proxy_list[k][0])  # TODO for Debugging open this
 
     return proxy_list
 
