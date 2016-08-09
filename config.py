@@ -16,15 +16,15 @@ class Config:
     # STW_ADMIN = os.environ.get('STW_ADMIN')
     STW_ADMIN = 'stamptheweb@gmail.com'
     STW_POSTS_PER_PAGE = 20
-    STW_CHINA_PROXY = "101.201.42.44:3128"
-    STW_USA_PROXY = "169.50.87.252:80"
+    STW_CHINA_PROXY = "123.56.28.196:8888"
+    STW_USA_PROXY = "40.84.193.251:3128"
     STW_UK_PROXY = "89.34.97.132:8080"
-    STW_RUSSIA_PROXY = "80.240.114.77:8000"
+    STW_RUSSIA_PROXY = "109.237.13.90:8080"
     """To find locations of proxies been used. We require ip addresses only"""
-    CHINA_PROXY = "60.216.40.135"
-    USA_PROXY = "199.115.117.212"
+    CHINA_PROXY = "123.56.28.196"
+    USA_PROXY = "40.84.193.251"
     UK_PROXY = "90.216.222.23"
-    RUSSIA_PROXY = "80.240.114.77"
+    RUSSIA_PROXY = "109.237.13.90"
     SERVER_URL = 'https://stamptheweb.org'
     SQLALCHEMY_TRACK_MODIFICATIONS = False  # added due to an error. Tracks modifications of SQL Alchemy objects.
 
