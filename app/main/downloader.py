@@ -689,10 +689,11 @@ def save_render_zip_submit(html_text, sha256, url, title):
     return originstamp_result
 
 
-def distributed_timestamp(url, html_body=None):
+def distributed_timestamp(url, html_body=None, proxies=None):
     """
     Perform a distributed timestamp where not only one file is taken into account, but several HTMLs retrieved by
-    proxies from different locations. 5 pseudo random locations from the proxy list are used.
+    proxies from different locations. 5 pseudo random locations from the proxy list are used. Optionally default
+    proxies to use can be set via the proxies attribute. A maximum of 5 proxies will be taken into account.
     After fetching all 5 htmls they are added to ipfs and their hashes are compared.
     If more than one of the htmls are the same, the one with the most
     votes (EQUAL HASHVALUES) is used as the correct html for the timestamp.
@@ -700,35 +701,47 @@ def distributed_timestamp(url, html_body=None):
     Store the different html hashes in db or WARC as well, as censored versions.
 
     :author: Sebastian
-    :param url: The URL of the website to timestamp
-    :param html_body: The body of the site to timestamp
+    :param url: The URL of the website to timestamp.
+    :param html_body: The body of the site to timestamp.
+    :param proxies: A list of max 5 Proxies that should be taken into account for the distributed timestamp.
     :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
-    originStampResult, hashValue, webTitle and errors(defaults to None)
+    originStampResult, hashValue, webTitle and errors(defaults to None).
     """
-    # TODO do distributed timestamp
+
     if not re.match(urlPattern, url):
         return ReturnResults(None, None, None, OriginstampError("The entered URL does not correspond "
                                                                 "to URL specifications", 501))
-
-    user_triggered = False
+    extension_triggered = False
     if html_body:
-        user_triggered = True
+        extension_triggered = True
+    proxy_list = get_proxy_list()
 
-    proxy_list = {}
-    index = 0
-    with open(basePath + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
-        for line in csv.reader(tsv, delimiter="\t"):
-            proxy_list[index] = [line[0], line[1], None]
-            index += 1
-    thread1 = None
     threads = []
-    if user_triggered:
-        threads.append(run_thread(url, 1, proxy_list, html_body))
+    if proxies is None or len(proxies) == 0:
+        # no manual proxies set fetch them from list
+        if extension_triggered:
+            threads.append(run_thread(url, 1, html_body))
+
+        else:
+            threads.append(run_thread(url, 1, proxy_list))
+        for n in range(2, 6):
+            threads.append(run_thread(url, n, proxy_list))
 
     else:
-        threads.append(run_thread(url, 1))
-    for n in range(2, 6):
-        threads.append(run_thread(url, n, proxy_list, html_body))
+        # if there are entries in the proxy_list use them
+        if extension_triggered:
+            threads.append(run_thread(url, 1, html_body))
+
+        else:
+            threads.append(run_thread(url, 1, [proxies[0]]))
+        cnt = 2
+        for prox in proxies:
+            if cnt > 5:
+                break
+            threads.append(run_thread(url, cnt, [prox]))
+            cnt += 1
+        for n in range(cnt, 6):
+            threads.append(run_thread(url, n, proxy_list))
 
     # TODO join threads and evaluate results, submit to ipfs (in Thread and return hash?)
     originstamp_result = get_url_history(url)
@@ -747,15 +760,33 @@ def run_thread(url, num, proxy_list=None, html=None):
     :return: The DownloadThread object that represents the freshly started thread.
     """
     thread = None
-    if not html:
+    if html is None:
         # TODO thread returns something?!
-        p = proxy_list[randrange(0, len(proxy_list) + 1)][1]
-        thread = DownloadThread(num, url, p)
-        thread.run()
+        prox_num = randrange(0, len(proxy_list) + 1)
+        thread = DownloadThread(num, url=url, prox=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0])
+        thread.start()
     else:
-        thread = DownloadThread(num, html)
-        thread.run()
+        thread = DownloadThread(num, html=html)
+        thread.start()
     return thread
+
+
+def get_proxy_list():
+    """
+    Get a ist of available proxies to use.
+    # TODO check the proxy status.
+
+    :author: Sebastian
+    :return: A list of lists with 3 values representing proxies [1] with their location [0].
+    """
+    # TODO check proxy_list for active proxies or use python package like getprox or proxybroker to check or get them.
+    proxy_list = []
+    index = 0
+    with open(basePath + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
+        for line in csv.reader(tsv, delimiter="\t"):
+            proxy_list[index] = [line[0], line[1], None]
+            index += 1
+    return proxy_list
 
 
 def main():

@@ -19,9 +19,10 @@ js_path = os.path.abspath(os.path.expanduser("~/") + '/bin/phantomjs/lib/phantom
 class DownloadThread(threading.Thread):
     """
     Class that subclasses threading.Thread in order to start a new thread with a new download job.
+    To check whether a proxy was used check self.html which is None if a proxy was used.
     :author: Sebastian
     """
-    def __init__(self, thread_id, url, prox=None, base_path='app/pdf/', html=None):
+    def __init__(self, thread_id, url=None, prox=None, prox_loc=None, base_path='app/pdf/', html=None):
         """
         Default constructor for the DownloadThread class, that initializes the creation of a new download job in a
         separate thread.
@@ -30,6 +31,7 @@ class DownloadThread(threading.Thread):
         :param thread_id: The ID of this thread.
         :param url: The URL that is to be downloaded in this job.
         :param prox: The proxy to use when downloading from the before specified URL.
+        :param prox_loc: The proxy location.
         :param base_path: The path to store the temporary files in.
         :param html: Defaults to None and needs only to be specified if a user input of an HTML was given by the
         StampTheWeb extension.
@@ -38,6 +40,7 @@ class DownloadThread(threading.Thread):
         self.threadID = thread_id
         self.url = url
         self.html = html
+        self.prox_loc = prox_loc
         self.path = base_path + "temporary"
 
         if not self.html:
