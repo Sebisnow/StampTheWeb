@@ -63,11 +63,15 @@ start_time = time.time()
 def run_every_day():
     """This method runs every day and checks the scheduled tasks"""
     with app.app_context():
+        app.logger.info("Starting the regular check for changes")
+        # TODO add regular proxy check like getprox or proxybroker
         tasks = Regular.query.all()
         for task in tasks:
             seconds_passed = datetime.timedelta.total_seconds(datetime.datetime.utcnow() - task.timestamp)
             frequency = task.frequency
             seconds_required = 86400 * frequency
+            # TODO add break/deletion/timeout criteria for a task (e.g. 3 months and after two and a half months
+            # send mail to resubscribe)
             if seconds_required < seconds_passed:
                 post = task.postID
                 if send_mail.get_pages_send_email(post, task):

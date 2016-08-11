@@ -42,6 +42,8 @@ class DownloadThread(threading.Thread):
         self.html = html
         self.prox_loc = prox_loc
         self.path = base_path + "temporary"
+        self.ipfs_hash = None
+        self.images = None
 
         if not self.html:
             self.phantom = self.initialize(prox)
@@ -88,7 +90,7 @@ class DownloadThread(threading.Thread):
         """
         self.download()
         # TODO return something?
-        return self.html
+        return self.ipfs_hash
         # TODO download html and images include in warc
 
     def download(self):
@@ -108,7 +110,7 @@ class DownloadThread(threading.Thread):
             image_files = self.load_images(BeautifulSoup(self.html, "lxml"))
             with open(self.path + "/page_source.html", "w") as file:
                 file.write(self.html)
-
+        self.ipfs_hash = ipfs_Client.add(self.path)
         #TODO delete the temporary folder if everything is submitted to ipfs or handle outside of thread
 
     def load_images(self, soup):
@@ -159,4 +161,18 @@ class DownloadThread(threading.Thread):
 
     def join(self, timeout=None):
         threading.Thread.join(self)
-        return self.html
+        return DownloadResult(self.threadID, self.url, self.ipfs_hash, self.html,
+                              self.load_images(BeautifulSoup(self.html)), self.prox_loc)
+
+
+class DownloadResult:
+    """
+    The class to return the results of a DownloadThread.
+    """
+    def __init__(self, thread_id, url, ipfs_hash, html, images, prox_loc=None):
+        self.thread_id = thread_id
+        self.url = url
+        self.ipfs_hash = ipfs_hash
+        self.html = html
+        self.images = images
+        self.prox_loc = prox_loc

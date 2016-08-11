@@ -742,7 +742,7 @@ def distributed_timestamp(url, html_body=None, proxies=None):
             cnt += 1
         for n in range(cnt, 6):
             threads.append(run_thread(url, n, proxy_list))
-
+    download_object = join_threads(threads)
     # TODO join threads and evaluate results, submit to ipfs (in Thread and return hash?)
     originstamp_result = get_url_history(url)
     return originstamp_result
@@ -765,10 +765,31 @@ def run_thread(url, num, proxy_list=None, html=None):
         prox_num = randrange(0, len(proxy_list) + 1)
         thread = DownloadThread(num, url=url, prox=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0])
         thread.start()
+        thread.is_alive()
     else:
         thread = DownloadThread(num, html=html)
         thread.start()
     return thread
+
+
+def join_threads(threads):
+    """
+    Method that joins the threads in the list of DownloadThreads handed to it
+    and returns the DownloadResult object with the highest votes after the join.
+    The hash consists of the html plus the images.
+
+    :param threads: A list of DownloadThreads that need to be joined.
+    :return: The DownloadResult object with all important information about hash, html and infos about the download job.
+    """
+    results = []
+    votes = [0 for x in results]
+    for thread in threads:
+        results.append(thread.join())
+    for num in range(0, len(results)):
+        for cnt in range(num, len(results)):
+            if results[num].ipfs_hash == results[cnt].ipfs_hash:
+                votes[num] += 1
+    return results[votes.index(max(votes))]
 
 
 def get_proxy_list():
