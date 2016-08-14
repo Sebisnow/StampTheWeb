@@ -129,7 +129,7 @@ class BasicsTestCase(unittest.TestCase):
         print("Testing the create_html_from_url method to verify IPFS gets the file and it is renamed to have a .html "
               "ending.")
         os.remove(down.basePath + test_sha + ".html")
-        print("    There is a file called " + test_sha + ".html: " + str(os.path.exists(
+        print("    There is a file called " + test_sha + ".html (should be False): " + str(os.path.exists(
             down.basePath + test_sha + '.html')))
         # :param test_sha: this is the IPFS hash of the example.html content
 

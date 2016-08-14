@@ -10,11 +10,13 @@ import pdfkit
 import queue
 import threading
 import csv
+from app.main import download_thread as d_thread
 from random import randrange
 from flask import flash
 from flask import current_app as app
 from urllib.parse import urlparse
 from app.main.download_thread import DownloadThread
+
 
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
 urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
@@ -310,37 +312,12 @@ def calculate_hash_for_html_doc(doc):
     """
     app.logger.info('Creating HTML and Hash')
 
-    text = preprocess_doc(doc)
+    text = d_thread.preprocess_doc(doc)
     sha256 = save_file_ipfs(text)
 
     app.logger.info('Hash:' + sha256)
     # app.logger.info('HTML:' + text)
     return sha256, text
-
-
-def preprocess_doc(doc):
-    """
-    Calculate hash for given html document.
-    :param doc: html doc to hash
-    :returns: calculated hash for given URL and the document used to create the hash
-    """
-    app.logger.info('Preprocessing Document')
-
-    # Detect the encoding of the html for future reference
-    # encoding = chardet.detect(doc.summary().encode()).get('encoding')
-    encoding = 'utf-8'
-    doc.encoding = encoding
-    # TODO all the Header information should be preserved not rewritten
-    text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1' \
-           '-transitional.dtd">\n' + '<head>\n' + \
-           '<meta http-equiv="Content-Type" content="text/html" ' \
-           'charset="' + encoding + '">\n' + '</head>\n' + '<body>\n' \
-           + '<h1>' + doc.title().split(sep='|')[0] + '</h1>'
-
-    text += doc.summary() + '</body>'
-
-    app.logger.info('Preprocessing done')
-    return text
 
 
 def submit(sha256, title=None):
@@ -412,23 +389,6 @@ def load_images(soup):
                         f.write(chunk)
                 img['src'] = filename
                 files.append(filename)
-    return files
-
-
-# deprecated
-def load_amp_js(soup):
-    files = list()
-    js_ctr = 0
-    for scr in soup.find_all('script', {'src': re.compile('https://cdn.ampproject.org/.*')}):
-        filename = 'js' + str(js_ctr) + '.js'
-        js_ctr += 1
-        r = requests.get(scr['src'], stream=True)
-        if r.status_code == 200:
-            with open(filename, 'wb') as f:
-                for chunk in r.iter_content(1024):
-                    f.write(chunk)
-            scr['src'] = filename
-            files.append(filename)
     return files
 
 
@@ -743,7 +703,7 @@ def distributed_timestamp(url, html_body=None, proxies=None):
         for n in range(cnt, 6):
             threads.append(run_thread(url, n, proxy_list))
     download_object = join_threads(threads)
-    # TODO join threads and evaluate results, submit to ipfs (in Thread and return hash?)
+    # TODO join threads and evaluate results
     originstamp_result = get_url_history(url)
     return originstamp_result
 
