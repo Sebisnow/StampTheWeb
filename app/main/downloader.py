@@ -22,6 +22,7 @@ from app.main.download_thread import DownloadThread
 urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 # nullDevice = open(os.devnull, 'w')
 basePath = 'app/pdf/'
+d_thread.base_path = basePath
 errorCaught = ""
 ipfs_Client = ipfs.Client('127.0.0.1', 5001)
 
@@ -664,6 +665,7 @@ def distributed_timestamp(url, html_body=None, proxies=None):
     :param url: The URL of the website to timestamp.
     :param html_body: The body of the site to timestamp.
     :param proxies: A list of max 5 Proxies that should be taken into account for the distributed timestamp.
+    Defaults to None
     :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
     originStampResult, hashValue, webTitle and errors(defaults to None).
     """
@@ -674,7 +676,7 @@ def distributed_timestamp(url, html_body=None, proxies=None):
     extension_triggered = False
     if html_body:
         extension_triggered = True
-    proxy_list = get_proxy_list()
+    proxy_list = d_thread.get_proxy_list()
 
     threads = []
     if proxies is None or len(proxies) == 0:
@@ -688,12 +690,12 @@ def distributed_timestamp(url, html_body=None, proxies=None):
             threads.append(run_thread(url, n, proxy_list))
 
     else:
-        # if there are entries in the proxy_list use them
+        # manual proxies set
         if extension_triggered:
             threads.append(run_thread(url, 1, html_body))
-
         else:
             threads.append(run_thread(url, 1, [proxies[0]]))
+        # if there are entries in the proxies use them
         cnt = 2
         for prox in proxies:
             if cnt > 5:
@@ -702,15 +704,16 @@ def distributed_timestamp(url, html_body=None, proxies=None):
             cnt += 1
         for n in range(cnt, 6):
             threads.append(run_thread(url, n, proxy_list))
-    download_object = join_threads(threads)
-    # TODO join threads and evaluate results
+    # join all threads and return the DownloadThread with the most votes
+    d_thread = join_threads(threads)
+    # TODO threads are joined return the result to be added to db
     originstamp_result = get_url_history(url)
     return originstamp_result
 
 
 def run_thread(url, num, proxy_list=None, html=None):
     """
-    Convencience method to start one new thread with a downloading job.
+    Convencience method to start one new thread with a downloading job and possibly with a random proxy
 
     :author: sebastian
     :param url: The URL to download from.
@@ -721,11 +724,9 @@ def run_thread(url, num, proxy_list=None, html=None):
     """
     thread = None
     if html is None:
-        # TODO thread returns something?!
-        prox_num = randrange(0, len(proxy_list) + 1)
+        prox_num = randrange(0, len(proxy_list))
         thread = DownloadThread(num, url=url, prox=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0])
         thread.start()
-        thread.is_alive()
     else:
         thread = DownloadThread(num, html=html)
         thread.start()
@@ -735,39 +736,23 @@ def run_thread(url, num, proxy_list=None, html=None):
 def join_threads(threads):
     """
     Method that joins the threads in the list of DownloadThreads handed to it
-    and returns the DownloadResult object with the highest votes after the join.
+    and returns the DownloadThread object with the highest votes after the join.
     The hash consists of the html plus the images.
 
     :param threads: A list of DownloadThreads that need to be joined.
-    :return: The DownloadResult object with all important information about hash, html and infos about the download job.
+    :return: The DownloadThread object with all important information about hash, html and infos about the download job.
     """
     results = []
-    votes = [0 for x in results]
     for thread in threads:
-        results.append(thread.join())
+        thread.join()
+        results.append(thread)
+
+    votes = [0 for x in results]
     for num in range(0, len(results)):
         for cnt in range(num, len(results)):
             if results[num].ipfs_hash == results[cnt].ipfs_hash:
                 votes[num] += 1
     return results[votes.index(max(votes))]
-
-
-def get_proxy_list():
-    """
-    Get a ist of available proxies to use.
-    # TODO check the proxy status.
-
-    :author: Sebastian
-    :return: A list of lists with 3 values representing proxies [1] with their location [0].
-    """
-    # TODO check proxy_list for active proxies or use python package like getprox or proxybroker to check or get them.
-    proxy_list = []
-    index = 0
-    with open(basePath + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
-        for line in csv.reader(tsv, delimiter="\t"):
-            proxy_list[index] = [line[0], line[1], None]
-            index += 1
-    return proxy_list
 
 
 def main():

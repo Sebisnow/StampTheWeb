@@ -13,6 +13,7 @@ proxy = "5.135.176.41:3123"
 url = "http://www.theverge.com/2016/8/12/12444920/no-mans-sky-travel-journal-day-four-ps4-pc"
 path = "/home/sebastian/testing-stw/temporary/1/"
 base_path = "/home/sebastian/testing-stw/"
+downloader.basePath = base_path
 html = """
 <html>
   <head>
@@ -65,28 +66,32 @@ class BasicsTestCase(unittest.TestCase):
         print("    Proxy is set correctly to " + proxy + ".")
 
     def test_class(self):
-        print("Testing the functionality of the DownloadThread class")
+        print("\nTesting the functionality of the DownloadThread class:")
         thread = down.DownloadThread(1, url, proxy, base_path=base_path)
-        start = thread.start()
-        print(start)
+        thread.start()
         print("    Waiting for thread to join.")
-        result = thread.join()
+        thread.join()
         print("after join:\n" + thread.html)
+        text = thread.html
+        self.assertIsNotNone(text, "None HTML was stored and processed.")
         print("    Testing whether thread is alive")
-        self.assertFalse(thread.is_alive())
-        print("    The resulting html:\n" + result.html)
-        print("    Testing the IPFS hash: \n" + str(result.ipfs_hash))
-        self.assertIsNotNone(result.ipfs_hash)
-        if result.ipfs_hash:
-            file_path = downloader.ipfs_get(result.ipfs_hash)
-            self.assertTrue(os.path.exists(file_path))
+        self.assertFalse(thread.is_alive(), "Thread is still alive after join")
+        ipfs_hash = thread.ipfs_hash
+        self.assertIsNotNone(ipfs_hash, "The DownloadThread did not produce an ipfs_hash")
+        if ipfs_hash:
+            file_path = downloader.ipfs_get(ipfs_hash)
+            self.assertTrue(os.path.exists(file_path), "File not transmitted to ipfs, it cannot be fetched")
         else:
             raise self.failureException
 
     def test_load_images(self):
-        print("Testing the load_images method")
+        print("\nTesting the load_images method")
         thread = down.DownloadThread(2, url, html=html, base_path=base_path)
         soup = Bs(html, "lxml")
         images = thread.load_images(soup)
         self.assertEqual(len(images), 2)
 
+    def test_check_proxies(self):
+        prox_list = down.update_proxies()
+        print(str(prox_list))
+        self.assertGreater(prox_list, 10, "Gathered more than 10 proxies")
