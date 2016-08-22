@@ -1,8 +1,7 @@
 import threading
 import os
 import re
-
-import proxybroker.providers
+import zipfile
 import requests
 import chardet
 import csv
@@ -13,7 +12,7 @@ from flask import current_app as app
 from selenium import webdriver
 from warcat.model import WARC
 from bs4 import BeautifulSoup
-import ipfsApi as ipfs
+import ipfsApi
 import shutil
 from readability.readability import Document
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -21,7 +20,7 @@ from selenium.common.exceptions import TimeoutException
 
 exitFlag = 0
 urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
-ipfs_Client = ipfs.Client('127.0.0.1', 5001)
+ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 js_path = os.path.abspath(os.path.expanduser("~/") + '/bin/phantomjs/lib/phantom/bin/phantomjs')
 base_path = 'app/pdf/'
 proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
@@ -35,7 +34,7 @@ class DownloadThread(threading.Thread):
 
     :author: Sebastian
     """
-    def __init__(self, thread_id, url=None, prox=None, prox_loc=None, base_path='app/pdf/', html=None):
+    def __init__(self, thread_id, url=None, prox=None, prox_loc=None, basepath='app/pdf/', html=None):
         """
         Default constructor for the DownloadThread class, that initializes the creation of a new download job in a
         separate thread.
@@ -56,8 +55,8 @@ class DownloadThread(threading.Thread):
         self.html = html
         self.prox_loc = prox_loc
         self.proxy = prox
-        self.basepath = base_path
-        self.path = base_path + "temporary"
+        self.basepath = basepath
+        self.path = basepath + "temporary"
         self.ipfs_hash = None
         self.images = dict()
 
@@ -90,7 +89,7 @@ class DownloadThread(threading.Thread):
         phantom.capabilities["acceptSslCerts"] = True
         if proxy:
             phantom.capabilities["proxy"] = {"proxy": proxy,
-                                         "proxy-type": "http"}
+                                             "proxy-type": "http"}
         max_wait = 30
 
         phantom.set_window_size(1024, 768)
@@ -111,8 +110,10 @@ class DownloadThread(threading.Thread):
             self.download()
         except TimeoutException:
             app.logger.error("Couldn't reach website through proxy, trying again with new proxy")
-            self.initialize(get_rand_proxy(self.prox_loc))
-            self.download()
+            self.proxy = get_one_proxy(self.prox_loc)
+            if self.proxy:
+                self.phantom = self.initialize(self.proxy)
+                self.download()
             # TODO set new proxy and try again
 
         return self.ipfs_hash
@@ -138,10 +139,17 @@ class DownloadThread(threading.Thread):
         self.images = self.load_images(soup, self.proxy)
         with open(self.path + "/page_source.html", "w") as f:
             f.write(self.html)
+
+        archive = zipfile.ZipFile(self.path + 'STW.zip', "w", zipfile.ZIP_DEFLATED)
+        archive.write(self.path + "/page_source.html")
+        for img in self.images:
+            print("Path to image: " + str(self.images.get(img).get("filename")))
+            archive.write(self.path + self.images.get(img).get("filename"))
+        archive.close()
         # Add folder to ipfs # TODO best place to zip files if necessary
         """not necessary to add folder to ipfs since the html has
         the ipfs_hash of the images stored withing the img tags."""
-        self.ipfs_hash = self.add_to_ipfs(self.path)
+        self.ipfs_hash = add_to_ipfs(self.path + 'STW.zip')
         print("Downloaded and submitted everything to ipfs: \n" + self.ipfs_hash)
         shutil.rmtree(self.path)
 
@@ -161,7 +169,7 @@ class DownloadThread(threading.Thread):
         files = dict()
         img_ctr = 0
         current_directory = os.getcwd()
-        os.chdir(self.basepath)
+        os.chdir(self.path)
         header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0'}
 
         for img in soup.find_all(['amp-img', 'img']):
@@ -174,13 +182,13 @@ class DownloadThread(threading.Thread):
                 print("Could not connect to retrieve image. Trying again with proxy")
                 # TODO start image load again with different proxy
 
-            filename = 'img' + str(img_ctr)
+            filename = 'img{}.png'.format(str(img_ctr))
             img_ctr += 1
             if res.status_code == 200:
                 with open(filename, 'wb') as f:
                     for chunk in res.iter_content(1024):
                         f.write(chunk)
-                image_hash = self.add_to_ipfs(filename)
+                image_hash = add_to_ipfs(filename)
                 print("Added image to ipfs: " + filename)
                 img['ipfs-src'] = image_hash
                 files[img_ctr] = {"filename": filename,
@@ -197,6 +205,8 @@ class DownloadThread(threading.Thread):
         Downloads only one image. Helper Method to load_images
 
         :author: Sebastian
+        :raises NameError: If there is an image that can not be fetched because no known attribute
+        containing a link to it exists or has a link that satisfies the urlPattern.
         :param img: The img tag object.
         :param counter: A counter to set the name of the img locally
         :param header: The header that is used if the image is retrieved via proxy
@@ -234,24 +244,30 @@ class DownloadThread(threading.Thread):
             res = requests.get(tag, stream=True)
         return res
 
-    def add_to_ipfs(self, fname):
-        """
-            Helper method that submits a file to IPFS and returns the resulting hash,
-            that describes the address of the file on IPFS.
 
-            :author: Sebastian
-            :param fname: The path to the File to get the hash for.
-            :return: Returns the Hash of the file.
-        """
-        if not os.path.isdir(fname):
-            res = ipfs_Client.add(fname)
-            print("IPFS result: " + str(res))
-            return res['Hash']
-        else:
-            # TODO zip files and add zip to ipfs
-            res = ipfs_Client.add(fname)[0]
-            print("IPFS result: " + str(res))
-            return res['Hash']
+def add_to_ipfs(fname):
+    """
+        Helper method that submits a file to IPFS and returns the resulting hash,
+        that describes the address of the file on IPFS.
+
+        :author: Sebastian
+        :param fname: The path to the File to get the hash for.
+        :return: Returns the Hash of the file.
+    """
+    if not os.path.isdir(fname):
+        #TODO only submit ZIP not the whole structure /home/seb...
+        os.chdir(fname.rpartition("/")[0])
+        res = ipfs_Client.add(fname, recursive=False)
+        if type(res) is list:
+            print("Entire IPFS result" + str(res))
+            print("IPFS result: " + str(res[0]))
+            return res[0]['Hash']
+        print("IPFS result: " + str(res))
+        return res['Hash']
+    else:
+        res = ipfs_Client.add(fname, recursive=False)[0]
+        print("IPFS result for directory: " + str(res))
+        return res['Hash']
 
 
 def preprocess_doc(doc):
@@ -286,22 +302,20 @@ def preprocess_doc(doc):
     return text
 
 
-def get_rand_proxy(prox_loc=None):
+def get_rand_proxy():
     """
-    Retrieve one random proxy.
+    Retrieve one random proxy if no location is set. if a location is set retrieve a proxy from that location
 
     :author: Sebastian
-    :param prox_loc: The location of the proxy to be retrieved.
     :return: One randomly chosen proxy
     """
-    proxy_list = get_proxy_list()
-    if prox_loc:
-        proxy_list = [proxy for proxy in proxy_list if proxy[0] == prox_loc]
-        if len(proxy_list) == 0:
-            broker = Broker
+    country_list = []
+    with open(proxy_path + "/proxy_list.tsv", "r", encoding="utf8") as tsv:
+        for line in csv.reader(tsv, delimiter="\t"):
+            country_list.append(line[0])
 
-    prox_num = randrange(0, len(proxy_list))
-    return proxy_list[prox_num][1]
+        country = country_list[randrange(0, len(country_list))]
+        return get_one_proxy(country)
 
 
 def get_proxy_list(update=False, prox_loc=None):
@@ -364,7 +378,7 @@ def gather_proxies(countries):
     :param countries: The ISO style country codes to fetch proxies for. Countries is a list of two letter strings.
     :return: A list of proxies that are themself a list with  two paramters[Location, proxy address].
     """
-    # TODO !! takes more than 45 minutes !!
+    # TODO !! May take more than 45 minutes !!
     proxy_list = []
     types = ['HTTP']
     for country in countries:
@@ -373,7 +387,7 @@ def gather_proxies(countries):
         proxies = asyncio.Queue(loop=loop)
         broker = Broker(proxies, loop=loop)
 
-        loop.run_until_complete(broker.find(limit=1, countries=country, types=types))
+        loop.run_until_complete(broker.find(limit=2, countries=country, types=types))
 
         while True:
             proxy = proxies.get_nowait()
