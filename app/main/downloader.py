@@ -334,6 +334,28 @@ def submit(sha256, title=None):
     return requests.post(apiPostUrl, json=data, headers=headers)
 
 
+def get_originstamp_history(sha256):
+    """
+    Fetches the history of the hash from originstamp. Response object looks like the following. Most important for
+    StampTheWeb is the created_at tag:
+    {'title': '', 'created_at': '2016-06-23T08:36:21.242Z', 'updated_at': '2016-06-24T00:02:28.728Z',
+    'blockchain_transaction': {'created_at': '2016-06-24T00:02:26.796Z', 'updated_at': '2016-06-26T20:04:08.674Z',
+    'public_key': '03a1673f7e06c345e3f8f26160b42616f421041e13b301e561b52aaeaa62f2deda', 'status': 1,
+    'seed': '<very long seed representing the blockchain>',
+    'private_key': 'a3dabafdc73c4b0bcc50191aef89c3fdb5cf9e728af6bcddec3a9905b04a4092',
+    'recipient': '1KLwyN4qoA6yTmdr39Eqj5b1FCW6hxik9R', 'tx_hash':
+    'd9496339662ad07e693605e9e374fb3cc09058f59b7c4ab2a958d713d9232cb2'},
+    'hash_sha256': 'QmXiSkFRT7agFChpLa5BhJkvDAVHEefrekAf7DWjZKnmE8', 'submitted_at': None}
+
+    :author: Sebastian
+    :param sha256: hash to submit
+    :returns: resulting response object
+    """
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
+
+    return requests.get("{}/{}".format(apiPostUrl, sha256), headers=headers)
+
+
 def submit_add_to_db(url, sha256, title):
     """
     submit hash to originStamp and store in DB.
@@ -409,16 +431,21 @@ def submitHash(sha256):
         app.logger.error('300 Internal System Error. Could not submit sha256 to originstamp')
         return ReturnResults(None, sha256, "None")
     elif originstamp_result.status_code == 200:
-        if not app.config["TESTING"]:
-            flash(u'Hash already submitted to OriginStamp' + ' Hash ' + sha256)
-        app.logger.error('Hash already submitted to OriginStamp')
-        return ReturnResults(originstamp_result, sha256, "")
+        if "errors" in originstamp_result.json():
+            # hash already submitted
+            history = get_originstamp_history(sha256)
+            if not app.config["TESTING"]:
+                flash(u'Submitted hash to Originstamp successfully but hash already taken: '
+                      u'{}'.format(history.json()["created_at"]))
+            app.logger.error('Submitted hash to Originstamp successfully but hash already taken: '
+                             '{}'.format(history.json()["created_at"]))
+            return ReturnResults(None, sha256, "None")
+        else:
+            if not app.config["TESTING"]:
+                flash(u'Hash was submitted to OriginStamp successfully' + ' Hash ' + sha256)
+            app.logger.info('Hash was submitted to OriginStamp successfully')
+            return ReturnResults(originstamp_result, sha256, "")
         # raise OriginstampError('Could not submit sha256 to Originstamp', r)
-    elif "errors" in originstamp_result.json():
-        if not app.config["TESTING"]:
-            flash(u'300 Internal System Error. Could not submit sha256 to originstamp.', 'error')
-        app.logger.error('300 Internal System Error. Could not submit sha256 to originstamp')
-        return ReturnResults(None, sha256, "None")
     else:
         return ReturnResults(originstamp_result, sha256, "")
 
@@ -535,6 +562,7 @@ def ipfs_get(timestamp):
 def get_url_history(url):
     """
     Entry point for the downloader
+
     :author: Sebastian
     :param url: the URL to get the history for
     :return: a ReturnResults Object with the originStampResult, hashValue and webTitle and optionally an error message
@@ -683,9 +711,9 @@ def distributed_timestamp(url, html_body=None, proxies=None):
         # no manual proxies set fetch them from list
         if extension_triggered:
             threads.append(run_thread(url, 1, html_body))
-
         else:
             threads.append(run_thread(url, 1, proxy_list))
+
         for n in range(2, 6):
             threads.append(run_thread(url, n, proxy_list))
 
@@ -706,7 +734,7 @@ def distributed_timestamp(url, html_body=None, proxies=None):
             threads.append(run_thread(url, n, proxy_list))
     # join all threads and return the DownloadThread with the most votes
     d_thread = join_threads(threads)
-    # TODO threads are joined return the result to be added to db
+    # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
     originstamp_result = get_url_history(url)
     return originstamp_result
 
