@@ -692,7 +692,8 @@ def distributed_timestamp(url, html_body=None, proxies=None):
     :author: Sebastian
     :param url: The URL of the website to timestamp.
     :param html_body: The body of the site to timestamp.
-    :param proxies: A list of max 5 Proxies that should be taken into account for the distributed timestamp.
+    :param proxies: A list of max 5 Proxies that should be taken
+     into account for the distributed timestamp.
     Defaults to None
     :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
     originStampResult, hashValue, webTitle and errors(defaults to None).
@@ -733,10 +734,14 @@ def distributed_timestamp(url, html_body=None, proxies=None):
         for n in range(cnt, 6):
             threads.append(run_thread(url, n, proxy_list))
     # join all threads and return the DownloadThread with the most votes
-    d_thread = join_threads(threads)
+    joined_threads, max_index = join_threads(threads)
+
+    originstamp_result = submit(joined_threads[max_index].ipfs_hash, joined_threads[max_index].url)
+
     # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
-    originstamp_result = get_url_history(url)
-    return originstamp_result
+
+    return ReturnResults(originstamp_result=originstamp_result, hash_value=joined_threads[max_index].ipfs_hash,
+                         web_title=joined_threads[max_index].html.title)
 
 
 def run_thread(url, num, proxy_list=None, html=None):
@@ -768,19 +773,21 @@ def join_threads(threads):
     The hash consists of the html plus the images.
 
     :param threads: A list of DownloadThreads that need to be joined.
-    :return: The DownloadThread object with all important information about hash, html and infos about the download job.
+    :return: A list of DownloadThread objects with all important information about hash, html and infos about the
+    download job and the index of the DownloadThread with the highest votes as second parameter.
     """
     results = []
     for thread in threads:
         thread.join()
         results.append(thread)
 
+    # TODO store different results
     votes = [0 for x in results]
     for num in range(0, len(results)):
         for cnt in range(num, len(results)):
             if results[num].ipfs_hash == results[cnt].ipfs_hash:
                 votes[num] += 1
-    return results[votes.index(max(votes))]
+    return results, votes.index(max(votes))
 
 
 def main():
