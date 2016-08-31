@@ -114,3 +114,10 @@ class BasicsTestCase(unittest.TestCase):
         #os.chdir(base_path)
         res = down.add_to_ipfs(base_path + "sebastian.zip")
         self.assertTrue(res.isalnum)
+
+    def test_preprocessing_aside_removal(self):
+        with open("{}test.html".format(base_path), "r") as text:
+            entire_site = text.read()
+        preprocessed_text = down.preprocess_doc(html_text=entire_site)
+        print(preprocessed_text)
+        self.assertEqual(-1, preprocessed_text.find("<aside"))
