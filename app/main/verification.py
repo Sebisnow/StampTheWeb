@@ -6,18 +6,12 @@ import chardet
 import traceback
 import re
 from time import mktime
-
-from bs4 import BeautifulSoup
 from readability.readability import Document
 from subprocess import call, DEVNULL
-from os.path import devnull
 from app import db
 import pdfkit
-from . import main
-from flask import abort, flash, current_app
+from flask import flash, current_app
 import logging
-# from manage import app
-from app import create_app as app
 
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
 urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
