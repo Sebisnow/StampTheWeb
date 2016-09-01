@@ -1,6 +1,6 @@
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, \
-    SubmitField, TextField
+    SubmitField, TextField, RadioField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError, validators
 from flask_pagedown.fields import PageDownField
@@ -88,14 +88,22 @@ class PostCountry(Form):
     frequency = IntegerField('The frequency (in days) for which timestamps should be created:',
                              [validators.DataRequired('num required.'),
                               validators.NumberRange(min=1, max=30)], default=3)
-    china = BooleanField('Compare with the page in China',
-                         render_kw={"title": "If no location is selected, then Default Location would be used."})
-    usa = BooleanField('Compare with the page in USA',
-                       render_kw={"title": "If no location is selected, then Default Location would be used."})
-    uk = BooleanField('Compare with the page in UK',
-                      render_kw={"title": "If no location is selected, then Default Location would be used."})
-    russia = BooleanField('Compare with the page in Russia',
-                          render_kw={"title": "If no location is selected, then Default Location would be used."})
+    choice_switcher = RadioField(
+        'Country?',
+        [validators.Required()],
+        choices=[('china', 'Check if it is Blocked in China'),
+                 ('usa', 'Check if it is Blocked in USA'),
+                 ('uk', 'Check if it is Blocked in UK'),
+                 ('russia', 'Check if it is Blocked in Russia')], default='china'
+    )
+    #china = BooleanField('Compare with the page in China',
+    #                     render_kw={"title": "If no location is selected, then Default Location would be used."})
+    #usa = BooleanField('Compare with the page in USA',
+    #                   render_kw={"title": "If no location is selected, then Default Location would be used."})
+    #uk = BooleanField('Compare with the page in UK',
+    #                  render_kw={"title": "If no location is selected, then Default Location would be used."})
+    #russia = BooleanField('Compare with the page in Russia',
+    #                      render_kw={"title": "If no location is selected, then Default Location would be used."})
     email = EmailField('Notify me in case there is any change in content. (email required)',
                        render_kw={"placeholder": "email@example.com"})
     submit = SubmitField('Submit')
@@ -106,10 +114,19 @@ class PostBlock(Form):
                                                                        " more quickly identify news articles."})
     urlSite = URLField("Enter URL to create a timestamp", validators=[url(), Required()],
                        render_kw={"placeholder": "http://www.example.com"})
-    china = BooleanField('Check if it is Blocked in China')
-    usa = BooleanField('Check if it is Blocked in USA')
-    uk = BooleanField('Check if it is Blocked in UK')
-    russia = BooleanField('Check if it is Blocked in Russia')
+    choice_switcher = RadioField(
+        'Country?',
+        [validators.Required()],
+        choices=[('china', 'Check if it is Blocked in China'),
+                 ('usa', 'Check if it is Blocked in USA'),
+                 ('uk', 'Check if it is Blocked in UK'),
+                 ('russia', 'Check if it is Blocked in Russia')], default='china'
+    )
+
+    #china = BooleanField('Check if it is Blocked in China')
+    #usa = BooleanField('Check if it is Blocked in USA')
+    #uk = BooleanField('Check if it is Blocked in UK')
+    #russia = BooleanField('Check if it is Blocked in Russia')
     submit = SubmitField('Submit')
 
 
@@ -134,13 +151,18 @@ class URL_Status(Form):
 
 
 class SearchOptions(Form):
-    # china = RadioField('', choices=[('china','China')])
-    # usa = RadioField('', choices=[('usa','USA')])
-    # uk = RadioField('', choices=[('uk','UK')])
-    china = BooleanField('Compare with same page in China')
-    usa = BooleanField('Compare with same page in USA')
-    uk = BooleanField('Compare with same page in UK')
-    russia = BooleanField('Compare with same page in Russia')
+    choice_switcher = RadioField(
+        'Country?',
+        [validators.Required()],
+        choices=[('china', 'Compare with same page in China'),
+                 ('usa', 'Compare with same page in USA'),
+                 ('uk', 'Compare with same page in UK'),
+                 ('russia', 'Compare with same page in Russia')], default='china'
+    )
+    #china = BooleanField('Compare with same page in China')
+    #usa = BooleanField('Compare with same page in USA')
+    #uk = BooleanField('Compare with same page in UK')
+    #russia = BooleanField('Compare with same page in Russia')
     submit = SubmitField('Compare')
 
 

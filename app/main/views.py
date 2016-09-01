@@ -197,10 +197,10 @@ def compare_options(ids):
 
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_choice.validate_on_submit():
-        china = form_choice.china.data
-        usa = form_choice.usa.data
-        uk = form_choice.uk.data
-        russia = form_choice.russia.data
+        china = True if form_choice.choice_switcher.data == 'china' else False
+        usa = True if form_choice.choice_switcher.data == 'usa' else False
+        uk = True if form_choice.choice_switcher.data == 'uk' else False
+        russia = True if form_choice.choice_switcher.data == 'russia' else False
         hash_2, text_2 = downloader.get_text_from_other_country(china, usa, uk, russia, post_1.urlSite)
         if text_2 is not None:
             text_1 = verification.get_file_text(post_1.hashVal)
@@ -219,7 +219,7 @@ def compare_options(ids):
             text_1 = verification.get_file_text(post_1.hashVal)
             text_left = verification.remove_tags(text_1)
             text_left = htmldiff(text_left, text_left)
-            flash('The selected page is blocked in this country')
+            flash('The selected page is blocked in '+form_choice.choice_switcher.data)
             return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
                                    dateRight=datetime.utcnow(), search=False)
 
@@ -257,10 +257,10 @@ def block():
         sha256 = None
         date_time_gmt = None
         url_site = form.urlSite.data
-        china = form.china.data
-        usa = form.usa.data
-        uk = form.uk.data
-        russia = form.russia.data
+        china = True if form.choice_switcher.data == 'china' else False
+        usa = True if form.choice_switcher.data == 'usa' else False
+        uk = True if form.choice_switcher.data == 'uk' else False
+        russia = True if form.choice_switcher.data == 'russia' else False
         results = downloader.get_url_history(url_site)
         originstamp_result = results.originStampResult
         sha256 = results.hashValue
@@ -285,7 +285,7 @@ def block():
         hash_2, text_2 = downloader.get_text_from_other_country(china, usa, uk, russia, url_site)
 
         if text_2 is not None:
-            flash("The Article is not blocked in this country")
+            flash("The Article is not blocked in "+form.choice_switcher.data)
             post = Post.query.get_or_404(post_new.id)
             return render_template('very.html', verify=[post], single=True, search=False)
         else:
@@ -293,7 +293,7 @@ def block():
             block_new = Block(china=china, uk=uk, usa=usa, russia=russia, postID=post_new)
             db.session.add(block_new)
             db.session.commit()
-            flash("This Article is blocked in this country")
+            flash("This Article is blocked in "+form.choice_switcher.data)
             return redirect(url_for('.block'))
     page = request.args.get('page', 1, type=int)
     pagination = Block.query.order_by(Block.timestamp.desc()).paginate(
@@ -394,10 +394,10 @@ def compare_country():
         freq = form.frequency.data
         sha256 = None
         date_time_gmt = None
-        china = form.china.data
-        usa = form.usa.data
-        uk = form.uk.data
-        russia = form.russia.data
+        china = True if form.choice_switcher.data == 'china' else False
+        usa = True if form.choice_switcher.data == 'usa' else False
+        uk = True if form.choice_switcher.data == 'uk' else False
+        russia = True if form.choice_switcher.data == 'russia' else False
         url_site = form.urlSite.data
         email = form.email.data
         results = downloader.get_url_history(url_site)
