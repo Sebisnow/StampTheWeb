@@ -61,10 +61,18 @@ start_time = time.time()
 
 
 def run_every_day():
-    """This method runs every day and checks the scheduled tasks"""
+    """This method runs every day and checks the scheduled tasks
+
+    :author: Waqar and Sebastian
+    """
     with app.app_context():
         app.logger.info("Starting the regular check for changes")
-        # TODO add regular proxy check like getprox or proxybroker
+
+        # update proxy list - may take up to 45 minutes depending on network latency and proxy availability
+        from app.main import download_thread
+        download_thread.update_proxies()
+
+        # proceed with the Regular tasks stored in db
         tasks = Regular.query.all()
         for task in tasks:
             seconds_passed = datetime.timedelta.total_seconds(datetime.datetime.utcnow() - task.timestamp)
