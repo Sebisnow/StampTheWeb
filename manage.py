@@ -70,7 +70,10 @@ def run_every_day():
 
         # update proxy list - may take up to 45 minutes depending on network latency and proxy availability
         from app.main import download_thread
-        download_thread.update_proxies()
+        try:
+            download_thread.update_proxies()
+        except UnicodeDecodeError:
+            app.logger.error("Encountered a UnicodeDecodeError while fetching proxies. Trying again later.")
 
         # proceed with the Regular tasks stored in db
         tasks = Regular.query.all()
