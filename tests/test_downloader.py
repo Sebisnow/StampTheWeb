@@ -46,12 +46,11 @@ class BasicsTestCase(unittest.TestCase):
         print("test submit to Originstamp")
         text = "Big test in Python!"
         result = down.get_text_timestamp(text)
+        print(result)
         print("    Submit Status code: " + str(result.originStampResult.status_code))
         print("    Submit Response Text: " + result.originStampResult.text)
         print("    Submit Hash: " + result.hashValue)
         print("    Submit Title: " + result.webTitle)
-        resp = result.originStampResult.json()
-        print(resp)
         self.assertTrue(result.originStampResult.status_code == 200)
         with open("test1.html", "w+") as f:
             f.write(str(text))

@@ -24,13 +24,15 @@ html = """
    <p id="firstpara" align="center">This is a veeeeery long paragraph
     <b>one
     </b>.
-    <img alt="image" class="alignright wp-image-15034 size-thumbnail" ipfs-src="ipfs_hash comes here" src="https://netninja.com/wp-content/uploads/2015/09/image2-150x150.jpeg"/>
+    <img alt="image" class="alignright wp-image-15034 size-thumbnail" ipfs-src="ipfs_hash comes here" src="https://netni
+    nja.com/wp-content/uploads/2015/09/image2-150x150.jpeg"/>
 
    </p>
    <p id="secondpara" align="blah">This is paragraph that is almost equally long.
     <b>two
     </b>.
-    <img alt="cat" class="size-thumbnail wp-image-15040 aligncenter" ipfs-src="ipfs_hash comes here" src="https://netninja.com/wp-content/uploads/2015/09/cat-150x150.jpg"/>
+    <img alt="cat" class="size-thumbnail wp-image-15040 aligncenter" ipfs-src="ipfs_hash comes here" src="https://netnin
+    ja.com/wp-content/uploads/2015/09/cat-150x150.jpg"/>
 
    </p>
   </body>
@@ -91,24 +93,6 @@ class BasicsTestCase(unittest.TestCase):
         images = thread.load_images(soup)
         self.assertEqual(len(images), 2)
 
-    def test_check_proxies(self):
-        # TODO !! takes more than 45 minutes !!
-        print("\nTesting and updating the proxy list - This will take over half an hour!! :")
-        prox_list = down.update_proxies()
-        print(str(prox_list))
-        self.assertGreater(len(prox_list), 10, "Gathered more than 10 proxies")
-
-    def test_get_one_proxy(self):
-        print("\nTesting the retrieval of one proxy:")
-        prox = down.get_one_proxy("ML")
-        self.assertIsNotNone(prox, "Retrieval of one proxy failed.")
-        print(prox)
-
-    def test_get_proxy_list(self):
-        print("\nTesting the loading of the proxy list:")
-        p_list = down.get_proxy_list()
-        self.assertGreater(len(p_list), 10, "Did not gather more than 10 proxies. Proxy list generation failed!")
-
     def test_zip_submission(self):
         print("Testing the IPFS submission of Zip files:")
         #os.chdir(base_path)
@@ -116,8 +100,9 @@ class BasicsTestCase(unittest.TestCase):
         self.assertTrue(res.isalnum)
 
     def test_preprocessing_aside_removal(self):
+
         with open("{}test.html".format(base_path), "r") as text:
             entire_site = text.read()
-        preprocessed_text = down.preprocess_doc(html_text=entire_site)
-        print(preprocessed_text)
-        self.assertEqual(-1, preprocessed_text.find("<aside"))
+            preprocessed_text, title = down.preprocess_doc(html_text=entire_site)
+            print(preprocessed_text)
+            self.assertEqual(-1, preprocessed_text.find("<aside"))

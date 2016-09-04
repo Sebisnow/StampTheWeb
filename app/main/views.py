@@ -714,8 +714,10 @@ def timestamp_api():
             current_app.logger.info("Content type is json:\n" + str(request.json))
             post_data = request.json
             url = post_data["URL"]
+            # TODO determine location by ip address and hand over to distributed_timestamp
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
             current_app.logger.info("Result of distributed_timestamp:\n" + str(result))
+
             if result.originStampResult and result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
                 response.status_code = 200
