@@ -1,6 +1,6 @@
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, \
-    SubmitField, TextField
+    SubmitField, TextField, RadioField
 from wtforms.validators import Required, Length, Email, Regexp
 from wtforms import ValidationError, validators
 from flask_pagedown.fields import PageDownField
@@ -58,13 +58,13 @@ class PostForm(Form):
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
     urlSite = URLField("Enter URL to create its timestamp", validators=[url(), Required()],
                        render_kw={"placeholder": "http://www.example.com"})
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class PostEdit(Form):
     body = TextAreaField("Edit the title",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    submit = SubmitField('Update')
+    submit = SubmitField('Update', render_kw={"onclick": "loading()"})
 
 
 class PostFreq(Form):
@@ -77,7 +77,7 @@ class PostFreq(Form):
                               validators.NumberRange(min=1, max=30)], default=3)
     email = EmailField('Notify me in case there is any change in content. (email required)',
                        render_kw={"placeholder": "email@example.com"})
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class PostCountry(Form):
@@ -88,17 +88,25 @@ class PostCountry(Form):
     frequency = IntegerField('The frequency (in days) for which timestamps should be created:',
                              [validators.DataRequired('num required.'),
                               validators.NumberRange(min=1, max=30)], default=3)
-    china = BooleanField('Compare with the page in China',
-                         render_kw={"title": "If no location is selected, then Default Location would be used."})
-    usa = BooleanField('Compare with the page in USA',
-                       render_kw={"title": "If no location is selected, then Default Location would be used."})
-    uk = BooleanField('Compare with the page in UK',
-                      render_kw={"title": "If no location is selected, then Default Location would be used."})
-    russia = BooleanField('Compare with the page in Russia',
-                          render_kw={"title": "If no location is selected, then Default Location would be used."})
+    choice_switcher = RadioField(
+        'Country?',
+        [validators.Required()],
+        choices=[('china', 'Check if it is Blocked in China'),
+                 ('usa', 'Check if it is Blocked in USA'),
+                 ('uk', 'Check if it is Blocked in UK'),
+                 ('russia', 'Check if it is Blocked in Russia')], default='china'
+    )
+    #china = BooleanField('Compare with the page in China',
+    #                     render_kw={"title": "If no location is selected, then Default Location would be used."})
+    #usa = BooleanField('Compare with the page in USA',
+    #                   render_kw={"title": "If no location is selected, then Default Location would be used."})
+    #uk = BooleanField('Compare with the page in UK',
+    #                  render_kw={"title": "If no location is selected, then Default Location would be used."})
+    #russia = BooleanField('Compare with the page in Russia',
+    #                      render_kw={"title": "If no location is selected, then Default Location would be used."})
     email = EmailField('Notify me in case there is any change in content. (email required)',
                        render_kw={"placeholder": "email@example.com"})
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class PostBlock(Form):
@@ -106,47 +114,61 @@ class PostBlock(Form):
                                                                        " more quickly identify news articles."})
     urlSite = URLField("Enter URL to create a timestamp", validators=[url(), Required()],
                        render_kw={"placeholder": "http://www.example.com"})
-    china = BooleanField('Check if it is Blocked in China')
-    usa = BooleanField('Check if it is Blocked in USA')
-    uk = BooleanField('Check if it is Blocked in UK')
-    russia = BooleanField('Check if it is Blocked in Russia')
-    submit = SubmitField('Submit')
+    choice_switcher = RadioField(
+        'Country?',
+        [validators.Required()],
+        choices=[('china', 'Check if it is Blocked in China'),
+                 ('usa', 'Check if it is Blocked in USA'),
+                 ('uk', 'Check if it is Blocked in UK'),
+                 ('russia', 'Check if it is Blocked in Russia')], default='china'
+    )
+
+    #china = BooleanField('Check if it is Blocked in China')
+    #usa = BooleanField('Check if it is Blocked in USA')
+    #uk = BooleanField('Check if it is Blocked in UK')
+    #russia = BooleanField('Check if it is Blocked in Russia')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class FormSubmit(Form):
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class PostVerify(Form):
     urlSite = TextField("Search by URL or text", validators=[Required()], render_kw={"placeholder": "search"})
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class SearchPost(Form):
     urlSite = TextField("", validators=[Required()], render_kw={"placeholder": "Search"})
-    submit = SubmitField('Search')
+    submit = SubmitField('Search', render_kw={"onclick": "loading()"})
 
 
 class URL_Status(Form):
     urlSite = URLField("Enter URL to check where it is blocked?", validators=[url(), Required()],
                        render_kw={"placeholder": "http://www.example.com"})
-    submit = SubmitField('Search')
+    submit = SubmitField('Search', render_kw={"onclick": "loading()"})
 
 
 class SearchOptions(Form):
-    # china = RadioField('', choices=[('china','China')])
-    # usa = RadioField('', choices=[('usa','USA')])
-    # uk = RadioField('', choices=[('uk','UK')])
-    china = BooleanField('Compare with same page in China')
-    usa = BooleanField('Compare with same page in USA')
-    uk = BooleanField('Compare with same page in UK')
-    russia = BooleanField('Compare with same page in Russia')
-    submit = SubmitField('Compare')
+    choice_switcher = RadioField(
+        'Country?',
+        [validators.Required()],
+        choices=[('china', 'Compare with same page in China'),
+                 ('usa', 'Compare with same page in USA'),
+                 ('uk', 'Compare with same page in UK'),
+                 ('russia', 'Compare with same page in Russia')], default='china'
+    )
+    #china = BooleanField('Compare with same page in China')
+    #usa = BooleanField('Compare with same page in USA')
+    #uk = BooleanField('Compare with same page in UK')
+    #russia = BooleanField('Compare with same page in Russia')
+    submit = SubmitField('Compare', render_kw={"onclick": "loading()"})
 
 
 class PostHash(Form):
     hashValue = PageDownField("Enter Hash to create a timestamp", validators=[Required()])
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class UploadFile(Form):
@@ -155,9 +177,9 @@ class UploadFile(Form):
 
 class PostText(Form):
     body = PageDownField("Enter Text to create its Timestamp?", validators=[Required()])
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class Regular_Interval(Form):
     urlSite = URLField("Enter URL to create a timestamp", validators=[url()])
-    submit = SubmitField('Submit')
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
