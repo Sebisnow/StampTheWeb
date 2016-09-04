@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import os
 from app import create_app, db
+from app.main import proxy_util
 from app.models import User, Role, Permission, Post, Regular
 from flask_script import Manager, Shell, Server
 from flask_migrate import Migrate, MigrateCommand
@@ -61,7 +62,8 @@ start_time = time.time()
 
 
 def run_every_day():
-    """This method runs every day and checks the scheduled tasks
+    """
+    This method runs every day and checks the scheduled tasks and updates the proxy list daily.
 
     :author: Waqar and Sebastian
     """
@@ -71,7 +73,7 @@ def run_every_day():
         # update proxy list - may take up to 45 minutes depending on network latency and proxy availability
         from app.main import download_thread
         try:
-            download_thread.update_proxies()
+            proxy_util.update_proxies()
         except UnicodeDecodeError:
             app.logger.error("Encountered a UnicodeDecodeError while fetching proxies. Trying again later.")
 
