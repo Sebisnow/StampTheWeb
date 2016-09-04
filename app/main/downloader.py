@@ -3,8 +3,7 @@ import os
 import re
 import requests
 import traceback
-import ipfsApi as ipfs
-from readability.readability import Document
+import ipfsApi
 from subprocess import check_output, call, DEVNULL
 import pdfkit
 import queue
@@ -16,6 +15,7 @@ from flask import flash
 from flask import current_app as app
 from urllib.parse import urlparse
 from app.main.download_thread import DownloadThread
+from app.main import proxy_util
 
 
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
@@ -24,7 +24,7 @@ urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 basePath = 'app/pdf/'
 d_thread.base_path = basePath
 errorCaught = ""
-ipfs_Client = ipfs.Client('127.0.0.1', 5001)
+ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 
 apiPostUrl = 'http://www.originstamp.org/api/stamps'
 apiKey = '7be3aa0c7f9c2ae0061c9ad4ac680f5c '
@@ -181,7 +181,7 @@ def update_and_send(proxy, url):
         return None, None
 
     if r:
-        return calculate_hash_for_html_doc(Document(r.text))
+        return calculate_hash_for_html_doc(r.text)
 
 
 class OriginstampError(Exception):
@@ -221,27 +221,8 @@ def create_html_from_url(html_text, ipfs_hash, url):
     try:
         cur_dir = os.getcwd()
         os.chdir(basePath)
-        # TODO make sure the output of the system call returns what it should, possibly
-        # move try catch block out of the other
+        ipfs_Client.get(ipfs_hash)
         app.logger.info("Trying to fetch the HTML from IPFS")
-        try:
-            out = check_output(['ipfs', 'get', ipfs_hash], stderr=DEVNULL)
-            app.logger.info("ipfs command completed. Fetched File present: " +
-                            str(os.path.exists(basePath + ipfs_hash)))
-        except FileNotFoundError as e:
-            app.logger.info(e.strerror + " ipfs command not found trying another way." + str(type(ipfs_hash)))
-            out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
-
-            app.logger.info("There is a file called " + path + ipfs_hash + ": " +
-                            str(os.path.exists(basePath + ipfs_hash)))
-            os.rename(ipfs_hash, ipfs_hash + ".html")
-            app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
-        except Exception as e:
-
-            app.logger.error("Error while trying to fetch from IPFS or renaming" + str(e) + "\n" +
-                             "Could be a Permission problem on the Server")
-            out = check_output(['/home/ubuntu/bin/ipfs', 'get', ipfs_hash], stderr=DEVNULL)
-            app.logger.info("There is a file called " + path + ": " + str(os.path.exists(basePath + ipfs_hash)))
 
         app.logger.info("Fetched the html from ipfs: " + str(os.path.exists(ipfs_hash)))
         os.rename(ipfs_hash, ipfs_hash + ".html")
@@ -305,20 +286,19 @@ def create_pdf_from_url(url, sha256):
     return
 
 
-def calculate_hash_for_html_doc(doc):
+def calculate_hash_for_html_doc(html_text):
     """
     Calculate hash for given html document.
-    :param doc: html doc to hash
+    :param html_text: html doc to hash as text
     :returns: calculated hash for given URL and the document used to create the hash
     """
     app.logger.info('Creating HTML and Hash')
-
-    text = d_thread.preprocess_doc(doc)
+    text, title = d_thread.preprocess_doc(html_text)
     sha256 = save_file_ipfs(text)
 
     app.logger.info('Hash:' + sha256)
     # app.logger.info('HTML:' + text)
-    return sha256, text
+    return sha256, text, title
 
 
 def submit(sha256, title=None):
@@ -332,6 +312,28 @@ def submit(sha256, title=None):
     headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
     data = {'hash_sha256': sha256, 'title': title}
     return requests.post(apiPostUrl, json=data, headers=headers)
+
+
+def get_originstamp_history(sha256):
+    """
+    Fetches the history of the hash from originstamp. Response object looks like the following. Most important for
+    StampTheWeb is the created_at tag:
+    {'title': '', 'created_at': '2016-06-23T08:36:21.242Z', 'updated_at': '2016-06-24T00:02:28.728Z',
+    'blockchain_transaction': {'created_at': '2016-06-24T00:02:26.796Z', 'updated_at': '2016-06-26T20:04:08.674Z',
+    'public_key': '03a1673f7e06c345e3f8f26160b42616f421041e13b301e561b52aaeaa62f2deda', 'status': 1,
+    'seed': '<very long seed representing the blockchain>',
+    'private_key': 'a3dabafdc73c4b0bcc50191aef89c3fdb5cf9e728af6bcddec3a9905b04a4092',
+    'recipient': '1KLwyN4qoA6yTmdr39Eqj5b1FCW6hxik9R', 'tx_hash':
+    'd9496339662ad07e693605e9e374fb3cc09058f59b7c4ab2a958d713d9232cb2'},
+    'hash_sha256': 'QmXiSkFRT7agFChpLa5BhJkvDAVHEefrekAf7DWjZKnmE8', 'submitted_at': None}
+
+    :author: Sebastian
+    :param sha256: hash to submit
+    :returns: resulting response object
+    """
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
+
+    return requests.get("{}/{}".format(apiPostUrl, sha256), headers=headers)
 
 
 def submit_add_to_db(url, sha256, title):
@@ -396,6 +398,7 @@ def load_images(soup):
 def submitHash(sha256):
     """
     Meta method that initiates the submission to Originstamp and handles response messages and errors.
+
     :author: Waqar and Sebastian
     :param sha256: The hash of the file(s) to timestamp.
     :return: Returns a ReturnResults Object with the result of the submission.
@@ -409,16 +412,21 @@ def submitHash(sha256):
         app.logger.error('300 Internal System Error. Could not submit sha256 to originstamp')
         return ReturnResults(None, sha256, "None")
     elif originstamp_result.status_code == 200:
-        if not app.config["TESTING"]:
-            flash(u'Hash already submitted to OriginStamp' + ' Hash ' + sha256)
-        app.logger.error('Hash already submitted to OriginStamp')
-        return ReturnResults(originstamp_result, sha256, "")
+        if "errors" in originstamp_result.json():
+            # hash already submitted
+            history = get_originstamp_history(sha256)
+            if not app.config["TESTING"]:
+                flash(u'Submitted hash to Originstamp successfully but hash already taken: '
+                      u'{}'.format(history.json()["created_at"]))
+            app.logger.error('Submitted hash to Originstamp successfully but hash already taken: '
+                             '{}'.format(history.json()["created_at"]))
+            return ReturnResults(originstamp_result, sha256, "None", originstamp_result.text)
+        else:
+            if not app.config["TESTING"]:
+                flash(u'Hash was submitted to OriginStamp successfully' + ' Hash ' + sha256)
+            app.logger.info('Hash was submitted to OriginStamp successfully')
+            return ReturnResults(originstamp_result, sha256, "")
         # raise OriginstampError('Could not submit sha256 to Originstamp', r)
-    elif "errors" in originstamp_result.json():
-        if not app.config["TESTING"]:
-            flash(u'300 Internal System Error. Could not submit sha256 to originstamp.', 'error')
-        app.logger.error('300 Internal System Error. Could not submit sha256 to originstamp')
-        return ReturnResults(None, sha256, "None")
     else:
         return ReturnResults(originstamp_result, sha256, "")
 
@@ -447,8 +455,10 @@ def get_text_timestamp(text):
     """
     Generate a timestamp for a text and submit that text to ipfs.
     Method is tested in terms of IPFS Hash and in terms of submission to Originstamp.
+
+    :author: Waqar and Sebastian
     :param text: The text to be timestamped
-    :return: ReturnResults
+    :return: ReturnResults object
     """
     results = submitHash(save_file_ipfs(text))
     return results
@@ -480,6 +490,7 @@ def save_file_ipfs(text):
         app.logger.error("could not create tempfile to save text in " + path)
         app.logger.error(e)
         app.logger.error(traceback.print_exc())
+
     app.logger.info("    There is a file called " + path + ": " + str(os.path.exists(path)))
     ipfs_hash = ipfs_Client.add(path)
     print(ipfs_hash[0]['Hash'])
@@ -535,6 +546,7 @@ def ipfs_get(timestamp):
 def get_url_history(url):
     """
     Entry point for the downloader
+
     :author: Sebastian
     :param url: the URL to get the history for
     :return: a ReturnResults Object with the originStampResult, hashValue and webTitle and optionally an error message
@@ -555,12 +567,12 @@ def get_url_history(url):
         app.logger.error('100 Bad URL Could not retrieve URL to create timestamp for it:' + url)
         return ReturnResults(None, None, None)
     # soup = BeautifulSoup(res.text.encode(res.encoding), 'html.parser')
-    doc = Document(res.text)
+    title = None
     # encoding = chardet.detect(res.text.encode()).get('encoding')
     try:
-        sha256, html_text = calculate_hash_for_html_doc(doc)
+        sha256, html_text, title = calculate_hash_for_html_doc(res.text)
         # if check_database_for_hash(sha256) < 1:
-        originstamp_result = save_render_zip_submit(html_text, sha256, url, doc.title())
+        originstamp_result = save_render_zip_submit(html_text, sha256, url, title)
 
     except Exception as e:
 
@@ -569,10 +581,10 @@ def get_url_history(url):
             flash(u'Internal System Error: ' + str(e.args), 'error')
         app.logger.error('Internal System Error: ' + str(e.args))
         traceback.print_exc()
-        return ReturnResults(None, sha256, doc.title())
+        return ReturnResults(None, sha256, title)
 
     # return json.dumps(check_database_for_url(url), default=date_handler)
-    return ReturnResults(originstamp_result, sha256, doc.title())
+    return ReturnResults(originstamp_result, sha256, title)
 
 
 '''
@@ -601,6 +613,7 @@ def save_render_zip_submit(html_text, sha256, url, title):
     After IPFS has done it's magic this is the main handler for everything after the hash creation.
     save_render_zip_submit creates(fetches from IPFS) the HTML file. Submits the sha256 hash to originstamp and creates
     pdf and png of the website behind the URL.
+
     :author: Sebastian
     :param html_text: The HTML text as string.
     :param sha256: The hash value associated with the HTML.
@@ -664,7 +677,8 @@ def distributed_timestamp(url, html_body=None, proxies=None):
     :author: Sebastian
     :param url: The URL of the website to timestamp.
     :param html_body: The body of the site to timestamp.
-    :param proxies: A list of max 5 Proxies that should be taken into account for the distributed timestamp.
+    :param proxies: A list of max 5 Proxies that should be taken
+     into account for the distributed timestamp.
     Defaults to None
     :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
     originStampResult, hashValue, webTitle and errors(defaults to None).
@@ -676,16 +690,16 @@ def distributed_timestamp(url, html_body=None, proxies=None):
     extension_triggered = False
     if html_body:
         extension_triggered = True
-    proxy_list = d_thread.get_proxy_list()
+    proxy_list = proxy_util.get_proxy_list()
 
     threads = []
     if proxies is None or len(proxies) == 0:
         # no manual proxies set fetch them from list
         if extension_triggered:
             threads.append(run_thread(url, 1, html_body))
-
         else:
             threads.append(run_thread(url, 1, proxy_list))
+
         for n in range(2, 6):
             threads.append(run_thread(url, n, proxy_list))
 
@@ -702,13 +716,18 @@ def distributed_timestamp(url, html_body=None, proxies=None):
                 break
             threads.append(run_thread(url, cnt, [prox]))
             cnt += 1
+        # create the rest of the threads to fill up to 5 threads with proxy_list
         for n in range(cnt, 6):
             threads.append(run_thread(url, n, proxy_list))
     # join all threads and return the DownloadThread with the most votes
-    d_thread = join_threads(threads)
-    # TODO threads are joined return the result to be added to db
-    originstamp_result = get_url_history(url)
-    return originstamp_result
+    joined_threads, max_index = join_threads(threads)
+
+    originstamp_result = submit(joined_threads[max_index].ipfs_hash, joined_threads[max_index].url)
+    app.logger.info("The result from Originstamp:{}".format(originstamp_result))
+    # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
+
+    return ReturnResults(originstamp_result=originstamp_result, hash_value=joined_threads[max_index].ipfs_hash,
+                         web_title=joined_threads[max_index].html.title)
 
 
 def run_thread(url, num, proxy_list=None, html=None):
@@ -722,7 +741,6 @@ def run_thread(url, num, proxy_list=None, html=None):
     :param html: Defaults to None and is only specified if the user sent an HTML to timestamp.
     :return: The DownloadThread object that represents the freshly started thread.
     """
-    thread = None
     if html is None:
         prox_num = randrange(0, len(proxy_list))
         thread = DownloadThread(num, url=url, prox=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0])
@@ -740,19 +758,24 @@ def join_threads(threads):
     The hash consists of the html plus the images.
 
     :param threads: A list of DownloadThreads that need to be joined.
-    :return: The DownloadThread object with all important information about hash, html and infos about the download job.
+    :return: A list of DownloadThread objects with all important information about hash, html and infos about the
+    download job and the index of the DownloadThread with the highest votes as second parameter.
     """
+    app.logger.info("Joining Threads.")
     results = []
     for thread in threads:
         thread.join()
         results.append(thread)
 
+    # TODO store different results
     votes = [0 for x in results]
     for num in range(0, len(results)):
-        for cnt in range(num, len(results)):
+        for cnt in range(0, len(results)):
             if results[num].ipfs_hash == results[cnt].ipfs_hash:
                 votes[num] += 1
-    return results[votes.index(max(votes))]
+    app.logger.info(votes)
+    print("Joined Threads: {}".format(votes))
+    return results, votes.index(max(votes))
 
 
 def main():

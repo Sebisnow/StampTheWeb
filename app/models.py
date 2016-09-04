@@ -292,3 +292,16 @@ class Verify(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     origStampTime = db.Column(db.DateTime)
     fileName = db.Column(db.Text)
+
+
+class Warcs(db.Model):
+    """
+    Representation of Database Table 'warc' that serves as a lookup table for warcs that are stored under a specific,
+    fixed ipns link.
+
+    :author: Sebastian
+    """
+    __tablename__ = 'warcs'
+    ID = db.Column(db.Integer, primary_key=True)
+    url = db.Column(db.Text, index=True, unique=True)
+    ipns = db.Column(db.Text)

@@ -16,7 +16,6 @@ from sqlalchemy import or_, and_
 import socket
 import requests
 import json
-import re
 from random import randint
 
 global selected
@@ -139,23 +138,23 @@ def compare():
             posts = pagination.items
             return render_template('search_domains.html', verify=posts,
                                    pagination=pagination, search=True, domain=search_keyword)
-    doman_name_unique = []
+    domain_name_unique = []
     # Getting Domains user visited
     if not current_user.is_anonymous:
         domain_name = downloader.get_all_domain_names(Post)
-        doman_name_unique = set(domain_name)
-        for name in doman_name_unique:
+        domain_name_unique = set(domain_name)
+        for name in domain_name_unique:
             if ';' not in name:
                 count = domain_name.count(name)
-                doman_name_unique.remove(name)
-                doman_name_unique.add(name + ';' + str(count))
+                domain_name_unique.remove(name)
+                domain_name_unique.add(name + ';' + str(count))
     page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite != None).paginate(
+    pagination = Post.query.order_by(Post.timestamp.desc()).filter(Post.urlSite is not None).paginate(
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     verify = pagination.items
     return render_template('verify.html', form=form, verify=verify,
-                           pagination=pagination, doman_name=doman_name_unique, comp_page="active")
+                           pagination=pagination, doman_name=domain_name_unique, comp_page="active")
 
 
 @main.route('/compare_options/<ids>', methods=['GET', 'POST'])
@@ -285,7 +284,7 @@ def block():
         hash_2, text_2 = downloader.get_text_from_other_country(china, usa, uk, russia, url_site)
 
         if text_2 is not None:
-            flash("The Article is not blocked in "+form.choice_switcher.data)
+            flash("The Article is not blocked in " + form.choice_switcher.data)
             post = Post.query.get_or_404(post_new.id)
             return render_template('very.html', verify=[post], single=True, search=False)
         else:
@@ -308,6 +307,7 @@ def statistics():
     domain_name = downloader.get_all_domain_names(Post)
     domain_name_unique = set(domain_name)
     counter_stat = {}
+    response = None
     for domain in domain_name_unique:
         loc = Location.query.filter_by(ip=domain).first()
         if loc:
@@ -325,7 +325,6 @@ def statistics():
                 response = requests.get(url)
             except:
                 flash("An Error occurred while finding the location of a URL")
-                # TODO response referenced before assignment
             js = response.json()
             percentage = domain_name.count(domain) / len(domain_name) * 100
             if js['country_code'] in counter_stat.keys():
@@ -345,7 +344,7 @@ def statistics():
         while a < 210:
             a += 1
             if data["features"][a]["properties"]["Country_Code"] == key and \
-                            counter_stat[key][0] == data["features"][a]["properties"]["NAME"]:
+               counter_stat[key][0] == data["features"][a]["properties"]["NAME"]:
                 data["features"][a]["properties"]["URLS"] = counter_stat[key][1]
                 data["features"][a]["properties"]["Percentage"] = counter_stat[key][2]
 
@@ -381,7 +380,8 @@ def block_country():
 
         json.dump(data, open("app/pdf/block-data-country.geo.json", 'w'))
         return render_template('block_country.html', block_country="active", block_page="active",
-                               form=form, file='block-data-country.geo.json', version=randint(0, 1000),url_site=form.urlSite.data)
+                               form=form, file='block-data-country.geo.json', version=randint(0, 1000),
+                               url_site=form.urlSite.data)
 
     return render_template('block_country.html', block_country="active", block_page="active",
                            form=form, file='tempelate_block_country.json', version=randint(0, 1000))
@@ -430,7 +430,7 @@ def compare_country():
 
     data = downloader.remove_unwanted_data_regular()
     # Getting locations of our proxies
-    ips = []
+    ips = list()
     ips.append(current_app.config['CHINA_PROXY'])
     ips.append(current_app.config['USA_PROXY'])
     ips.append(current_app.config['UK_PROXY'])
@@ -521,13 +521,13 @@ def regular():
 
 @main.route('/user/<username>')
 def user(username):
-    user = User.query.filter_by(username=username).first_or_404()
+    the_user = User.query.filter_by(username=username).first_or_404()
     page = request.args.get('page', 1, type=int)
-    pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
+    pagination = the_user.posts.order_by(Post.timestamp.desc()).paginate(
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
-    return render_template('user.html', user=user, posts=posts,
+    return render_template('user.html', user=the_user, posts=posts,
                            pagination=pagination)
 
 
@@ -551,8 +551,8 @@ def edit_profile():
 @main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_profile_admin(id):
-    users = User.query.get_or_404(id)
+def edit_profile_admin(identity):
+    users = User.query.get_or_404(identity)
     form = EditProfileAdminForm(user=users)
     if form.validate_on_submit():
         users.email = form.email.data
@@ -593,27 +593,27 @@ def check_selected():
 
 
 @main.route('/post/<int:id>')
-def post(id):
-    posts = Post.query.get_or_404(id)
+def post(identity):
+    posts = Post.query.get_or_404(identity)
     return render_template('post.html', posts=[posts], single=True)
 
 
-@main.route('/very/<int:id>')
-def very(id):
-    posts = Post.query.get_or_404(id)
+@main.route('/very/<int:identity>')
+def very(identity):
+    posts = Post.query.get_or_404(identity)
     return render_template('post.html', posts=[posts], single=True)
 
 
 @main.route('/comp/<int:id>')
-def comp(id):
-    posts = Post.query.get_or_404(id)
+def comp(identity):
+    posts = Post.query.get_or_404(identity)
     return render_template('post.html', posts=[posts], single=True)
 
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
-def verifyID(id):
-    posts = Post.query.get_or_404(id)
+def verifyID(identity):
+    posts = Post.query.get_or_404(identity)
     result_verify = verification.get_url_history(posts.urlSite)
     text_previous = verification.get_file_text(posts.hashVal)
     text_left = verification.remove_tags(text_previous)
@@ -677,8 +677,8 @@ def verify_domain(domain):
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit(id):
-    posts = Post.query.get_or_404(id)
+def edit(identity):
+    posts = Post.query.get_or_404(identity)
     if current_user != posts.author and \
             not current_user.can(Permission.ADMINISTER):
         abort(403)
@@ -697,12 +697,13 @@ def timestamp_api():
     """
     Listens for POST queries done by the Stamp The Web WebExtension and starts a distributed timestamp.
 
+    :author: Sebastian
     :return: Whether the POST request was successful or not.
     If successful it will contain a link to the data.
     """
     current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
 
-    # change app config to testing in order to disable flashes od messages.
+    # change app config to testing in order to disable flashes or messages.
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
     response = Response()
@@ -712,16 +713,25 @@ def timestamp_api():
         if request.headers['Content-Type'] == 'application/json':
             current_app.logger.info("Content type is json:\n" + str(request.json))
             post_data = request.json
+            url = post_data["URL"]
+            # TODO determine location by ip address and hand over to distributed_timestamp
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
             current_app.logger.info("Result of distributed_timestamp:\n" + str(result))
+
             if result.originStampResult and result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
                 response.status_code = 200
-                current_app.logger.info("status set")
+
+                if "errors" in result.originStampResult.text:
+                    history = downloader.get_originstamp_history(result.hashValue).json()
+                    current_app.logger.info("Hash was already "
+                                            "submitted to Originstamp on: {}".format(history["created_at"]))
+                    response.headers["Duplicate"] = True
+                    response.headers["SubmissionTime"] = history["created_at"]
+
                 response.headers["URL"] = "http://stamptheweb.org/timestamp/" + result.hashValue
-                current_app.logger.info("resp header set")
                 response.response = result.originStampResult
-                current_app.logger.info("resp set")
+                response.headers["HashValue"] = result.hashValue
 
                 if post_data["user"]:
                     response.headers["user"] = post_data["user"]
@@ -729,6 +739,22 @@ def timestamp_api():
                 else:
                     response.headers["user"] = "BOT"
                     # TODO store with bot reference instead of user
+                already_exist = Post.query.filter(and_(Post.urlSite.like(url),
+                                                       Post.hashVal.like(result.hashValue))).first()
+                if already_exist is not None:
+                    flash('The URL was already submitted and the content of the website has not changed since!')
+                    post_old = Post.query.get_or_404(already_exist.id)
+                    response.headers["AlreadySubmitted"] = already_exist.id
+                else:
+                    # TODO associate user and create a bot user
+                    post_new = Post(body=result.originStampResult.webTitle, urlSite=url,
+                                    hashVal=result.originStampResult.hashValue,
+                                    webTitl=result.originStampResult.webTitle,
+                                    origStampTime=result.originStampResult.json()["created_at"],
+                                    author=current_user._get_current_object())
+                    db.session.add(post_new)
+                    db.session.commit()
+                    current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
 
             else:
                 if result.hashValue:
@@ -753,6 +779,7 @@ def timestamp_api():
         response.reason = "Error in try catch block!"
 
     finally:
+
         current_app.logger.info("cleaning up and returning response")
         current_app.config["TESTING"] = testing
         return response

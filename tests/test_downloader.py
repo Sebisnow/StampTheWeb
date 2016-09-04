@@ -1,12 +1,10 @@
 import unittest
-import requests
 from app.main import downloader as down
 from flask import current_app
 from app import create_app, db
-import ipfsApi as ipfs
+import ipfsApi
 import os
 import logging
-from readability import Document
 from subprocess import check_output, DEVNULL
 
 
@@ -15,7 +13,7 @@ class BasicsTestCase(unittest.TestCase):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
-        self.client = ipfs.Client()
+        self.client = ipfsApi.Client()
         db.create_all()
         down.basePath = "/home/sebastian/testing-stw/"
         log_handler = logging.FileHandler('/home/sebastian/testing-stw/STW.log')
@@ -35,10 +33,20 @@ class BasicsTestCase(unittest.TestCase):
         print("test app is testing")
         self.assertTrue(current_app.config['TESTING'])
 
+    def test_get_originstamp_history(self):
+        sha256 = "QmXiSkFRT7agFChpLa5BhJkvDAVHEefrekAf7DWjZKnmE8"
+        print("Test getting history from Originstamp")
+        response = down.get_originstamp_history(sha256)
+        body = response.json()
+        print("    Creation Time: " + body["created_at"])
+        print(response.json())
+        self.assertIsNotNone(response)
+
     def test_text_timestamp(self):
         print("test submit to Originstamp")
-        text = "Big test in Python"
+        text = "Big test in Python!"
         result = down.get_text_timestamp(text)
+        print(result)
         print("    Submit Status code: " + str(result.originStampResult.status_code))
         print("    Submit Response Text: " + result.originStampResult.text)
         print("    Submit Hash: " + result.hashValue)
@@ -47,13 +55,13 @@ class BasicsTestCase(unittest.TestCase):
         with open("test1.html", "w+") as f:
             f.write(str(text))
             print(f.encoding)
-        hash = self.client.add("test1.html")
-        print(hash)
+        hashval = self.client.add("test1.html")
+        print(hashval)
 
-        retur = check_output(['ipfs', 'get', hash['Hash']], stderr=DEVNULL)
-        print(retur)
+        retur = check_output(['ipfs', 'get', hashval['Hash']], stderr=DEVNULL)
+        print(retur.decode())
         doc = ""
-        with open(hash['Hash'], "r") as f:
+        with open(hashval['Hash'], "r") as f:
             doc += f.read()
         self.assertEqual(str(text), doc)
 
@@ -128,7 +136,8 @@ class BasicsTestCase(unittest.TestCase):
         test_sha = "QmREyeWxAGtuQ5UiiTs13zp5ZamjkVBYpnDCF1bTgn7Atc"
         print("Testing the create_html_from_url method to verify IPFS gets the file and it is renamed to have a .html "
               "ending.")
-        os.remove(down.basePath + test_sha + ".html")
+        if os.path.exists(down.basePath + test_sha + ".html"):
+            os.remove(down.basePath + test_sha + ".html")
         print("    There is a file called " + test_sha + ".html (should be False): " + str(os.path.exists(
             down.basePath + test_sha + '.html')))
         # :param test_sha: this is the IPFS hash of the example.html content
@@ -140,3 +149,8 @@ class BasicsTestCase(unittest.TestCase):
             down.basePath + test_sha + '.html')))
         self.assertTrue(os.path.exists(down.basePath + test_sha + '.html'))
 
+    def test_distributed_timestamp_not_none(self):
+        down.basePath = '/home/sebastian/testing-stw/'
+        result = down.distributed_timestamp("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
+                                            "-oelflut-ist-zu-ende-1.3047480")
+        self.assertIsNotNone(result)

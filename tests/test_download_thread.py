@@ -24,13 +24,15 @@ html = """
    <p id="firstpara" align="center">This is a veeeeery long paragraph
     <b>one
     </b>.
-    <img alt="image" class="alignright wp-image-15034 size-thumbnail" ipfs-src="ipfs_hash comes here" src="https://netninja.com/wp-content/uploads/2015/09/image2-150x150.jpeg"/>
+    <img alt="image" class="alignright wp-image-15034 size-thumbnail" ipfs-src="ipfs_hash comes here" src="https://netni
+    nja.com/wp-content/uploads/2015/09/image2-150x150.jpeg"/>
 
    </p>
    <p id="secondpara" align="blah">This is paragraph that is almost equally long.
     <b>two
     </b>.
-    <img alt="cat" class="size-thumbnail wp-image-15040 aligncenter" ipfs-src="ipfs_hash comes here" src="https://netninja.com/wp-content/uploads/2015/09/cat-150x150.jpg"/>
+    <img alt="cat" class="size-thumbnail wp-image-15040 aligncenter" ipfs-src="ipfs_hash comes here" src="https://netnin
+    ja.com/wp-content/uploads/2015/09/cat-150x150.jpg"/>
 
    </p>
   </body>
@@ -56,7 +58,7 @@ class BasicsTestCase(unittest.TestCase):
     def test_thread_initialization(self):
         #TODO
         print("Test thread initialization:")
-        thread = down.DownloadThread(1, url, proxy, base_path=base_path)
+        thread = down.DownloadThread(1, url, proxy, basepath=base_path)
         self.assertEqual(thread.url, url)
         self.assertEqual(thread.threadID, 1)
         self.assertEqual(thread.path, path)
@@ -67,7 +69,7 @@ class BasicsTestCase(unittest.TestCase):
 
     def test_class(self):
         print("\nTesting the functionality of the DownloadThread class:")
-        thread = down.DownloadThread(1, url, proxy, base_path=base_path)
+        thread = down.DownloadThread(1, url, proxy, basepath=base_path)
         thread.start()
         print("    Waiting for thread to join.")
         thread.join()
@@ -86,12 +88,21 @@ class BasicsTestCase(unittest.TestCase):
 
     def test_load_images(self):
         print("\nTesting the load_images method")
-        thread = down.DownloadThread(2, url, html=html, base_path=base_path)
+        thread = down.DownloadThread(2, url, html=html, basepath=base_path)
         soup = Bs(html, "lxml")
         images = thread.load_images(soup)
         self.assertEqual(len(images), 2)
 
-    def test_check_proxies(self):
-        prox_list = down.update_proxies()
-        print(str(prox_list))
-        self.assertGreater(prox_list, 10, "Gathered more than 10 proxies")
+    def test_zip_submission(self):
+        print("Testing the IPFS submission of Zip files:")
+        #os.chdir(base_path)
+        res = down.add_to_ipfs(base_path + "sebastian.zip")
+        self.assertTrue(res.isalnum)
+
+    def test_preprocessing_aside_removal(self):
+
+        with open("{}test.html".format(base_path), "r") as text:
+            entire_site = text.read()
+            preprocessed_text, title = down.preprocess_doc(html_text=entire_site)
+            print(preprocessed_text)
+            self.assertEqual(-1, preprocessed_text.find("<aside"))

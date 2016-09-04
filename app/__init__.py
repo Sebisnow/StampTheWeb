@@ -5,7 +5,6 @@ from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_pagedown import PageDown
-from flask_sslify import SSLify
 from config import config
 import logging
 from markupsafe import Markup
@@ -63,7 +62,4 @@ def create_app(config_name):
     app.jinja_env.globals.update(clever_function=clever_function)
     app.jinja_env.add_extension('jinja2.ext.do')
 
-# TODO not working properly yet, should redirect all http traffic to https (port 80 to 443)
-    sslify = SSLify(app)
-
-    return sslify.app
+    return app
