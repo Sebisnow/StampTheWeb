@@ -8,13 +8,14 @@ from app import create_app, db
 import ipfsApi as ipfs
 import logging
 from flask import request
+from .post_data import post_data_json
 
 
 class BasicsTestCase(unittest.TestCase):
     def setUp(self):
         self.app = create_app('testing')
-
-        os.remove('/home/sebastian/testing-stw/stw.log')
+        if os.path.exists('/home/sebastian/testing-stw/stw.log'):
+            os.remove('/home/sebastian/testing-stw/stw.log')
         log_handler = logging.FileHandler('/home/sebastian/testing-stw/stw.log')
         log_handler.setLevel(logging.INFO)
         self.app.logger.addHandler(log_handler)
@@ -47,36 +48,29 @@ class BasicsTestCase(unittest.TestCase):
         print("    Response is: " + str(resp))
         self.assertEqual(resp.status_code, 200)
 
+    def test_extension_api_basic(self):
+        with self.app.test_request_context('/timestamp', method='POST'):
+            # now you can do something with the request until the
+            # end of the with block, such as basic assertions:
+            self.assertEqual(request.path, '/timestamp')
+            self.assertEqual(request.method, 'POST')
+
     def test_extension_api(self):
         """
         Simulate the behaviour of the Timestamp extension that sends a POST request.
         """
 
-        with self.app.test_request_context('/timestamp', method='POST'):
-            # now you can do something with the request until the
-            # end of the with block, such as basic assertions:
-            assert request.path == '/timestamp'
-            assert request.method == 'POST'
-
         self.app.logger.info("Testing the web interface for the Timestamp Extension:")
         print("Testing the web interface for the Timestamp Extension:")
-
-        url = "http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die" \
-              "-oelflut-ist-zu-ende-1.3047480"
-        website = requests.get(url)
-        requ_data = dict(
-            URL=url,
-            body=website.text,
-            user="SomeOne"
-        )
         # TODO does not work yet since on post the COntent-Type and the data is not really transmitted.
-        resp = self.client.post('/timestamp', data=requ_data, content_type="application/json", follow_redirects=True)
+        resp = self.client.post('/timestamp', data=post_data_json, content_type="application/json", follow_redirects=True)
         self.app.logger.info("    Response is: " + str(resp))
         print("    Response is: " + str(resp))
         print("    " + str(resp.headers))
         # TODO now tests whether it is correct json
         print("    Testing that non json data returns 415 error")
         self.assertEqual(resp.status_code, 415)
+        
         """with requests.Session() as sess:
             print("    Starting request")
             resp = sess.send(pre_req)

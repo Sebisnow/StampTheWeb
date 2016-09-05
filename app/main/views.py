@@ -703,14 +703,16 @@ def timestamp_api():
     """
     header = request.headers
     current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
-
+    print("received Post \n" + str(request.headers))
     # change app config to testing in order to disable flashes or messages.
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
     response = Response()
     response.content_type = 'application/json'
-    current_app.logger.info("The data" + request)
-    extension_html = request.get_json(force=True)
+    print("The data is:" + str(request))
+    current_app.logger.info("The data" + str(request))
+    extension_html = request.data
+    print("Did json")
     current_app.logger.info(extension_html)
     current_app.logger.info(extension_html.body)
     try:
