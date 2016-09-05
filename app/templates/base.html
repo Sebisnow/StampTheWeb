@@ -68,6 +68,7 @@
                     </ul>
                 </li>
                 {% else %}
+                <li><a href="{{ url_for('auth.register') }}">Register for Free</a></li>
                 <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
                 {% endif %}
             </ul>
@@ -75,6 +76,7 @@
     </div>
 </div>
 {% endblock %}
+
 
 {% block content %}
 <div class="container">
@@ -87,6 +89,8 @@
 
     {% block page_content %}{% endblock %}
 </div>
+
+
 {% endblock %}
 
 {% block scripts %}

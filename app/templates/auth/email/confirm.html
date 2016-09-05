@@ -1,6 +1,8 @@
 <p>Dear {{ user.username }},</p>
 <p>Welcome to <b>Stamp The Web</b>!</p>
-<p>To confirm your account please <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">click here</a>.</p>
+<p>To confirm your account please do the following:</p>
+<p> a) <a href="{{ url_for('auth.login', token=token, _external=True) }}">Login</a>. to the system</p>
+<p> Then <a href="{{ url_for('auth.confirm', token=token, _external=True) }}">click here</a>  to confirm.</p>
 <p>Alternatively, you can paste the following link in your browser's address bar:</p>
 <p>{{ url_for('auth.confirm', token=token, _external=True) }}</p>
 <p>Sincerely,</p>
