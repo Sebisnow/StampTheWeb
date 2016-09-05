@@ -7,6 +7,7 @@ from app.main import views as view
 from app import create_app, db
 import ipfsApi as ipfs
 import logging
+from flask import request
 
 
 class BasicsTestCase(unittest.TestCase):
@@ -50,6 +51,12 @@ class BasicsTestCase(unittest.TestCase):
         """
         Simulate the behaviour of the Timestamp extension that sends a POST request.
         """
+
+        with self.app.test_request_context('/timestamp', method='POST'):
+            # now you can do something with the request until the
+            # end of the with block, such as basic assertions:
+            assert request.path == '/timestamp'
+            assert request.method == 'POST'
 
         self.app.logger.info("Testing the web interface for the Timestamp Extension:")
         print("Testing the web interface for the Timestamp Extension:")
