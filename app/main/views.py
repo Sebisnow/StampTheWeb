@@ -742,8 +742,12 @@ def timestamp_api():
                 already_exist = Post.query.filter(and_(Post.urlSite.like(url),
                                                        Post.hashVal.like(result.hashValue))).first()
                 if already_exist is not None:
-                    flash('The URL was already submitted and the content of the website has not changed since!')
+                    current_app.logger.info('The URL was already submitted and the content of the website has not '
+                                            'changed since!')
+                    response.reason = 'The URL was already submitted and the content of the website has not ' \
+                                      'changed since!'
                     post_old = Post.query.get_or_404(already_exist.id)
+                    response.date = post_old
                     response.headers["AlreadySubmitted"] = already_exist.id
                 else:
                     # TODO associate user and create a bot user
