@@ -551,8 +551,8 @@ def edit_profile():
 @main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
 @login_required
 @admin_required
-def edit_profile_admin(identity):
-    users = User.query.get_or_404(identity)
+def edit_profile_admin(id):
+    users = User.query.get_or_404(id)
     form = EditProfileAdminForm(user=users)
     if form.validate_on_submit():
         users.email = form.email.data
@@ -593,27 +593,27 @@ def check_selected():
 
 
 @main.route('/post/<int:id>')
-def post(identity):
-    posts = Post.query.get_or_404(identity)
+def post(id):
+    posts = Post.query.get_or_404(id)
     return render_template('post.html', posts=[posts], single=True)
 
 
-@main.route('/very/<int:identity>')
-def very(identity):
-    posts = Post.query.get_or_404(identity)
+@main.route('/very/<int:id>')
+def very(id):
+    posts = Post.query.get_or_404(id)
     return render_template('post.html', posts=[posts], single=True)
 
 
 @main.route('/comp/<int:id>')
-def comp(identity):
-    posts = Post.query.get_or_404(identity)
+def comp(id):
+    posts = Post.query.get_or_404(id)
     return render_template('post.html', posts=[posts], single=True)
 
 
 @main.route('/verifyID/<int:id>', methods=['GET', 'POST'])
 @login_required
-def verifyID(identity):
-    posts = Post.query.get_or_404(identity)
+def verifyID(id):
+    posts = Post.query.get_or_404(id)
     result_verify = verification.get_url_history(posts.urlSite)
     text_previous = verification.get_file_text(posts.hashVal)
     text_left = verification.remove_tags(text_previous)
@@ -677,8 +677,8 @@ def verify_domain(domain):
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit(identity):
-    posts = Post.query.get_or_404(identity)
+def edit(id):
+    posts = Post.query.get_or_404(id)
     if current_user != posts.author and \
             not current_user.can(Permission.ADMINISTER):
         abort(403)
