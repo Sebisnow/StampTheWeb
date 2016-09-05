@@ -701,6 +701,7 @@ def timestamp_api():
     :return: Whether the POST request was successful or not.
     If successful it will contain a link to the data.
     """
+    header = request.headers
     current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
 
     # change app config to testing in order to disable flashes or messages.
@@ -708,11 +709,14 @@ def timestamp_api():
     current_app.config["TESTING"] = True
     response = Response()
     response.content_type = 'application/json'
-
+    current_app.logger.info("The data" + request)
+    extension_html = request.get_json(force=True)
+    current_app.logger.info(extension_html)
+    current_app.logger.info(extension_html.body)
     try:
-        if request.headers['Content-Type'] == 'application/json':
-            current_app.logger.info("Content type is json:\n" + str(request.json))
-            post_data = request.json
+        if header['Content-Type'] == 'application/json':
+            current_app.logger.info("Content type is json:\n" + str(request.get_json()))
+            post_data = request.get_json()
             url = post_data["URL"]
             # TODO determine location by ip address and hand over to distributed_timestamp
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
@@ -742,8 +746,12 @@ def timestamp_api():
                 already_exist = Post.query.filter(and_(Post.urlSite.like(url),
                                                        Post.hashVal.like(result.hashValue))).first()
                 if already_exist is not None:
-                    flash('The URL was already submitted and the content of the website has not changed since!')
+                    current_app.logger.info('The URL was already submitted and the content of the website has not '
+                                            'changed since!')
+                    response.reason = 'The URL was already submitted and the content of the website has not ' \
+                                      'changed since!'
                     post_old = Post.query.get_or_404(already_exist.id)
+                    response.date = post_old
                     response.headers["AlreadySubmitted"] = already_exist.id
                 else:
                     # TODO associate user and create a bot user
@@ -771,9 +779,9 @@ def timestamp_api():
             response.status_code = 415
             response.reason = "Unsupported Media Type. Only JSON Format allowed!"
 
-    except Exception as e:
-        # Catch error and continue, but log the error
-        current_app.logger.error("An exception was thrown on a POST request: \n" + str(e) + "\n" +
+    except FileNotFoundError as e:
+        # DO NOT  YET! Catch error and continue, but log the error
+        current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
                                  str(e.args) + "\n\n Response so far was " + str(response))
         response.status_code = 481
         response.reason = "Error in try catch block!"
