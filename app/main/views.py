@@ -708,10 +708,10 @@ def timestamp_api():
     current_app.config["TESTING"] = True
     response = Response()
     response.content_type = 'application/json'
-    current_app.logger.info(str(request.get_data(as_text=True)))
+    current_app.logger.info(dir(request.get_data(as_text=True)))
     try:
         if request.headers['Content-Type'] == 'application/json':
-            current_app.logger.info("Content type is json:\n" + str(request.json))
+            current_app.logger.info("Content type is json:\n" + str(request.get_json()))
             post_data = request.json
             url = post_data["URL"]
             # TODO determine location by ip address and hand over to distributed_timestamp
