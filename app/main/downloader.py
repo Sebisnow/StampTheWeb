@@ -181,7 +181,7 @@ def update_and_send(proxy, url):
         return None, None
 
     if r:
-        return calculate_hash_for_html_doc(r.text)
+        return calculate_hash_for_html_block(r.text)
 
 
 class OriginstampError(Exception):
@@ -300,6 +300,19 @@ def calculate_hash_for_html_doc(html_text):
     # app.logger.info('HTML:' + text)
     return sha256, text, title
 
+def calculate_hash_for_html_block(html_text):
+    """
+    Calculate hash for given html document.
+    :param html_text: html doc to hash as text
+    :returns: calculated hash for given URL and the document used to create the hash
+    """
+    app.logger.info('Creating HTML and Hash')
+    text, title = d_thread.preprocess_doc(html_text)
+    sha256 = save_file_ipfs(text)
+
+    app.logger.info('Hash:' + sha256)
+    # app.logger.info('HTML:' + text)
+    return sha256, text
 
 def submit(sha256, title=None):
     """
