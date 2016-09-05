@@ -708,7 +708,7 @@ def timestamp_api():
     current_app.config["TESTING"] = True
     response = Response()
     response.content_type = 'application/json'
-    app.logger.info("str(request.get_data(as_text=True)")
+    current_app.logger.info("str(request.get_data(as_text=True)")
     try:
         if request.headers['Content-Type'] == 'application/json':
             current_app.logger.info("Content type is json:\n" + str(request.json))
@@ -775,8 +775,8 @@ def timestamp_api():
             response.status_code = 415
             response.reason = "Unsupported Media Type. Only JSON Format allowed!"
 
-    except TimeoutException as e:
-        # Catch error and continue, but log the error
+    except FileNotFoundError as e:
+        # DO NOT  YET! Catch error and continue, but log the error
         current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
                                  str(e.args) + "\n\n Response so far was " + str(response))
         response.status_code = 481
