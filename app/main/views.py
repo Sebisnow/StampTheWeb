@@ -701,6 +701,7 @@ def timestamp_api():
     :return: Whether the POST request was successful or not.
     If successful it will contain a link to the data.
     """
+    header = request.headers
     current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
 
     # change app config to testing in order to disable flashes or messages.
@@ -708,11 +709,14 @@ def timestamp_api():
     current_app.config["TESTING"] = True
     response = Response()
     response.content_type = 'application/json'
-    current_app.logger.info(dir(request.get_data(as_text=True)))
+    current_app.logger.info("The data" + request)
+    extension_html = request.get_json(force=True)
+    current_app.logger.info(extension_html)
+    current_app.logger.info(extension_html.body)
     try:
-        if request.headers['Content-Type'] == 'application/json':
+        if header['Content-Type'] == 'application/json':
             current_app.logger.info("Content type is json:\n" + str(request.get_json()))
-            post_data = request.json
+            post_data = request.get_json()
             url = post_data["URL"]
             # TODO determine location by ip address and hand over to distributed_timestamp
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
