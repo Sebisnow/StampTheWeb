@@ -710,18 +710,18 @@ def timestamp_api():
     response = Response()
     response.content_type = 'application/json'
     print("The data is:" + str(request))
-    current_app.logger.info("The data" + str(request.content_length))
-    extension_html = request.get_data(as_text=True)
-    print("Did json")
-    print(type(extension_html))
-    print(dir(extension_html))
-    print(extension_html)
+    current_app.logger.info("The data" + str(request))
+    extension_html = json.loads(request.data)
+    current_app.logger.info("Did json")
+    current_app.logger.info(str(extension_html))
+    current_app.logger.info(dir(extension_html))
+    current_app.logger.info(extension_html["body"])
     try:
         if header['Content-Type'] == 'application/json':
-            print("THe HTML \n" + extension_html)
             current_app.logger.info("Content type is json:\n" + str(request.data))
             post_data = request.get_json()
             url = post_data["URL"]
+            current_app.logger.info("Starting distributed timestamp by extension call")
             # TODO determine location by ip address and hand over to distributed_timestamp
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
             current_app.logger.info("Result of distributed_timestamp:\n" + str(result))
