@@ -62,15 +62,15 @@ class BasicsTestCase(unittest.TestCase):
 
         self.app.logger.info("Testing the web interface for the Timestamp Extension:")
         print("Testing the web interface for the Timestamp Extension:")
-        # TODO does not work yet since on post the COntent-Type and the data is not really transmitted.
-        resp = self.client.post('/timestamp', data=post_data_json, content_type="application/json", follow_redirects=True)
+        # TODO does not work yet since on post the Content-Type and the data is not really transmitted.
+        resp = self.client.post('/timestamp', data=post_data_json, content_length=len(post_data_json), content_type="application/json", follow_redirects=True)
         self.app.logger.info("    Response is: " + str(resp))
         print("    Response is: " + str(resp))
         print("    " + str(resp.headers))
         # TODO now tests whether it is correct json
         print("    Testing that non json data returns 415 error")
         self.assertEqual(resp.status_code, 415)
-        
+
         """with requests.Session() as sess:
             print("    Starting request")
             resp = sess.send(pre_req)
