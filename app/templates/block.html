@@ -15,9 +15,7 @@
     cursor: wait;
     }
 </style>
-<div class="page-header">
-    <h6 class="text-right">Hello, <mark>{% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</mark></h6>
-</div>
+
 
 <script type="text/javascript">
   function loading(){
@@ -42,9 +40,12 @@
 <div id="loading"></div>
 <div id="content">
 
+<div class="page-header">
+    <h6 class="text-right">Hello, <mark>{% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</mark></h6>
+</div>
   <div class="tab-content">
     <div id="home" class="tab-pane fade in active">
-      <h3>Blocked Articles</h3>
+      <h3>Find a Blocked Article for a location</h3>
       <p>Please provide a URL in order to find out if it is blocked.</p>
         {% if current_user.can(Permission.WRITE_ARTICLES) %}
         {{ wtf.quick_form(form, button_map={'submit':'primary'}) }}
