@@ -703,19 +703,23 @@ def timestamp_api():
     """
     header = request.headers
     current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
-
+    print("received Post \n" + str(request.headers))
     # change app config to testing in order to disable flashes or messages.
     testing = current_app.config["TESTING"]
     current_app.config["TESTING"] = True
     response = Response()
     response.content_type = 'application/json'
-    current_app.logger.info("The data" + request)
-    extension_html = request.get_json(force=True)
-    current_app.logger.info(extension_html)
-    current_app.logger.info(extension_html.body)
+    print("The data is:" + str(request))
+    current_app.logger.info("The data" + str(request.content_length))
+    extension_html = request.get_data(as_text=True)
+    print("Did json")
+    print(type(extension_html))
+    print(dir(extension_html))
+    print(extension_html)
     try:
         if header['Content-Type'] == 'application/json':
-            current_app.logger.info("Content type is json:\n" + str(request.get_json()))
+            print("THe HTML \n" + extension_html)
+            current_app.logger.info("Content type is json:\n" + str(request.data))
             post_data = request.get_json()
             url = post_data["URL"]
             # TODO determine location by ip address and hand over to distributed_timestamp
