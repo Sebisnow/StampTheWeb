@@ -32,7 +32,7 @@
             <ul class="nav navbar-nav">
                 <li class="{{ home_page}}"><a id="main.index" href="{{ url_for('main.index') }}">Submit URL</a></li>
                 {% if current_user.is_authenticated %}
-                <li class="{{ comp_page}}"><a id="main.compare" href="{{ url_for('main.compare') }}">Compare</a></li>
+                <li class="{{ comp_page}}"><a id="main.compare" href="{{ url_for('main.compare') }}">Browse</a></li>
                 <li class="dropdown {{ regular }}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Schedule <b class="caret"></b>

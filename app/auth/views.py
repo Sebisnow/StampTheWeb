@@ -37,6 +37,17 @@ def login():
         flash('Invalid username or password.')
     return render_template('auth/login.html', form=form)
 
+@auth.route('/login_to_confirm/<token>', methods=['GET', 'POST'])
+def login_to_confirm(token):
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        if user is not None and user.verify_password(form.password.data):
+            login_user(user, form.remember_me.data)
+            return redirect(url_for('auth.confirm', token=token))
+        flash('Invalid username or password.')
+    return render_template('auth/login.html', form=form)
+
 
 @auth.route('/logout')
 @login_required
@@ -64,11 +75,13 @@ def register():
 
 
 @auth.route('/confirm/<token>')
-@login_required
 def confirm(token):
-    if current_user.confirmed:
+    if current_user.is_anonymous:
+        flash('Please Login first for account validation!')
+        return redirect(url_for('auth.login_to_confirm', token=token))
+    elif current_user.confirmed:
         return redirect(url_for('main.index'))
-    if current_user.confirm(token):
+    elif current_user.confirm(token):
         flash('You have confirmed your account. Thanks!')
     else:
         flash('The confirmation link is invalid or has expired.')
