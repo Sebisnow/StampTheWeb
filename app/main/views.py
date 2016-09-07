@@ -715,7 +715,7 @@ def timestamp_api():
         print("The data is of json format")
         try:
             post_data = request.get_json()
-            current_app.logger.info("The data that was posted: \n" + str(post_data))
+            current_app.logger.info("The data that was posted: \n" + str(post_data.keys()))
             url = post_data["URL"]
             current_app.logger.info("Starting distributed timestamp by extension call")
             print("starting dist timestamp with the following data:URL: {}\nHTML:\n{}".format(post_data["URL"],
