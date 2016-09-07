@@ -65,7 +65,9 @@
 
 
 </script>
-
+<div class="page-header">
+    <h6 class="text-right">Hello, <mark>{% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</mark></h6>
+</div>
 <div id="loading"></div>
 <div id="content">
 

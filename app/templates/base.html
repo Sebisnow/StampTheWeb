@@ -9,7 +9,7 @@
 {% block head %}
 {{ super() }}
 <!--<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon">  -->
-<link rel="shortcut icon" href="/pdf/favicon.png" type="image/x-icon">
+<link rel="shortcut icon" href="/pdf/logo.png" type="image/x-icon">
 <!--<link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon"> -->
 <link rel="icon" href="/pdf/favicon.png" type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
@@ -26,31 +26,33 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">Stamp The Web</a>
+            <img src="/pdf/logo.png" height="50" width="55" align="center">
+            <a class="navbar-brand" href="{{ url_for('main.index') }}"></a>
+
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li class="{{ home_page}}"><a id="main.index" href="{{ url_for('main.index') }}">Submit URL</a></li>
+                <li class="{{ home_page}}"><a id="main.index" href="{{ url_for('main.index') }}"> Submit Time-stamp <span class="glyphicon glyphicon-time"></span></a></li>
                 {% if current_user.is_authenticated %}
-                <li class="{{ comp_page}}"><a id="main.compare" href="{{ url_for('main.compare') }}">Browse</a></li>
+                <li class="{{ comp_page}}"><a id="main.compare" href="{{ url_for('main.compare') }}">Browse Time-stamps <span class="glyphicon glyphicon-search"></span></a></li>
                 <li class="dropdown {{ regular }}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Schedule <b class="caret"></b>
+                            Schedule <span class="glyphicon glyphicon-calendar"></span><b class="caret"></b>
                         </a>
                     <ul class="dropdown-menu">
-                        <li class="{{ reg_page }}"><a href="{{ url_for('main.regular') }}" >Schedule recurring URL timestamps</a></li>
-                        <li class="{{ reg_sch }}"><a href="{{ url_for('main.compare_country') }}" >Schedule recurring URL timestamps from different locations</a></li>
+                        <li class="{{ reg_page }}"><a href="{{ url_for('main.regular') }}" >Schedule recurring URL timestamps <span class="glyphicon glyphicon-calendar"></span></a></li>
+                        <li class="{{ reg_sch }}"><a href="{{ url_for('main.compare_country') }}" >Schedule recurring URL timestamps from different locations <span class="glyphicon glyphicon-map-marker"></span></a></li>
                     </ul>
                 <li class="dropdown {{ block_page }}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            Where is it blocked?<b class="caret"></b>
+                            Where is it blocked? <span class="glyphicon glyphicon-ban-circle"></span><b class="caret"></b>
                         </a>
                     <ul class="dropdown-menu">
-                        <li class="{{ block_block }}"><a href="{{ url_for('main.block') }}">Find for a location</a></li>
-                        <li class="{{ block_country }}"><a href="{{ url_for('main.block_country') }}" >Find Block map</a></li>
+                        <li class="{{ block_block }}"><a href="{{ url_for('main.block') }}">Find for a location <span class="glyphicon glyphicon-map-marker"></span></a></li>
+                        <li class="{{ block_country }}"><a href="{{ url_for('main.block_country') }}" >Find Block map <span class="glyphicon glyphicon-globe"></span></a></li>
                     </ul>
                 </li>
-                <li class="{{ stat_page }}"><a href="{{ url_for('main.statistics') }}">Statistics</a></li>
+                <li class="{{ stat_page }}"><a href="{{ url_for('main.statistics') }}">Statistics <span class="glyphicon glyphicon-stats"></span></a></li>
                 {% endif %}
             </ul>
             <ul class="nav navbar-nav navbar-right">
@@ -58,27 +60,29 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                         <img src="{{ current_user.gravatar(size=18) }}">
-                        Account <b class="caret"></b>
+                        <span class="glyphicon glyphicon-wrench"></span> Account <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile</a></li>
-                        <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
-                        <li><a href="{{ url_for('auth.change_email_request') }}">Change Email</a></li>
-                        <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
+                        <li><a href="{{ url_for('main.user', username=current_user.username) }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+                        <li><a href="{{ url_for('auth.change_password') }}"><span class="glyphicon glyphicon-lock"></span> Change Password</a></li>
+                        <li><a href="{{ url_for('auth.change_email_request') }}"><span class="glyphicon glyphicon-envelope"></span> Change Email</a></li>
+                        <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> Log Out</a></li>
                     </ul>
                 </li>
                 {% else %}
-                <li><a href="{{ url_for('auth.register') }}">Register for Free</a></li>
-                <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
+                <li><a href="{{ url_for('auth.register') }}"><span class="glyphicon glyphicon-user"></span> Register for Free</a></li>
+                <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> Log In</a></li>
                 {% endif %}
             </ul>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 
 {% block content %}
+
 <div class="container">
     {% for message in get_flashed_messages() %}
     <div class="alert alert-warning">

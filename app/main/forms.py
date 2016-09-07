@@ -91,10 +91,11 @@ class PostCountry(Form):
     choice_switcher = RadioField(
         'Country?',
         [validators.Required()],
-        choices=[('china', 'Check if it is Blocked in China'),
-                 ('usa', 'Check if it is Blocked in USA'),
-                 ('uk', 'Check if it is Blocked in UK'),
-                 ('russia', 'Check if it is Blocked in Russia')], default='china'
+        choices=[('default', 'Compare with the Default location'),
+                 ('china', 'Compare with the page in China'),
+                 ('usa', 'Compare with the page in USA'),
+                 ('uk', 'Compare with the page in UK'),
+                 ('russia', 'Compare with the page in Russia')], default='default'
     )
     #china = BooleanField('Compare with the page in China',
     #                     render_kw={"title": "If no location is selected, then Default Location would be used."})
@@ -112,7 +113,7 @@ class PostCountry(Form):
 class PostBlock(Form):
     body = TextAreaField("Add a Title (Optional)", render_kw={"title": "Titles help other users to"
                                                                        " more quickly identify news articles."})
-    urlSite = URLField("Enter URL to create a timestamp", validators=[url(), Required()],
+    urlSite = URLField("Enter URL to check if it is blocked", validators=[url(), Required()],
                        render_kw={"placeholder": "http://www.example.com"})
     choice_switcher = RadioField(
         'Country?',
@@ -136,7 +137,7 @@ class FormSubmit(Form):
 
 class PostVerify(Form):
     urlSite = TextField("Search by URL or text", validators=[Required()], render_kw={"placeholder": "search"})
-    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
+    submit = SubmitField('Search', render_kw={"onclick": "loading()", "title": "some Title"})
 
 
 class SearchPost(Form):
