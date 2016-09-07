@@ -8,12 +8,15 @@ import os
 import logging
 from bs4 import BeautifulSoup as Bs
 from readability import Document
+import app.main.proxy_util as prox
+
 
 proxy = "5.135.176.41:3123"
 url = "http://www.theverge.com/2016/8/12/12444920/no-mans-sky-travel-journal-day-four-ps4-pc"
 path = "/home/sebastian/testing-stw/temporary/1/"
 base_path = "/home/sebastian/testing-stw/"
 downloader.basePath = base_path
+prox.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
 html = """
 <html>
   <head>
