@@ -162,11 +162,11 @@ class DownloadThread(threading.Thread):
 
         # self.proxy is None if html was given to DownloadThread.
         self.images = self.load_images(soup, self.proxy)
-        with open(self.path + "/page_source.html", "w") as f:
+        with open(self.path + "page_source.html", "w") as f:
             f.write(self.html)
 
-        archive = zipfile.ZipFile(self.path + '/STW.zip', "w", zipfile.ZIP_DEFLATED)
-        archive.write(self.path + "/page_source.html")
+        archive = zipfile.ZipFile(self.path + 'STW.zip', "w", zipfile.ZIP_DEFLATED)
+        archive.write(self.path + "page_source.html")
         for img in self.images:
             print("Thread{} Path to image: {}".format(str(self.images.get(img).get("filename")), self.threadID))
             archive.write(self.path + self.images.get(img).get("filename"))
