@@ -305,3 +305,18 @@ class Warcs(db.Model):
     ID = db.Column(db.Integer, primary_key=True)
     url = db.Column(db.Text, index=True, unique=True)
     ipns = db.Column(db.Text)
+
+
+class Country(db.Model):
+    """
+    Representation of Database Table 'countries' that serves as a lookup table for Countries and sums up how many
+    articles were blocked in theses countries.
+    countries.
+
+    :author: Sebastian
+    """
+    __tablename__ = 'countries'
+    ID = db.Column(db.Integer, primary_key=True)
+    country_code = db.Column(db.String(2), index=True, unique=True)
+    country_name = db.Column(db.String(44), unique = True)
+    block_count = db.Column(db.Integer,)
