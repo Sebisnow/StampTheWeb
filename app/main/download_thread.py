@@ -28,7 +28,7 @@ urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 js_path = os.path.abspath(os.path.expanduser("~/") + '/bin/phantomjs/lib/phantom/bin/phantomjs')
 base_path = 'app/pdf/'
-proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
+proxy_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static/")
 
 negative_tag_classes = ["ad", "advertisement", "gads", "iqad", "anzeige", "dfp_ad"]
 negative_tags = re.compile("aside", re.I)
@@ -67,13 +67,16 @@ class DownloadThread(threading.Thread):
         self.basepath = basepath
         self.path = basepath + "temporary"
         self.ipfs_hash = None
+        self.title = None
         self.images = dict()
         self.error = False
-
-        if not self.html:
-            app.logger.info("Using Proxy: " + prox)
+        if self.html is None:
+            self.extension_triggered = False
+            app.logger.info("Thread{} is using Proxy: {}".format(self.threadID, prox))
             self.phantom = self.initialize(prox)
-
+        else:
+            self.extension_triggered = True
+            app.logger.info("Thread{} was extension triggered!".format(self.threadID))
         if not os.path.exists(self.path):
             try:
                 os.mkdir(self.path)
@@ -85,8 +88,8 @@ class DownloadThread(threading.Thread):
         """else:
             shutil.rmtree(self.path)
             os.mkdir(self.path)"""
-        self.path = self.path + "/" + str(thread_id) + "/"
-        app.logger.info("initialized a new Thread:" + str(self.threadID))
+        self.path = "{}/{}/".format(self.path, str(thread_id))
+        app.logger.info("Initialized a new Thread: {}".format(str(self.threadID)))
         if os.path.exists(self.path):
             shutil.rmtree(self.path)
         os.mkdir(self.path)
@@ -156,7 +159,7 @@ class DownloadThread(threading.Thread):
             self.phantom.get(self.url)
             self.html = str(self.phantom.page_source)
 
-        self.html, title = preprocess_doc(self.html)
+        self.html, self.title = preprocess_doc(self.html)
         print("Thread{} Preprocessed doc! self.html now is: {}".format(self.threadID, type(self.html)))
         soup = BeautifulSoup(self.html, "lxml")
 
@@ -168,7 +171,7 @@ class DownloadThread(threading.Thread):
         archive = zipfile.ZipFile(self.path + 'STW.zip', "w", zipfile.ZIP_DEFLATED)
         archive.write(self.path + "page_source.html")
         for img in self.images:
-            print("Thread{} Path to image: {}".format(str(self.images.get(img).get("filename")), self.threadID))
+            print("Thread{} Path to image: {}".format(self.threadID, str(self.images.get(img).get("filename"))))
             archive.write(self.path + self.images.get(img).get("filename"))
         archive.close()
         # Add folder to ipfs # TODO best place to zip files if necessary
