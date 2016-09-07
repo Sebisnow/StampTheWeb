@@ -68,6 +68,7 @@ class DownloadThread(threading.Thread):
         self.path = basepath + "temporary"
         self.ipfs_hash = None
         self.images = dict()
+        self.error = False
 
         if not self.html:
             app.logger.info("Using Proxy: " + prox)
@@ -127,15 +128,19 @@ class DownloadThread(threading.Thread):
             self.download()
         except TimeoutException:
             failed = True
-            # TODO not reachable from this country - tried two proxies
+
             app.logger.error("Couldn't reach website through proxy, trying again with new proxy")
         if failed:
             self.initialize(get_one_proxy(self.prox_loc))
             try:
                 self.download()
             except TimeoutException:
+                # TODO not reachable from this country - tried two proxies
                 app.logger.error("Couldn't reach website through two proxies, unreachable from loc {}"
                                  .format(self.prox_loc))
+                self.error = True
+                raise TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
+                                       .format(self.prox_loc))
 
     def download(self):
         """
@@ -163,7 +168,7 @@ class DownloadThread(threading.Thread):
         archive = zipfile.ZipFile(self.path + '/STW.zip', "w", zipfile.ZIP_DEFLATED)
         archive.write(self.path + "/page_source.html")
         for img in self.images:
-            print("Thread{} Path to image: " + str(self.images.get(img).get("filename")).format(self.threadID))
+            print("Thread{} Path to image: {}".format(str(self.images.get(img).get("filename")), self.threadID))
             archive.write(self.path + self.images.get(img).get("filename"))
         archive.close()
         # Add folder to ipfs # TODO best place to zip files if necessary
