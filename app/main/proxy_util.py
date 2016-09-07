@@ -7,12 +7,14 @@ import os
 from proxybroker import Broker
 from random import randrange
 
-proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
+# For testing please override the path to the proxy list with the actual one. eg.:
+# proxy_util.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
+proxy_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static/")
 
 
 def get_proxy_location(ip_address):
     """
-    Looks up the location of a IP Address and returns the two-letter ISO country code.
+    Looks up the location of an IP Address and returns the two-letter ISO country code.
 
     :author: Sebastian
     :param ip_address: The IP Address to get the location for.

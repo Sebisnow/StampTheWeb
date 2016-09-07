@@ -1,7 +1,7 @@
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, BooleanField, SelectField, \
-    SubmitField, TextField, RadioField
-from wtforms.validators import Required, Length, Email, Regexp
+    SubmitField, RadioField
+from wtforms.validators import Length, Email, Regexp, DataRequired
 from wtforms import ValidationError, validators
 from flask_pagedown.fields import PageDownField
 from flask_wtf.file import FileField
@@ -11,7 +11,7 @@ from wtforms.validators import url
 
 
 class NameForm(Form):
-    name = StringField('What is your name?', validators=[Required()])
+    name = StringField('What is your name?', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -23,12 +23,12 @@ class EditProfileForm(Form):
 
 
 class EditProfileAdminForm(Form):
-    email = StringField('Email', validators=[Required(), Length(1, 64),
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64),
                                              Email()], render_kw={"placeholder": "email@example.com"})
     username = StringField('Username', validators=[
-        Required(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
-                                          'Usernames must have letters only, '
-                                          'numbers, dots or underscores')])
+        DataRequired(), Length(1, 64), Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
+                                              'Usernames must have letters only, '
+                                              'numbers, dots or underscores')])
     confirmed = BooleanField('Confirmed')
     role = SelectField('Role', coerce=int)
     name = StringField('Real name', validators=[Length(0, 64)])
@@ -56,7 +56,7 @@ class EditProfileAdminForm(Form):
 class PostForm(Form):
     body = TextAreaField("Add a Title (Optional)",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    urlSite = URLField("Enter URL to create its timestamp", validators=[url(), Required()],
+    urlSite = URLField("Enter URL to create its timestamp", validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
     submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
@@ -70,10 +70,10 @@ class PostEdit(Form):
 class PostFreq(Form):
     body = TextAreaField("Add a Title (Optional)",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    url = URLField("Enter URL to be regularly timestamped", validators=[url(), Required()],
+    url = URLField("Enter URL to be regularly timestamped", validators=[url(), DataRequired()],
                    render_kw={"placeholder": "http://www.example.com"})
     frequency = IntegerField('The frequency (in days) for which timestamps should be created:',
-                             [validators.DataRequired('num required.'),
+                             [DataRequired('num required.'),
                               validators.NumberRange(min=1, max=30)], default=3)
     email = EmailField('Notify me in case there is any change in content. (email required)',
                        render_kw={"placeholder": "email@example.com"})
@@ -83,14 +83,14 @@ class PostFreq(Form):
 class PostCountry(Form):
     body = TextAreaField("Add a Title (Optional)",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    urlSite = URLField("Enter URL to be regularly timestamped", validators=[url(), Required()],
+    urlSite = URLField("Enter URL to be regularly timestamped", validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
     frequency = IntegerField('The frequency (in days) for which timestamps should be created:',
-                             [validators.DataRequired('num required.'),
+                             [DataRequired('num required.'),
                               validators.NumberRange(min=1, max=30)], default=3)
     choice_switcher = RadioField(
         'Country?',
-        [validators.Required()],
+        [DataRequired()],
         choices=[('default', 'Compare with the Default location'),
                  ('china', 'Compare with the page in China'),
                  ('usa', 'Compare with the page in USA'),
@@ -113,11 +113,11 @@ class PostCountry(Form):
 class PostBlock(Form):
     body = TextAreaField("Add a Title (Optional)", render_kw={"title": "Titles help other users to"
                                                                        " more quickly identify news articles."})
-    urlSite = URLField("Enter URL to check if it is blocked", validators=[url(), Required()],
+    urlSite = URLField("Enter URL to check if it is blocked", validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
     choice_switcher = RadioField(
         'Country?',
-        [validators.Required()],
+        [DataRequired()],
         choices=[('china', 'Check if it is Blocked in China'),
                  ('usa', 'Check if it is Blocked in USA'),
                  ('uk', 'Check if it is Blocked in UK'),
@@ -136,17 +136,17 @@ class FormSubmit(Form):
 
 
 class PostVerify(Form):
-    urlSite = TextField("Search by URL or text", validators=[Required()], render_kw={"placeholder": "search"})
+    urlSite = StringField("Search by URL or text", validators=[DataRequired()], render_kw={"placeholder": "search"})
     submit = SubmitField('Search', render_kw={"onclick": "loading()", "title": "some Title"})
 
 
 class SearchPost(Form):
-    urlSite = TextField("", validators=[Required()], render_kw={"placeholder": "Search"})
+    urlSite = StringField("", validators=[DataRequired()], render_kw={"placeholder": "Search"})
     submit = SubmitField('Search', render_kw={"onclick": "loading()"})
 
 
 class URL_Status(Form):
-    urlSite = URLField("Enter URL to check where it is blocked?", validators=[url(), Required()],
+    urlSite = URLField("Enter URL to check where it is blocked?", validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
     submit = SubmitField('Search', render_kw={"onclick": "loading()"})
 
@@ -154,7 +154,7 @@ class URL_Status(Form):
 class SearchOptions(Form):
     choice_switcher = RadioField(
         'Country?',
-        [validators.Required()],
+        [DataRequired()],
         choices=[('china', 'Compare with same page in China'),
                  ('usa', 'Compare with same page in USA'),
                  ('uk', 'Compare with same page in UK'),
@@ -168,7 +168,7 @@ class SearchOptions(Form):
 
 
 class PostHash(Form):
-    hashValue = PageDownField("Enter Hash to create a timestamp", validators=[Required()])
+    hashValue = PageDownField("Enter Hash to create a timestamp", validators=[DataRequired()])
     submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
@@ -177,7 +177,7 @@ class UploadFile(Form):
 
 
 class PostText(Form):
-    body = PageDownField("Enter Text to create its Timestamp?", validators=[Required()])
+    body = PageDownField("Enter Text to create its Timestamp?", validators=[DataRequired()])
     submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 

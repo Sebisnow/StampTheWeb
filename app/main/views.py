@@ -1,5 +1,7 @@
 from flask import abort, flash, current_app, render_template, request, redirect, url_for, Response
 from flask_login import login_required, current_user
+
+from app.main import proxy_util
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, PostVerify, PostFreq, \
     SearchPost, SearchOptions, PostBlock, PostCountry, URL_Status
@@ -709,22 +711,20 @@ def timestamp_api():
     current_app.config["TESTING"] = True
     response = Response()
     response.content_type = 'application/json'
-    print("The data is:" + str(request))
-    current_app.logger.info("The data" + str(request))
-    extension_html = json.loads(request.data)
-    current_app.logger.info("Did json")
-    current_app.logger.info(str(extension_html))
-    current_app.logger.info(dir(extension_html))
-    current_app.logger.info(extension_html["body"])
-    try:
-        if header['Content-Type'] == 'application/json':
-            current_app.logger.info("Content type is json:\n" + str(request.data))
+    if header['content-type'] == 'application/json':
+        print("The data is of json format")
+        try:
             post_data = request.get_json()
+            current_app.logger.info("The data that was posted: \n" + str(post_data))
             url = post_data["URL"]
             current_app.logger.info("Starting distributed timestamp by extension call")
-            # TODO determine location by ip address and hand over to distributed_timestamp
+            print("starting dist timestamp with the following data:URL: {}\nHTML:\n{}".format(post_data["URL"],
+                                                                                              type(post_data["body"])))
+            # user_location = proxy_util.get_proxy_location(header["host"])
+            # TODO determine location by ip address and hand over to distributed_timestamp to store in db for stats
             result = downloader.distributed_timestamp(post_data["URL"], post_data["body"])
             current_app.logger.info("Result of distributed_timestamp:\n" + str(result))
+            print("Result of distributed_timestamp:\n" + str(result))
 
             if result.originStampResult and result.originStampResult.status_code == 200:
                 current_app.logger.info("Originstamp submission succeeded")
@@ -767,7 +767,6 @@ def timestamp_api():
                     db.session.add(post_new)
                     db.session.commit()
                     current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
-
             else:
                 if result.hashValue:
                     response.headers["json"] = result.hashValue
@@ -778,23 +777,21 @@ def timestamp_api():
                     response.status_code = 452
                     response.reason = "Really deep internal server error. " \
                                       "Timestamp could not be created."
+        except Exception as e:
+            # DO NOT  YET! Catch error and continue, but log the error
+            current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
+                                     str(e.args) + "\n\n Response so far was " + str(response))
+            response.status_code = 481
+            response.reason = "Error in try catch block!"
 
-        else:
-            response.status_code = 415
-            response.reason = "Unsupported Media Type. Only JSON Format allowed!"
+        finally:
 
-    except FileNotFoundError as e:
-        # DO NOT  YET! Catch error and continue, but log the error
-        current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
-                                 str(e.args) + "\n\n Response so far was " + str(response))
-        response.status_code = 481
-        response.reason = "Error in try catch block!"
-
-    finally:
-
-        current_app.logger.info("cleaning up and returning response")
-        current_app.config["TESTING"] = testing
-        return response
+            current_app.logger.info("cleaning up and returning response")
+            current_app.config["TESTING"] = testing
+            return response
+    else:
+        response.status_code = 415
+        response.reason = "Unsupported Media Type. Only JSON Format allowed!"
 
 
 @main.route('/timestamp/<timestamp>', methods=['GET'])

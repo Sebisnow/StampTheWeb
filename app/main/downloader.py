@@ -696,30 +696,36 @@ def distributed_timestamp(url, html_body=None, proxies=None):
     :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
     originStampResult, hashValue, webTitle and errors(defaults to None).
     """
-
+    print("timestamping")
     if not re.match(urlPattern, url):
         return ReturnResults(None, None, None, OriginstampError("The entered URL does not correspond "
                                                                 "to URL specifications", 501))
     extension_triggered = False
     if html_body:
         extension_triggered = True
+        print("Triggered by extension!")
     proxy_list = proxy_util.get_proxy_list()
 
+    print("proxy list fetched")
     threads = []
     if proxies is None or len(proxies) == 0:
+        print("no manual proxies set fetch them from list")
+        # TODO error is thrown in the following (string index out of range)
         # no manual proxies set fetch them from list
         if extension_triggered:
-            threads.append(run_thread(url, 1, html_body))
+            threads.append(run_thread(url, 1, html=html_body))
         else:
             threads.append(run_thread(url, 1, proxy_list))
-
+        print("first threads started")
         for n in range(2, 6):
             threads.append(run_thread(url, n, proxy_list))
+        print("Threads created: {}".format(threads))
 
     else:
+        print("set proxies manually by input")
         # manual proxies set
         if extension_triggered:
-            threads.append(run_thread(url, 1, html_body))
+            threads.append(run_thread(url, 1, html=html_body))
         else:
             threads.append(run_thread(url, 1, [proxies[0]]))
         # if there are entries in the proxies use them
@@ -732,6 +738,7 @@ def distributed_timestamp(url, html_body=None, proxies=None):
         # create the rest of the threads to fill up to 5 threads with proxy_list
         for n in range(cnt, 6):
             threads.append(run_thread(url, n, proxy_list))
+        print("proxies set manually and threads created: {}".format(threads))
     # join all threads and return the DownloadThread with the most votes
     joined_threads, max_index = join_threads(threads)
 
@@ -783,8 +790,13 @@ def join_threads(threads):
     # TODO store different results
     votes = [0 for x in results]
     for num in range(0, len(results)):
+        if results[num].error:
+            # An error occurred in this thread, site unreachable from this location.
+            # TODO Store to db
+            app.logger.info("The url ({}) is unreachable from {}.".format(results[num].url, results[num].prox_loc))
+            continue
         for cnt in range(0, len(results)):
-            if results[num].ipfs_hash == results[cnt].ipfs_hash:
+            if results[num].threadID != results[cnt].threadID and results[num].ipfs_hash == results[cnt].ipfs_hash:
                 votes[num] += 1
     app.logger.info(votes)
     print("Joined Threads: {}".format(votes))

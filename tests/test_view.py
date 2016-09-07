@@ -1,14 +1,15 @@
 import os
 import unittest
-import tempfile
-import requests
 from app.main import downloader as down
-from app.main import views as view
 from app import create_app, db
 import ipfsApi as ipfs
 import logging
+import json
 from flask import request
 from .post_data import post_data_json
+import app.main.proxy_util as prox
+
+prox.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
 
 
 class BasicsTestCase(unittest.TestCase):
@@ -49,13 +50,15 @@ class BasicsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_extension_api_basic(self):
-        with self.app.test_request_context('/timestamp', method='POST'):
+        with self.app.test_request_context('/timestamp', method='POST', content_type='application/json', data=post_data_json):
             # now you can do something with the request until the
             # end of the with block, such as basic assertions:
+            print(request.headers["content-type"])
+            print(request.get_json())
             self.assertEqual(request.path, '/timestamp')
             self.assertEqual(request.method, 'POST')
 
-    def test_extension_api(self):
+    def test_extension_api_duplicate_submission(self):
         """
         Simulate the behaviour of the Timestamp extension that sends a POST request.
         """
@@ -66,13 +69,24 @@ class BasicsTestCase(unittest.TestCase):
         resp = self.client.post('/timestamp', data=post_data_json, content_length=len(post_data_json), content_type="application/json", follow_redirects=True)
         self.app.logger.info("    Response is: " + str(resp))
         print("    Response is: " + str(resp))
-        print("    " + str(resp.headers))
-        # TODO now tests whether it is correct json
-        print("    Testing that non json data returns 415 error")
-        self.assertEqual(resp.status_code, 415)
+        print("    Header: " + str(resp.headers))
+        self.assertEqual(resp.status_code, 200)
 
         """with requests.Session() as sess:
             print("    Starting request")
             resp = sess.send(pre_req)
             print("    Response is: " + resp.status_code)
             self.assertTrue(resp.status_code == 200)"""
+
+    def test_extension_api_post_data(self):
+        with self.app.test_request_context('/timestamp', method='POST', content_type='application/json',
+                                           data=post_data_json):
+            # now you can do something with the request until the
+            # end of the with block, such as basic assertions:
+            print(request.headers["content-type"])
+            posted_data = request.get_json()
+            print(type(posted_data))
+            json_of_data = json.loads(post_data_json)
+            print(type(json_of_data))
+            print(json_of_data["body"])
+            self.assertEqual(posted_data['body'], json_of_data['body'])
