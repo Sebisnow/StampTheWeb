@@ -709,15 +709,16 @@ def timestamp_api():
     current_app.config["TESTING"] = True
     response = Response()
     response.content_type = 'application/json'
-    print("The data is:" + str(request))
-    current_app.logger.info("The data" + str(request))
-    extension_html = json.loads(request.data)
-    current_app.logger.info("Did json")
-    current_app.logger.info(str(extension_html))
-    current_app.logger.info(dir(extension_html))
-    current_app.logger.info(extension_html["body"])
-    try:
-        if header['Content-Type'] == 'application/json':
+    if header['Content-Type'] == 'application/json':
+        print("The data is:" + str(request))
+        current_app.logger.info("The data" + str(request))
+        extension_html = request.get_json()
+        current_app.logger.info("Did json")
+        current_app.logger.info(str(extension_html))
+        current_app.logger.info(dir(extension_html))
+        current_app.logger.info(extension_html["body"])
+        try:
+
             current_app.logger.info("Content type is json:\n" + str(request.data))
             post_data = request.get_json()
             url = post_data["URL"]
@@ -767,7 +768,6 @@ def timestamp_api():
                     db.session.add(post_new)
                     db.session.commit()
                     current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
-
             else:
                 if result.hashValue:
                     response.headers["json"] = result.hashValue
@@ -778,23 +778,21 @@ def timestamp_api():
                     response.status_code = 452
                     response.reason = "Really deep internal server error. " \
                                       "Timestamp could not be created."
+        except FileNotFoundError as e:
+            # DO NOT  YET! Catch error and continue, but log the error
+            current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
+                                     str(e.args) + "\n\n Response so far was " + str(response))
+            response.status_code = 481
+            response.reason = "Error in try catch block!"
 
-        else:
-            response.status_code = 415
-            response.reason = "Unsupported Media Type. Only JSON Format allowed!"
+        finally:
 
-    except FileNotFoundError as e:
-        # DO NOT  YET! Catch error and continue, but log the error
-        current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
-                                 str(e.args) + "\n\n Response so far was " + str(response))
-        response.status_code = 481
-        response.reason = "Error in try catch block!"
-
-    finally:
-
-        current_app.logger.info("cleaning up and returning response")
-        current_app.config["TESTING"] = testing
-        return response
+            current_app.logger.info("cleaning up and returning response")
+            current_app.config["TESTING"] = testing
+            return response
+    else:
+        response.status_code = 415
+        response.reason = "Unsupported Media Type. Only JSON Format allowed!"
 
 
 @main.route('/timestamp/<timestamp>', methods=['GET'])
