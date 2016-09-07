@@ -9,6 +9,9 @@ import pdfkit
 import queue
 import threading
 import csv
+from sqlalchemy import or_, and_
+from flask_login import current_user
+
 from app.main import download_thread as d_thread
 from random import randrange
 from flask import flash
@@ -16,6 +19,8 @@ from flask import current_app as app
 from urllib.parse import urlparse
 from app.main.download_thread import DownloadThread
 from app.main import proxy_util
+from app.models import Country, Post
+from .. import db
 
 
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
@@ -676,7 +681,7 @@ def save_render_zip_submit(html_text, sha256, url, title):
     return originstamp_result
 
 
-def distributed_timestamp(url, html_body=None, proxies=None):
+def distributed_timestamp(url, html_body=None, proxies=None, user="Bot"):
     """
     Perform a distributed timestamp where not only one file is taken into account, but several HTMLs retrieved by
     proxies from different locations. 5 pseudo random locations from the proxy list are used. Optionally default
@@ -692,7 +697,9 @@ def distributed_timestamp(url, html_body=None, proxies=None):
     :param html_body: The body of the site to timestamp.
     :param proxies: A list of max 5 Proxies that should be taken
      into account for the distributed timestamp.
-    Defaults to None
+     Defaults to None
+    :param user: The username of the user that started the distributed timestamp. If the call came from the extension
+     and no user was sent the user will be set to Bot.
     :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
     originStampResult, hashValue, webTitle and errors(defaults to None).
     """
@@ -740,8 +747,14 @@ def distributed_timestamp(url, html_body=None, proxies=None):
             threads.append(run_thread(url, n, proxy_list))
         print("proxies set manually and threads created: {}".format(threads))
     # join all threads and return the DownloadThread with the most votes
-    joined_threads, max_index = join_threads(threads)
+    joined_threads, votes = join_threads(threads)
 
+    if max(votes) == 0:
+        return check_threads(joined_threads)
+
+    submit_threads_to_db(joined_threads, user)
+
+    max_index = votes.index(max(votes))
     originstamp_result = submit(joined_threads[max_index].ipfs_hash, joined_threads[max_index].url)
     app.logger.info("The result from Originstamp:{}".format(originstamp_result))
     # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
@@ -790,9 +803,10 @@ def join_threads(threads):
     # TODO store different results
     votes = [0 for x in results]
     for num in range(0, len(results)):
-        if results[num].error:
+        if results[num].error or results[num].ipfs_hash is None:
             # An error occurred in this thread, site unreachable from this location.
             # TODO Store to db
+            print("The url ({}) is unreachable from {}.".format(results[num].url, results[num].prox_loc))
             app.logger.info("The url ({}) is unreachable from {}.".format(results[num].url, results[num].prox_loc))
             continue
         for cnt in range(0, len(results)):
@@ -800,7 +814,53 @@ def join_threads(threads):
                 votes[num] += 1
     app.logger.info(votes)
     print("Joined Threads: {}".format(votes))
-    return results, votes.index(max(votes))
+    return results, votes
+
+
+def check_threads(threads):
+    """
+    Checks the threads for the one to return. If
+
+    :author: Sebastian
+    :param threads: The joined thread objects from the distributed timestamp .
+    :return: All threads and as second parameter the index of the thread that should be taken as the timestamp and
+    returned to the user.
+    """
+    print("------------------------------\nAll Threads supposedly returned the same result"
+          "\n---------------------------")
+    return threads, 0
+
+
+def submit_threads_to_db(results, user=None):
+    """
+    SUbmits the results to db and
+    :param results:
+    """
+    for thread in results:
+        if thread.error:
+            country = Country.query.filter_by(country_code=thread.prox_loc)
+            country.block_count += 1
+            db.update(country)
+            db.commit()
+        else:
+            # TODO no such value: originstamp submission is still missing
+            add_post_to_db(thread.url, thread.html, thread.title, thread.ipfs_hash,
+                           thread.originstamp_result.originstamp_time, user)
+
+
+def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
+    already_exists = Post.query.filter(and_(Post.urlSite.like(url), Post.hashVal.like(sha256))).first()
+    if already_exists is not None:
+        post_new = already_exists
+    else:
+        if user is None:
+            post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
+                            origStampTime=originstamp_time, author=current_user._get_current_object())
+        else:
+            post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
+                            origStampTime=originstamp_time, author=user)
+        db.session.add(post_new)
+        db.session.commit()
 
 
 def main():
