@@ -11,8 +11,6 @@ import threading
 import csv
 from sqlalchemy import or_, and_
 from flask_login import current_user
-
-from app.main import download_thread as d_thread
 from random import randrange
 from flask import flash
 from flask import current_app as app
@@ -20,6 +18,7 @@ from urllib.parse import urlparse
 from app.main.download_thread import DownloadThread
 from app.main import proxy_util
 from app.models import Country, Post
+from app.main import download_thread as d_thread
 from .. import db
 
 
@@ -32,7 +31,6 @@ errorCaught = ""
 ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 
 apiPostUrl = 'http://www.originstamp.org/api/stamps'
-apiKey = '7be3aa0c7f9c2ae0061c9ad4ac680f5c '
 blockSize = 65536
 options = {'quiet': ''}
 
@@ -305,6 +303,7 @@ def calculate_hash_for_html_doc(html_text):
     # app.logger.info('HTML:' + text)
     return sha256, text, title
 
+
 def calculate_hash_for_html_block(html_text):
     """
     Calculate hash for given html document.
@@ -318,6 +317,7 @@ def calculate_hash_for_html_block(html_text):
     app.logger.info('Hash:' + sha256)
     # app.logger.info('HTML:' + text)
     return sha256, text
+
 
 def submit(sha256, title=None):
     """
@@ -446,7 +446,7 @@ def submitHash(sha256):
             return ReturnResults(originstamp_result, sha256, "")
         # raise OriginstampError('Could not submit sha256 to Originstamp', r)
     else:
-        return ReturnResults(originstamp_result, sha256, "")
+        return ReturnResults(originstamp_result, sha256, "", "submission failed")
 
 
 def getHashOfFile(fname):
@@ -833,7 +833,10 @@ def check_threads(threads):
 
 def submit_threads_to_db(results, user=None):
     """
-    SUbmits the results to db and
+    Submits the results to db and
+
+    :author: Sebastian
+    :param user:
     :param results:
     """
     for thread in results:
@@ -852,6 +855,7 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
     already_exists = Post.query.filter(and_(Post.urlSite.like(url), Post.hashVal.like(sha256))).first()
     if already_exists is not None:
         post_new = already_exists
+        # TODO
     else:
         if user is None:
             post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
