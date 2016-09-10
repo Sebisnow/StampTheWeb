@@ -1,7 +1,7 @@
 import threading
 import re
 import os
-import zipfile
+# import zipfile
 import requests
 import chardet
 from flask import current_app as app
@@ -27,7 +27,6 @@ url_pattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 js_path = os.path.abspath(os.path.expanduser("~/") + '/bin/phantomjs/lib/phantom/bin/phantomjs')
 base_path = 'app/pdf/'
-proxy_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static/")
 
 api_key = '7be3aa0c7f9c2ae0061c9ad4ac680f5c'
 api_post_url = 'http://www.originstamp.org/api/stamps'
@@ -79,20 +78,30 @@ class DownloadThread(threading.Thread):
             self.phantom = self.initialize(prox)
         else:
             self.extension_triggered = True
+            self.phantom = self.initialize(None)
+            
             app.logger.info("Thread{} was extension triggered!".format(self.threadID))
         if not os.path.exists(self.path):
             try:
                 os.mkdir(self.path)
             except FileNotFoundError:
-                # should ony be thrown and caught in testing mode!
-                self.path = os.path.abspath(os.path.expanduser("~/")) + "/testing-stw/temporary"
+                # should only be thrown and caught in testing mode!
+                app.logger.error("Path not found: {}".format(self.path))
+                if app.config["TESTING"]:
+                    self.path = os.path.abspath(os.path.expanduser("~/")) + "/testing-stw/temporary/"
+                else:
+                    self.path = "{}/StampTheWeb/{}temporary/".format(os.path.abspath(os.path.expanduser("~/")),
+                                                                     self.basepath)
+                    if not os.path.exists(self.path.rpartition("/")[0]):
+                        os.mkdir(self.path.rpartition("/")[0])
+
                 if not os.path.exists(self.path):
                     os.mkdir(self.path)
-        """else:
-            shutil.rmtree(self.path)
-            os.mkdir(self.path)"""
+
         self.path = "{}/{}/".format(self.path, str(thread_id))
         app.logger.info("Initialized a new Thread: {}".format(str(self.threadID)))
+
+        # remove temporary folder with thread id as name and recreate
         if os.path.exists(self.path):
             shutil.rmtree(self.path)
         os.mkdir(self.path)
@@ -129,7 +138,7 @@ class DownloadThread(threading.Thread):
 
         :author: Sebastian
         """
-        print("Started Thread" + str(self.threadID))
+        app.logger.info("Started Thread" + str(self.threadID))
         failed = False
         try:
             self.download()
@@ -162,13 +171,12 @@ class DownloadThread(threading.Thread):
         :raises TimeoutException: If the proxy is not active anymore or unreachable for too long a TimeoutException is
         thrown to be caught and handled by calling function.
         """
-        if not self.html:
-            print("Downloading without html, proxy is set to({}): {}".format(self.prox_loc, self.proxy))
+        if self.html is None:
+            app.logger.info("Downloading without html, proxy is set to({}): {}".format(self.prox_loc, self.proxy))
             self.phantom.get(self.url)
             self.html = str(self.phantom.page_source)
 
         self.html, self.title = preprocess_doc(self.html)
-        print("Thread{} Preprocessed doc! self.html now is: {}".format(self.threadID, type(self.html)))
         soup = BeautifulSoup(self.html, "lxml")
 
         # self.proxy is None if html was given to DownloadThread.
@@ -187,7 +195,8 @@ class DownloadThread(threading.Thread):
         # of the images stored within the img tags and thus is unique itself.
         self.ipfs_hash = add_to_ipfs(self.path + 'STW.zip')"""
         self.ipfs_hash = add_to_ipfs(self.path + 'page_source.html')
-        print("Thread{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
+        app.logging.info("Thread{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID,
+                                                                                             self.ipfs_hash))
 
     def load_images(self, soup, proxy=None):
         """
@@ -201,7 +210,7 @@ class DownloadThread(threading.Thread):
         :param proxy: The proxy if a proxy is used otherwise it defaults to none.
         :return: A list of file names of the pictures that were downloaded and submitted to ipfs.
         """
-        print("Thread{} Loading images".format(self.threadID))
+        app.logging.info("Thread{} Loading images".format(self.threadID))
         files = dict()
         img_ctr = 0
         current_directory = os.getcwd()
@@ -215,7 +224,8 @@ class DownloadThread(threading.Thread):
                 # the picture in the url was not retrievable, continue to next image
                 continue
             except ConnectionError:
-                print("Thread{} Could not connect to retrieve image. Trying again with proxy".format(self.threadID))
+                app.logging.error("Thread{} Could not connect to retrieve image. (Should be) Trying again with proxy"
+                                  .format(self.threadID))
                 # TODO start image load again with different proxy
 
             filename = 'img{}.png'.format(str(img_ctr))
@@ -225,13 +235,13 @@ class DownloadThread(threading.Thread):
                     for chunk in res.iter_content(1024):
                         f.write(chunk)
                 image_hash = add_to_ipfs(filename)
-                print("Added image to ipfs: " + filename)
+                app.logging.info("Added image to ipfs: " + filename)
                 img['ipfs-src'] = image_hash
                 files[img_ctr] = {"filename": filename,
                                   "hash":     image_hash
                                   }
 
-        print("Thread{} Downloaded images: {}".format(self.threadID, str(files)))
+        app.logging.info("Thread{} Downloaded images: {}".format(self.threadID, str(files)))
         self.html = str(soup.find("html"))
         os.chdir(current_directory)
         return files
@@ -258,10 +268,10 @@ class DownloadThread(threading.Thread):
         elif img['data'] and url_pattern.match(img['data']):
             tag = img['data']
         else:
-            print("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
+            app.logging.error("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
             raise NameError("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
 
-        print("Thread{}: Downloading image: {}".format(self.threadID, tag))
+        app.logging.info("Thread{}: Downloading image: {}".format(self.threadID, tag))
         if proxy:
             try:
                 """
@@ -270,9 +280,9 @@ class DownloadThread(threading.Thread):
                 due to too many connections to proxy.
                 """
                 res = requests.get(tag, stream=True)
-                print("Thread{} Requested image without proxy.".format(self.threadID))
+                app.logging.info("Thread{} Requested image without proxy.".format(self.threadID))
             except ConnectionRefusedError as con:
-                print("Thread{} Could not request image due to: {}\ntrying with proxy: {}".format(
+                app.logging.error("Thread{} Could not request image due to: {}\ntrying with proxy: {}".format(
                     self.threadID, con.strerror, proxy))
                 res = requests.get(tag, stream=True, proxies={"http": "http://" + proxy}, headers=header)
         else:
@@ -316,14 +326,14 @@ class DownloadThread(threading.Thread):
 
         if self.originstamp_result.status_code == 200:
             if "errors" in self.originstamp_result.json():
-                print("Thread{} submitted hash to originstamp but the content has not changed. A timestamp "
-                      "exists already.".format(self.threadID))
+                app.logging.info("Thread{} submitted hash to originstamp but the content has not changed. A timestamp "
+                                 "exists already.".format(self.threadID))
                 # hash already submitted
                 self.already_submitted = True
-                print("Wrote png to: {}".format("{}{}.png".format(base_path, self.ipfs_hash)))
+                app.logging.info("Wrote png to: {}".format("{}{}.png".format(base_path, self.ipfs_hash)))
             else:
-                print("Thread{} successfully submitted hash to originstamp and created a new timestamp."
-                      .format(self.threadID))
+                app.logging.info("Thread{} successfully submitted hash to originstamp and created a new timestamp."
+                                 .format(self.threadID))
                 self.phantom.get_screenshot_as_file("{}{}.png".format(base_path, self.ipfs_hash))
                 # TODO sometimes omits some pictures in png.
 
@@ -372,15 +382,15 @@ def add_to_ipfs(fname):
         # os.chdir(fname)
         res = ipfs_Client.add(fname, recursive=False)
         if type(res) is list:
-            print("Entire IPFS result" + str(res))
-            print("IPFS result: " + str(res[0]))
+            app.logging.info("Entire IPFS result" + str(res))
+            app.logging.info("IPFS result: " + str(res[0]))
             return res[0]['Hash']
 
-        print("IPFS result: " + str(res))
+        app.logging.info("IPFS result: " + str(res))
         return res['Hash']
     else:
         res = ipfs_Client.add(fname, recursive=False)[0]
-        print("IPFS result for directory: " + str(res))
+        app.logging.info("IPFS result for directory: " + str(res))
         return res['Hash']
 
 
@@ -431,7 +441,7 @@ def preprocess_doc(html_text):
     :param html_text: html document in string format to preprocess.
     :returns: The preprocessed html as a String and the title if needed by the callee.
     """
-    print('Preprocessing Document: {}'.format(type(html_text)))
+    app.logging.info('Preprocessing Document: {}'.format(type(html_text)))
 
     # remove some common advertisement tags beforehand
     bs = BeautifulSoup(html_text, "lxml")
@@ -444,11 +454,11 @@ def preprocess_doc(html_text):
         encoding = chardet.detect(doc.content().encode()).get('encoding')
         title = doc.title()
     except TypeError:
-        print("Encountered TypeError setting encoding to utf-8.")
+        app.logging.error("Encountered TypeError setting encoding to utf-8.")
         encoding = "utf-8"
         title = bs.title.getText()
     if not encoding:
-        print("Using default encoding utf-8")
+        app.logging.info("Using default encoding utf-8")
         encoding = 'utf-8'
         title = bs.title.getText()
     doc.encoding = encoding
@@ -464,7 +474,7 @@ def preprocess_doc(html_text):
 
     # sometimes some tags get messed up and need to be translated back
     text = text.replace("&lt;", "<").replace("&gt;", ">")
-    print('Preprocessing done. Type of text is: {}'.format(type(text)))
+    app.logging.info('Preprocessing done. Type of text is: {}'.format(type(text)))
     return text, title
 
 

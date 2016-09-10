@@ -3,7 +3,7 @@ import requests
 from app.main import download_thread as down
 import app.main.downloader as downloader
 from app import create_app, db
-import ipfsApi as ipfs
+import ipfsApi
 import os
 import logging
 from bs4 import BeautifulSoup as Bs
@@ -47,8 +47,9 @@ class BasicsTestCase(unittest.TestCase):
         self.app = create_app('testing')
         self.app_context = self.app.app_context()
         self.app_context.push()
-        self.client = ipfs.Client()
+        self.client = ipfsApi.Client()
         db.create_all()
+        down.basePath = "/home/sebastian/testing-stw/"
         log_handler = logging.FileHandler('/home/sebastian/testing-stw/STW.log')
         log_handler.setLevel(logging.INFO)
         self.app.logger.setLevel(logging.INFO)
