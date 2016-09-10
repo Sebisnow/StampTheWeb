@@ -13,9 +13,9 @@ import app.main.proxy_util as prox
 
 proxy = "5.135.176.41:3123"
 url = "http://www.theverge.com/2016/8/12/12444920/no-mans-sky-travel-journal-day-four-ps4-pc"
-path = "/home/sebastian/testing-stw/temporary/1/"
 base_path = "/home/sebastian/testing-stw/"
 downloader.basePath = base_path
+down.base_path = base_path
 prox.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
 html = """
 <html>
@@ -64,6 +64,8 @@ class BasicsTestCase(unittest.TestCase):
         thread = down.DownloadThread(1, url, proxy, basepath=base_path)
         self.assertEqual(thread.url, url)
         self.assertEqual(thread.threadID, 1)
+
+        path = "/home/sebastian/testing-stw/temporary/1/"
         self.assertEqual(thread.path, path)
         self.assertTrue(os.path.exists(path))
         print("    Download folder was created.")
@@ -76,8 +78,10 @@ class BasicsTestCase(unittest.TestCase):
         thread.start()
         print("    Waiting for thread to join.")
         thread.join()
-        print("after join:\n" + thread.html)
+        print("    After join:\n" + thread.html)
         text = thread.html
+        thread.join()
+        print("    The originstamp_result of this thread: \n{}".format(thread.originstamp_result.json()))
         self.assertIsNotNone(text, "None HTML was stored and processed.")
         print("    Testing whether thread is alive")
         self.assertFalse(thread.is_alive(), "Thread is still alive after join")

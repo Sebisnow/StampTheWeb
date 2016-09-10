@@ -1,6 +1,6 @@
 import threading
-import os
 import re
+import os
 import zipfile
 import requests
 import chardet
@@ -19,18 +19,22 @@ from readability.readability import Document
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ReadTimeout, HTTPError
-
 from app.main.proxy_util import get_one_proxy
 # from ..models import Warcs
 
-exitFlag = 0
-urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
+exit_flag = 0
+url_pattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 js_path = os.path.abspath(os.path.expanduser("~/") + '/bin/phantomjs/lib/phantom/bin/phantomjs')
 base_path = 'app/pdf/'
 proxy_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static/")
 
+api_key = '7be3aa0c7f9c2ae0061c9ad4ac680f5c'
+api_post_url = 'http://www.originstamp.org/api/stamps'
+
 negative_tag_classes = ["ad", "advertisement", "gads", "iqad", "anzeige", "dfp_ad"]
+# :param negative_tags: if any HTML tags are definitely just advertisement and definitely not describe the content
+# the tag can be added using a pipe. E.g "aside|ad".
 negative_tags = re.compile("aside", re.I)
 
 
@@ -66,10 +70,9 @@ class DownloadThread(threading.Thread):
         self.proxy = prox
         self.basepath = basepath
         self.path = basepath + "temporary"
-        self.ipfs_hash = None
-        self.title = None
+        self.ipfs_hash, self.title, self.originstamp_result = None, None, None
         self.images = dict()
-        self.error = False
+        self.error, self.already_submitted = False, False
         if self.html is None:
             self.extension_triggered = False
             app.logger.info("Thread{} is using Proxy: {}".format(self.threadID, prox))
@@ -121,7 +124,8 @@ class DownloadThread(threading.Thread):
 
     def run(self):
         """
-        Run the initialized thread and start the download job.
+        Run the initialized thread and start the download job. Afterwards submit the hash to originstamp to create a
+        lasting and verifyable timestamp
 
         :author: Sebastian
         """
@@ -133,8 +137,10 @@ class DownloadThread(threading.Thread):
             failed = True
 
             app.logger.error("Couldn't reach website through proxy, trying again with new proxy")
+
         if failed:
             self.initialize(get_one_proxy(self.prox_loc))
+            app.logger.info("Thread{} is trying again with new proxy".format(self.proxy))
             try:
                 self.download()
             except TimeoutException:
@@ -144,6 +150,8 @@ class DownloadThread(threading.Thread):
                 self.error = True
                 raise TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
                                        .format(self.prox_loc))
+        # submit the hash to originstamp to to create a lasting timestamp.
+        self.handle_submission()
 
     def download(self):
         """
@@ -168,16 +176,17 @@ class DownloadThread(threading.Thread):
         with open(self.path + "page_source.html", "w") as f:
             f.write(self.html)
 
-        archive = zipfile.ZipFile(self.path + 'STW.zip', "w", zipfile.ZIP_DEFLATED)
+        """archive = zipfile.ZipFile(self.path + 'STW.zip', "w", zipfile.ZIP_DEFLATED)
         archive.write(self.path + "page_source.html")
         for img in self.images:
             print("Thread{} Path to image: {}".format(self.threadID, str(self.images.get(img).get("filename"))))
             archive.write(self.path + self.images.get(img).get("filename"))
         archive.close()
         # Add folder to ipfs # TODO best place to zip files if necessary
-        """would not be necessary to add folder to ipfs since the html has the ipfs_hash
-        of the images stored within the img tags and thus is unique itself."""
-        self.ipfs_hash = add_to_ipfs(self.path + 'STW.zip')
+        # would not be necessary to add folder to ipfs since the html has the ipfs_hash
+        # of the images stored within the img tags and thus is unique itself.
+        self.ipfs_hash = add_to_ipfs(self.path + 'STW.zip')"""
+        self.ipfs_hash = add_to_ipfs(self.path + 'page_source.html')
         print("Thread{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
 
     def load_images(self, soup, proxy=None):
@@ -240,13 +249,13 @@ class DownloadThread(threading.Thread):
         :return: A Response object with the response status and the image to store.
         """
 
-        if urlPattern.match(img['src']):
+        if url_pattern.match(img['src']):
             tag = img['src']
-        elif img['data-full-size'] and urlPattern.match(img['data-full-size']):
+        elif img['data-full-size'] and url_pattern.match(img['data-full-size']):
             tag = img['data-full-size']
-        elif img['data-original'] and urlPattern.match(img['data-original']):
+        elif img['data-original'] and url_pattern.match(img['data-original']):
             tag = img['data-original']
-        elif img['data'] and urlPattern.match(img['data']):
+        elif img['data'] and url_pattern.match(img['data']):
             tag = img['data']
         else:
             print("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
@@ -295,6 +304,28 @@ class DownloadThread(threading.Thread):
         record.content_block = content_block
         warc.records.append(record)
         return path_to_warc
+
+    def handle_submission(self):
+        """
+        Handles the submission of the hash to originstamp and the resulting consequences. Like PNG creation and storage.
+
+        :author: Sebastian
+        """
+        self.originstamp_result = submit(self.ipfs_hash, title="Distributed timestamp of {} from location {}"
+                                         .format(self.url, self.prox_loc))
+
+        if self.originstamp_result.status_code == 200:
+            if "errors" in self.originstamp_result.json():
+                print("Thread{} submitted hash to originstamp but the content has not changed. A timestamp "
+                      "exists already.".format(self.threadID))
+                # hash already submitted
+                self.already_submitted = True
+                print("Wrote png to: {}".format("{}{}.png".format(base_path, self.ipfs_hash)))
+            else:
+                print("Thread{} successfully submitted hash to originstamp and created a new timestamp."
+                      .format(self.threadID))
+                self.phantom.get_screenshot_as_file("{}{}.png".format(base_path, self.ipfs_hash))
+                # TODO sometimes omits some pictures in png.
 
 
 def add_to_ipns(path):
@@ -391,7 +422,10 @@ def get_from_ipfs(timestamp, file_path=None):
 
 def preprocess_doc(html_text):
     """
-    Calculate hash for given html document. The html document is expected as a document object from readability package.
+    Preprocessing of an html text as a String is done here. Tags that are advertisement and that do not describe the
+    content are removed at first. The encoding is detected and next the html is parsed and preprocessed using the
+    readability-lxml Document class to clean the content (text and images embedded in the text).
+    An HTML string is returned together with the title of the website.
 
     :author: Sebastian
     :param html_text: html document in string format to preprocess.
@@ -432,3 +466,17 @@ def preprocess_doc(html_text):
     text = text.replace("&lt;", "<").replace("&gt;", ">")
     print('Preprocessing done. Type of text is: {}'.format(type(text)))
     return text, title
+
+
+def submit(sha256, title=None):
+    """
+    Submits the given hash to the originstamp API and returns the request object.
+
+    :author: Sebastian
+    :param sha256: hash to submit
+    :param title: title of the hashed document
+    :returns: resulting request object
+    """
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="{}"'.format(api_key)}
+    data = {'hash_sha256': sha256, 'title': title}
+    return requests.post(api_post_url, json=data, headers=headers)
