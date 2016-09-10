@@ -318,5 +318,5 @@ class Country(db.Model):
     __tablename__ = 'countries'
     ID = db.Column(db.Integer, primary_key=True)
     country_code = db.Column(db.String(2), index=True, unique=True)
-    country_name = db.Column(db.String(44), unique = True)
+    country_name = db.Column(db.String(44), unique=True)
     block_count = db.Column(db.Integer,)
