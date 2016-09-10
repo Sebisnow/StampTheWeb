@@ -1,10 +1,22 @@
 import unittest
 from app.main import proxy_util as p
+from app import create_app, db
+import ipfsApi
+import logging
+import os
 
 
 class MyTestCase(unittest.TestCase):
-    def test_something(self):
-        self.assertEqual(True, False)
+    def setUp(self):
+        self.app = create_app('testing')
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        self.client = ipfsApi.Client()
+        db.create_all()
+        p.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
+        log_handler = logging.FileHandler('/home/sebastian/testing-stw/STW.log')
+        log_handler.setLevel(logging.INFO)
+        self.app.logger.setLevel(logging.INFO)
 
     def test_ip_location_lookup(self):
         self.assertEqual("FR", p.get_proxy_location("5.135.176.41"))
@@ -26,7 +38,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_get_one_proxy(self):
         print("\nTesting the retrieval of one proxy:")
-        prox = p.get_one_proxy("ML")
+        prox = p.get_one_proxy("AT")
         self.assertIsNotNone(prox, "Retrieval of one proxy failed.")
         print(prox)
 
