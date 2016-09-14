@@ -207,6 +207,7 @@ def create_png_from_url(url, sha256):
     path = basePath + sha256 + '.png'
     app.logger.info('PNG Path:' + path)
     call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
+    app.logger.info("PNG created")
     # call(["webkit2png", "-o", path, "-g", "1000", "1260", "-t", "30", url
     # subprocess.Popen(['wget', '-O', path, 'http://images.websnapr.com/?url='+url+'&size=s&nocache=82']).wait()
     if os.path.isfile(path):
@@ -597,7 +598,7 @@ def get_url_history(url):
         # should only occur if data was submitted successfully but png or pdf creation failed
         if not app.config["TESTING"]:
             flash(u'Internal System Error: ' + str(e.args), 'error')
-        app.logger.error('Internal System Error: ' + str(e.args))
+        app.logger.error('Internal System Error: ' + str(e) + str(e.args))
         traceback.print_exc()
         return ReturnResults(None, sha256, title)
 

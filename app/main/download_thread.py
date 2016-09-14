@@ -382,15 +382,15 @@ def add_to_ipfs(fname):
         # os.chdir(fname)
         res = ipfs_Client.add(fname, recursive=False)
         if type(res) is list:
-            app.logging.info("Entire IPFS result" + str(res))
-            app.logging.info("IPFS result: " + str(res[0]))
+            print("Entire IPFS result" + str(res))
+            print("IPFS result: " + str(res[0]))
             return res[0]['Hash']
 
-        app.logging.info("IPFS result: " + str(res))
+            print("IPFS result: " + str(res))
         return res['Hash']
     else:
         res = ipfs_Client.add(fname, recursive=False)[0]
-        app.logging.info("IPFS result for directory: " + str(res))
+        print("IPFS result for directory: " + str(res))
         return res['Hash']
 
 
@@ -416,15 +416,15 @@ def get_from_ipfs(timestamp, file_path=None):
         path = base_path + timestamp
     cur_dir = os.getcwd()
     os.chdir(base_path)
-    app.logger.info("Trying to fetch the File from IPFS: {}".format(timestamp))
+    print("Trying to fetch the File from IPFS: {}".format(timestamp))
     try:
         ipfs_Client.get(timestamp, timeout=5)
     except ReadTimeout:
-        app.logger.info("Could not fetch file from IPFS, file does probably not exist.")
+        print("Could not fetch file from IPFS, file does probably not exist.")
         raise ValueError
     except HTTPError:
-        app.logger.info("Could not fetch file from IPFS, Hash was of the wrong format. Length: {}"
-                        .format(len(timestamp)))
+        print("Could not fetch file from IPFS, Hash was of the wrong format. Length: {}"
+              .format(len(timestamp)))
         raise ValueError
     os.chdir(cur_dir)
     return path
@@ -441,7 +441,7 @@ def preprocess_doc(html_text):
     :param html_text: html document in string format to preprocess.
     :returns: The preprocessed html as a String and the title if needed by the callee.
     """
-    app.logging.info('Preprocessing Document: {}'.format(type(html_text)))
+    print('Preprocessing Document: {}'.format(type(html_text)))
 
     # remove some common advertisement tags beforehand
     bs = BeautifulSoup(html_text, "lxml")
@@ -454,11 +454,11 @@ def preprocess_doc(html_text):
         encoding = chardet.detect(doc.content().encode()).get('encoding')
         title = doc.title()
     except TypeError:
-        app.logging.error("Encountered TypeError setting encoding to utf-8.")
+        print("Encountered TypeError setting encoding to utf-8.")
         encoding = "utf-8"
         title = bs.title.getText()
     if not encoding:
-        app.logging.info("Using default encoding utf-8")
+        print("Using default encoding utf-8")
         encoding = 'utf-8'
         title = bs.title.getText()
     doc.encoding = encoding
@@ -474,7 +474,7 @@ def preprocess_doc(html_text):
 
     # sometimes some tags get messed up and need to be translated back
     text = text.replace("&lt;", "<").replace("&gt;", ">")
-    app.logging.info('Preprocessing done. Type of text is: {}'.format(type(text)))
+    print('Preprocessing done. Type of text is: {}'.format(type(text)))
     return text, title
 
 
