@@ -9,6 +9,10 @@ import pdfkit
 import queue
 import threading
 import csv
+
+import time
+from selenium import webdriver
+from selenium.webdriver import DesiredCapabilities
 from sqlalchemy import or_, and_
 from flask_login import current_user
 from random import randrange
@@ -204,10 +208,40 @@ def create_png_from_url(url, sha256):
     :param sha256: name of the downloaded png
     :returns: path to the created png """
     app.logger.info('Creating PNG from URL:' + url)
-    path = basePath + sha256 + '.png'
+    path = '{}{}.png'.format(basePath, sha256)
     app.logger.info('PNG Path:' + path)
-    call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
-    app.logger.info("PNG created")
+    # call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
+
+    dcap = dict(DesiredCapabilities.PHANTOMJS)
+    dcap[
+        "phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 " \
+                                               "(KHTML, like Gecko) Chrome/15.0.87"
+    app.logger.info('Initialize PhantomJS.')
+    phantom = webdriver.PhantomJS(d_thread.js_path, desired_capabilities=dcap)
+    phantom.capabilities["acceptSslCerts"] = True
+    max_wait = 30
+    phantom.set_window_size(1024, 768)
+    phantom.set_page_load_timeout(max_wait)
+    phantom.set_script_timeout(max_wait)
+    app.logger.info('Initializing done fetching url.')
+    phantom.get(url)
+    app.logger.info('Downloaded url, start scrolling.')
+    start_time = time.time()
+    last_height = phantom.execute_script("return document.body.scrollHeight")
+    # only load for a maximum of 10 seconds
+    app.logger.info("{} is starttime of scrolling".format(start_time))
+    while True or time.time() - start_time > 10:
+        app.logger.info("{} is current time difference, keep scrolling".format(time.time() - start_time))
+        phantom.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(0.5)
+        new_height = phantom.execute_script("return document.body.scrollHeight")
+        if new_height == last_height:
+            app.logger.info("Done with scrolling after {} seconds".format(time.time() - start_time))
+            break
+        last_height = new_height
+    phantom.get_screenshot_as_file(path)
+
+    app.logger.info("PNG created: {}".format(os.path.exists(path)))
     # call(["webkit2png", "-o", path, "-g", "1000", "1260", "-t", "30", url
     # subprocess.Popen(['wget', '-O', path, 'http://images.websnapr.com/?url='+url+'&size=s&nocache=82']).wait()
     if os.path.isfile(path):

@@ -330,12 +330,31 @@ class DownloadThread(threading.Thread):
                                  "exists already.".format(self.threadID))
                 # hash already submitted
                 self.already_submitted = True
-                app.logging.info("Wrote png to: {}".format("{}{}.png".format(base_path, self.ipfs_hash)))
+                if not os.path.exists("{}{}.png".format(base_path, self.ipfs_hash)):
+                    self.scroll()
+                    self.phantom.get_screenshot_as_file("{}{}.png".format(base_path, self.ipfs_hash))
+                    app.logging.info("Hash submitted but png not existent. Wrote png to: {}"
+                                     .format("{}{}.png".format(base_path, self.ipfs_hash)))
+
             else:
                 app.logging.info("Thread{} successfully submitted hash to originstamp and created a new timestamp."
                                  .format(self.threadID))
+                self.scroll()
                 self.phantom.get_screenshot_as_file("{}{}.png".format(base_path, self.ipfs_hash))
                 # TODO sometimes omits some pictures in png.
+
+    def scroll(self):
+        pause = 0.5
+        start_time = time.time()
+        last_height = self.phantom.execute_script("return document.body.scrollHeight")
+        # only load for a maximum of 10 seconds
+        while True or time.time()-start_time > 10:
+            self.phantom.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(pause)
+            new_height = self.phantom.execute_script("return document.body.scrollHeight")
+            if new_height == last_height:
+                break
+            last_height = new_height
 
 
 def add_to_ipns(path):
@@ -386,7 +405,7 @@ def add_to_ipfs(fname):
             print("IPFS result: " + str(res[0]))
             return res[0]['Hash']
 
-            print("IPFS result: " + str(res))
+        print("IPFS result: " + str(res))
         return res['Hash']
     else:
         res = ipfs_Client.add(fname, recursive=False)[0]
