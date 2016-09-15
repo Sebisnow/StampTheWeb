@@ -27,6 +27,7 @@ global selected
 def index():
     form = PostForm()
     form_freq = PostFreq()
+    global selected
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
         sha256 = None
@@ -107,6 +108,10 @@ def index():
         pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
         posts = pagination.items
+        # In case user is not comparing articles anymore
+        if 'selected' in globals():
+            if selected is not None:
+                selected = None
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
                                doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
 
@@ -511,6 +516,7 @@ def regular():
         regular_new = Regular(frequency=freq, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
+        flash('A new Regular Scheduled recurring Time-stamp has been created')
         return redirect(url_for('.regular'))
     page = request.args.get('page', 1, type=int)
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
