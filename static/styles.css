@@ -66,5 +66,10 @@ div.flask-pagedown-preview h3 {
 .post-body h3 {
     font-size: 120%;
 }
-
-
+div#loading {
+    width: 35px;
+    height: 35px;
+    display: none;
+    background: url(/pdf/loadingimage.gif) no-repeat;
+    cursor: wait;
+}

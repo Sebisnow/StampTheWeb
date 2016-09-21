@@ -79,7 +79,7 @@ class PostFreq(Form):
     email = EmailField("Notify me in case there is any change in content. (email required) "
                        "<i class='glyphicon glyphicon-info-sign'></i>",
                        render_kw={"placeholder": "email@example.com"})
-    submit = SubmitField("Submit", render_kw={"onclick": "loading()"})
+    submit = SubmitField("Submit", render_kw={"onclick": "loading_schedule()"})
 
 
 class PostCountry(Form):

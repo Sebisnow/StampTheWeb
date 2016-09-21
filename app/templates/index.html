@@ -5,21 +5,21 @@
 {% block page_content %}
 
 
-<style>
- div#loading {
-    width: 35px;
-    height: 35px;
-    display: none;
-    background: url(/pdf/loadingimage.gif) no-repeat;
-    cursor: wait;
-    }
-</style>
+
 
 
 <script type="text/javascript">
   function loading(){
     url = document.getElementById('urlSite');
     if(ValidURL(url.value)){
+        $("#loading").show();
+        $("#content").hide();
+    }
+  }
+  function loading_schedule(){
+    url = document.getElementById('url');
+    freq = document.getElementById('frequency');
+    if(ValidURL(url.value) && freq.value > 0){
         $("#loading").show();
         $("#content").hide();
     }
