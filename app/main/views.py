@@ -219,6 +219,9 @@ def compare_options(ids):
             else:
                 flash('Change in the content found')
 
+            global selected
+            selected = None
+
             return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
                                    dateRight=datetime.utcnow(), right=Markup(text_right), search=False)
         else:
@@ -226,6 +229,8 @@ def compare_options(ids):
             text_left = verification.remove_tags(text_1)
             text_left = htmldiff(text_left, text_left)
             flash('The selected page is blocked in '+form_choice.choice_switcher.data)
+            global selected
+            selected = None
             return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
                                    dateRight=datetime.utcnow(), search=False)
 

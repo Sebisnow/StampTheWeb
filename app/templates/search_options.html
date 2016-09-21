@@ -18,11 +18,8 @@
 
 <script type="text/javascript">
   function loading(){
-    url = document.getElementById('urlSite');
-    if(ValidURL(url.value)){
-        $("#loading").show();
-        $("#content").hide();
-    }
+    $("#loading").show();
+    $("#content").hide();
   }
   function ValidURL(str) {
   var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
