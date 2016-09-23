@@ -4,16 +4,14 @@ import re
 import requests
 import traceback
 import ipfsApi
-from subprocess import check_output, call, DEVNULL
+from subprocess import check_output, DEVNULL
 import pdfkit
 import queue
 import threading
 import csv
 
 import time
-from selenium import webdriver
-from selenium.webdriver import DesiredCapabilities
-from sqlalchemy import or_, and_
+from sqlalchemy import and_
 from flask_login import current_user
 from random import randrange
 from flask import flash
@@ -204,6 +202,13 @@ class OriginstampError(Exception):
 def create_png_from_url(url, sha256):
     """
     Create png from URL. Returns path to file.
+    This method uses PhantomJS to capture lazily loaded content and takes a picture of the website.
+
+    --# TODO This method loads the website again, which causes quite the time overhead for the redundant network
+    comunication, move everything to use the DownloadThread class to only get the webresources once and take advantage
+    of running it in a separate thread. #--
+
+    :author: Sebastian
     :param url: url to retrieve
     :param sha256: name of the downloaded png
     :returns: path to the created png """
@@ -212,7 +217,7 @@ def create_png_from_url(url, sha256):
     app.logger.info('PNG Path:' + path)
     # call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
 
-    dcap = dict(DesiredCapabilities.PHANTOMJS)
+    """dcap = dict(DesiredCapabilities.PHANTOMJS)
     dcap[
         "phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 " \
                                                "(KHTML, like Gecko) Chrome/15.0.87"
@@ -222,7 +227,9 @@ def create_png_from_url(url, sha256):
     max_wait = 30
     phantom.set_window_size(1024, 768)
     phantom.set_page_load_timeout(max_wait)
-    phantom.set_script_timeout(max_wait)
+    phantom.set_script_timeout(max_wait)"""
+    # TODO test before production
+    phantom = d_thread.DownloadThread.initialize()
     app.logger.info('Initializing done fetching url.')
     phantom.get(url)
     app.logger.info('Downloaded url, start scrolling.')
@@ -302,6 +309,8 @@ def create_html_from_url(html_text, ipfs_hash, url):
 
 def create_pdf_from_url(url, sha256):
     """
+    Generates a pdf from the given url and stores it under the name of the given hash value.
+
     :param url: url to retrieve
     :param sha256: the hash of the url which is important for the filename
     method to write pdf file
@@ -342,6 +351,8 @@ def calculate_hash_for_html_doc(html_text):
 def calculate_hash_for_html_block(html_text):
     """
     Calculate hash for given html document.
+
+    :author: Sebastian and Waqar
     :param html_text: html doc to hash as text
     :returns: calculated hash for given URL and the document used to create the hash
     """
@@ -358,6 +369,7 @@ def submit(sha256, title=None):
     """
     Submits the given hash to the originstamp API and returns the request object.
 
+    :author Sebastian
     :param sha256: hash to submit
     :param title: title of the hashed document
     :returns: resulting request object
@@ -811,7 +823,7 @@ def run_thread(url, num, proxy_list=None, html=None):
     """
     if html is None:
         prox_num = randrange(0, len(proxy_list))
-        thread = DownloadThread(num, url=url, prox=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0])
+        thread = DownloadThread(num, url=url, proxy=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0])
         thread.start()
     else:
         thread = DownloadThread(num, html=html)
@@ -824,6 +836,11 @@ def join_threads(threads):
     Method that joins the threads in the list of DownloadThreads handed to it
     and returns the DownloadThread object with the highest votes after the join.
     The hash consists of the html plus the images.
+
+    The voting could also be implemented in the following way:
+        Another possible algorithm to identify the \textit{original} content is to first find out in which country the
+        website originated from, crawl the website from that country and take that country’s content as the original to
+        compare with the rest of the distributed timestamp.
 
     :param threads: A list of DownloadThreads that need to be joined.
     :return: A list of DownloadThread objects with all important information about hash, html and infos about the
