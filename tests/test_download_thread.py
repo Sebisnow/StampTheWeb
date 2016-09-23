@@ -1,5 +1,4 @@
 import unittest
-import requests
 from app.main import download_thread as down
 import app.main.downloader as downloader
 from app import create_app, db
@@ -7,7 +6,6 @@ import ipfsApi
 import os
 import logging
 from bs4 import BeautifulSoup as Bs
-from readability import Document
 import app.main.proxy_util as prox
 
 
@@ -27,15 +25,15 @@ html = """
    <p id="firstpara" align="center">This is a veeeeery long paragraph
     <b>one
     </b>.
-    <img alt="image" class="alignright wp-image-15034 size-thumbnail" ipfs-src="ipfs_hash comes here" src="https://netni
-    nja.com/wp-content/uploads/2015/09/image2-150x150.jpeg"/>
+    <img alt="image" class="alignright wp-image-15034 size-thumbnail" ipfs-src="ipfs_hash comes here"
+    src="https://netninja.com/wp-content/uploads/2015/09/image2-150x150.jpeg"/>
 
    </p>
    <p id="secondpara" align="blah">This is paragraph that is almost equally long.
     <b>two
     </b>.
-    <img alt="cat" class="size-thumbnail wp-image-15040 aligncenter" ipfs-src="ipfs_hash comes here" src="https://netnin
-    ja.com/wp-content/uploads/2015/09/cat-150x150.jpg"/>
+    <img alt="cat" class="size-thumbnail wp-image-15040 aligncenter" ipfs-src="ipfs_hash comes here"
+    src="https://netninja.com/wp-content/uploads/2015/09/cat-150x150.jpg"/>
 
    </p>
   </body>
@@ -79,12 +77,13 @@ class BasicsTestCase(unittest.TestCase):
         thread.start()
         print("    Waiting for thread to join.")
         thread.join()
-        print("    After join:\n" + thread.html)
+        print("    After join:\n" + str(thread.html))
         text = thread.html
-        thread.join()
+
         print("    The originstamp_result of this thread: \n{}".format(thread.originstamp_result.json()))
         self.assertIsNotNone(text, "None HTML was stored and processed.")
         print("    Testing whether thread is alive")
+        thread.join()
         self.assertFalse(thread.is_alive(), "Thread is still alive after join")
         ipfs_hash = thread.ipfs_hash
         self.assertIsNotNone(ipfs_hash, "The DownloadThread did not produce an ipfs_hash")
