@@ -1,7 +1,7 @@
 import threading
 import re
 import os
-# import zipfile
+from urllib.robotparser import RobotFileParser
 import requests
 import chardet
 from flask import current_app as app
@@ -45,53 +45,58 @@ class DownloadThread(threading.Thread):
 
     :author: Sebastian
     """
-    def __init__(self, thread_id, url=None, prox=None, prox_loc=None, basepath='app/pdf/', html=None):
+    def __init__(self, thread_id, url=None, proxy=None, prox_loc=None, basepath='app/pdf/', html=None,
+                 robot_check=False):
         """
         Default constructor for the DownloadThread class, that initializes the creation of a new download job in a
         separate thread.
-        Attention: If basePath does not exist yet this will throw a FileNotFoundException (e.g. in testing)
 
         :author: Sebastian
         :param thread_id: The ID of this thread.
         :param url: The URL that is to be downloaded in this job.
-        :param prox: The proxy to use when downloading from the before specified URL.
+        :param proxy: The proxy to use when downloading from the before specified URL.
         :param prox_loc: The proxy location.
-        :param basepath: The path to store the temporary files in.
+        :param basepath: The base path to store the temporary files in.
         :param html: Defaults to None and needs only to be specified if a user input of an HTML was given by the
         StampTheWeb extension.
+        :param robot_check: Boolean value that indicates whether the downloader should honour the robots.txt of
+        the given website or not.
         """
         threading.Thread.__init__(self)
-        app.logger.info("Starting Thread")
-        self.threadID = thread_id
-        self.url = url
-        self.html = html
-        self.prox_loc = prox_loc
-        self.proxy = prox
-        self.basepath = basepath
-        self.path = basepath + "temporary"
+        print("Starting Thread")
+
+        self.url, self.html, self.robot_check, self.threadID = url, html, robot_check, thread_id
+        self.proxy, self.prox_loc = proxy, prox_loc
+        self.storage_path, self.images = basepath, dict()
+        self.path = "{}temporary".format(basepath)
         self.ipfs_hash, self.title, self.originstamp_result = None, None, None
-        self.images = dict()
         self.error, self.already_submitted = False, False
+        if robot_check:
+            # TODO filter domain
+            self.bot_parser = RobotFileParser().set_url(self.url)
+            self.bot_parser.read()
+
         if self.html is None:
             self.extension_triggered = False
-            app.logger.info("Thread{} is using Proxy: {}".format(self.threadID, prox))
-            self.phantom = self.initialize(prox)
+            print("Thread{} is using Proxy: {}".format(self.threadID, self.proxy))
+            self.phantom = self.initialize(self.proxy)
         else:
             self.extension_triggered = True
-            self.phantom = self.initialize(None)
-            
-            app.logger.info("Thread{} was extension triggered!".format(self.threadID))
+            self.phantom = self.initialize()
+            print("Thread{} was extension triggered!".format(self.threadID))
+
+        # create temporary storage folder
         if not os.path.exists(self.path):
             try:
                 os.mkdir(self.path)
             except FileNotFoundError:
                 # should only be thrown and caught in testing mode!
-                app.logger.error("Path not found: {}".format(self.path))
+                print("Path not found: {}".format(self.path))
                 if app.config["TESTING"]:
                     self.path = os.path.abspath(os.path.expanduser("~/")) + "/testing-stw/temporary/"
                 else:
                     self.path = "{}/StampTheWeb/{}temporary/".format(os.path.abspath(os.path.expanduser("~/")),
-                                                                     self.basepath)
+                                                                     self.storage_path)
                     if not os.path.exists(self.path.rpartition("/")[0]):
                         os.mkdir(self.path.rpartition("/")[0])
 
@@ -99,7 +104,7 @@ class DownloadThread(threading.Thread):
                     os.mkdir(self.path)
 
         self.path = "{}/{}/".format(self.path, str(thread_id))
-        app.logger.info("Initialized a new Thread: {}".format(str(self.threadID)))
+        print("Initialized a new Thread: {}".format(str(self.threadID)))
 
         # remove temporary folder with thread id as name and recreate
         if os.path.exists(self.path):
@@ -107,7 +112,7 @@ class DownloadThread(threading.Thread):
         os.mkdir(self.path)
 
     @staticmethod
-    def initialize(proxy):
+    def initialize(proxy=None):
         """
         Helper method that initializes the PhantomJS Headless browser and sets the proxy.
 
@@ -138,24 +143,24 @@ class DownloadThread(threading.Thread):
 
         :author: Sebastian
         """
-        app.logger.info("Started Thread" + str(self.threadID))
+        print("Started Thread" + str(self.threadID))
         failed = False
         try:
             self.download()
         except TimeoutException:
             failed = True
 
-            app.logger.error("Couldn't reach website through proxy, trying again with new proxy")
+            print("Couldn't reach website through proxy, trying again with new proxy")
 
         if failed:
             self.initialize(get_one_proxy(self.prox_loc))
-            app.logger.info("Thread{} is trying again with new proxy".format(self.proxy))
+            print("Thread{} is trying again with new proxy".format(self.proxy))
             try:
                 self.download()
             except TimeoutException:
                 # TODO not reachable from this country - tried two proxies
-                app.logger.error("Couldn't reach website through two proxies, unreachable from loc {}"
-                                 .format(self.prox_loc))
+                print("Couldn't reach website through two proxies, unreachable from loc {}"
+                      .format(self.prox_loc))
                 self.error = True
                 raise TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
                                        .format(self.prox_loc))
@@ -172,8 +177,10 @@ class DownloadThread(threading.Thread):
         thrown to be caught and handled by calling function.
         """
         if self.html is None:
-            app.logger.info("Downloading without html, proxy is set to({}): {}".format(self.prox_loc, self.proxy))
+            # if htm was not given to the download thread beforehand
+            print("Downloading without html, proxy is set to({}): {}".format(self.prox_loc, self.proxy))
             self.phantom.get(self.url)
+            self.scroll(self.phantom)
             self.html = str(self.phantom.page_source)
 
         self.html, self.title = preprocess_doc(self.html)
@@ -195,8 +202,7 @@ class DownloadThread(threading.Thread):
         # of the images stored within the img tags and thus is unique itself.
         self.ipfs_hash = add_to_ipfs(self.path + 'STW.zip')"""
         self.ipfs_hash = add_to_ipfs(self.path + 'page_source.html')
-        app.logging.info("Thread{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID,
-                                                                                             self.ipfs_hash))
+        print("Thread{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
 
     def load_images(self, soup, proxy=None):
         """
@@ -210,7 +216,7 @@ class DownloadThread(threading.Thread):
         :param proxy: The proxy if a proxy is used otherwise it defaults to none.
         :return: A list of file names of the pictures that were downloaded and submitted to ipfs.
         """
-        app.logging.info("Thread{} Loading images".format(self.threadID))
+        print("Thread{} Loading images".format(self.threadID))
         files = dict()
         img_ctr = 0
         current_directory = os.getcwd()
@@ -224,24 +230,24 @@ class DownloadThread(threading.Thread):
                 # the picture in the url was not retrievable, continue to next image
                 continue
             except ConnectionError:
-                app.logging.error("Thread{} Could not connect to retrieve image. (Should be) Trying again with proxy"
-                                  .format(self.threadID))
+                print("Thread{} Could not connect to retrieve image. (Should be) Trying again with proxy"
+                      .format(self.threadID))
                 # TODO start image load again with different proxy
 
-            filename = 'img{}.png'.format(str(img_ctr))
+            filename = 'img{}'.format(str(img_ctr))
             img_ctr += 1
             if res.status_code == 200:
                 with open(filename, 'wb') as f:
                     for chunk in res.iter_content(1024):
                         f.write(chunk)
                 image_hash = add_to_ipfs(filename)
-                app.logging.info("Added image to ipfs: " + filename)
+                print("Added image to ipfs: " + filename)
                 img['ipfs-src'] = image_hash
                 files[img_ctr] = {"filename": filename,
                                   "hash":     image_hash
                                   }
 
-        app.logging.info("Thread{} Downloaded images: {}".format(self.threadID, str(files)))
+        print("Thread{} Downloaded images: {}".format(self.threadID, str(files)))
         self.html = str(soup.find("html"))
         os.chdir(current_directory)
         return files
@@ -258,20 +264,19 @@ class DownloadThread(threading.Thread):
         :param proxy: The proxy that is to be used to download the image. Defaults to None, to download it directly.
         :return: A Response object with the response status and the image to store.
         """
-
-        if url_pattern.match(img['src']):
+        if 'src' in img.attrs and url_pattern.match(img['src']):
             tag = img['src']
-        elif img['data-full-size'] and url_pattern.match(img['data-full-size']):
+        elif 'data-full-size' in img.attrs and url_pattern.match(img['data-full-size']):
             tag = img['data-full-size']
-        elif img['data-original'] and url_pattern.match(img['data-original']):
+        elif 'data-original' in img.attrs and url_pattern.match(img['data-original']):
             tag = img['data-original']
-        elif img['data'] and url_pattern.match(img['data']):
+        elif 'data' in img.attrs and url_pattern.match(img['data']):
             tag = img['data']
         else:
-            app.logging.error("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
+            print("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
             raise NameError("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
 
-        app.logging.info("Thread{}: Downloading image: {}".format(self.threadID, tag))
+        print("Thread{}: Downloading image: {}".format(self.threadID, tag))
         if proxy:
             try:
                 """
@@ -280,9 +285,9 @@ class DownloadThread(threading.Thread):
                 due to too many connections to proxy.
                 """
                 res = requests.get(tag, stream=True)
-                app.logging.info("Thread{} Requested image without proxy.".format(self.threadID))
+                print("Thread{} Requested image without proxy.".format(self.threadID))
             except ConnectionRefusedError as con:
-                app.logging.error("Thread{} Could not request image due to: {}\ntrying with proxy: {}".format(
+                print("Thread{} Could not request image due to: {}\ntrying with proxy: {}".format(
                     self.threadID, con.strerror, proxy))
                 res = requests.get(tag, stream=True, proxies={"http": "http://" + proxy}, headers=header)
         else:
@@ -292,28 +297,48 @@ class DownloadThread(threading.Thread):
     def add_to_warc(self):
         """
         Creates a WARC record for this download job.
-        If no WARC file exists for this url a new Warc file with one record is created
+        If no WARC file exists for this url a new Warc file with one record is created.
+        This should only be called if a new timestamp was created.
 
         :author: Sebastian
         :return: The path to the WARC file.
         """
+
         # TODO store one WARC per URL instead of only one WARC - issue is the IPFS/IPNS publishing.
+        originstamp_result = self.originstamp_result.json()
         warc = WARC()
-        path_to_warc = "{}warcs/{}.warc.gz".format(self.basepath, self.url)
+        path_to_warc = "{}warcs/{}.warc.gz".format(self.storage_path, self.url)
         # found_warc = Warcs.query.filter(Warcs.url.equals(self.url))
         found_warc = os.path.exists(path_to_warc)
-        if not found_warc:
+        if found_warc:
             warc.load(path_to_warc)
         else:
             warc.records[0] = Header(fields={'url': self.url, 'creation_time': time.time()})
         # TODO fill in Header, Fields and Record with data
-        header = Header()
-        content = Fields()
-        content_block = BlockWithPayload(fields=content)
-        record = Record(header=header)
+        record_header = Header(fields={'hash_value': self.ipfs_hash, 'title': originstamp_result['title'],
+                                       'creation_time': originstamp_result['created_at'],
+                                       'content_type': 'application/json'})
+
+        content_block = BlockWithPayload(fields=self.create_content())
+        record = Record(header=record_header)
         record.content_block = content_block
         warc.records.append(record)
         return path_to_warc
+
+    def create_content(self):
+        """
+        Helper Method to create a filled warc content field.
+
+        :author: Sebastian
+        :return:
+        """
+        # TODO
+        content = Fields()
+        content.add('html', self.html)
+        for img in self.images:
+            with open(img, 'rb') as binary_image:
+                content.add(img.rpartition("/")[0], binary_image.read())
+        return content
 
     def handle_submission(self):
         """
@@ -326,32 +351,30 @@ class DownloadThread(threading.Thread):
 
         if self.originstamp_result.status_code == 200:
             if "errors" in self.originstamp_result.json():
-                app.logging.info("Thread{} submitted hash to originstamp but the content has not changed. A timestamp "
-                                 "exists already.".format(self.threadID))
+                print("Thread{} submitted hash to originstamp but the content has not changed. A timestamp "
+                      "exists already.".format(self.threadID))
                 # hash already submitted
                 self.already_submitted = True
                 if not os.path.exists("{}{}.png".format(base_path, self.ipfs_hash)):
-                    self.scroll()
                     self.phantom.get_screenshot_as_file("{}{}.png".format(base_path, self.ipfs_hash))
-                    app.logging.info("Hash submitted but png not existent. Wrote png to: {}"
-                                     .format("{}{}.png".format(base_path, self.ipfs_hash)))
+                    print("Hash submitted but png not existent. Wrote png to: {}"
+                          .format("{}{}.png".format(base_path, self.ipfs_hash)))
 
             else:
-                app.logging.info("Thread{} successfully submitted hash to originstamp and created a new timestamp."
-                                 .format(self.threadID))
-                self.scroll()
+                print("Thread{} successfully submitted hash to originstamp and created a new timestamp."
+                      .format(self.threadID))
                 self.phantom.get_screenshot_as_file("{}{}.png".format(base_path, self.ipfs_hash))
-                # TODO sometimes omits some pictures in png.
 
-    def scroll(self):
-        pause = 0.5
+    @staticmethod
+    def scroll(phantom):
+        pause = 0.2
         start_time = time.time()
-        last_height = self.phantom.execute_script("return document.body.scrollHeight")
-        # only load for a maximum of 10 seconds
-        while True or time.time()-start_time > 10:
-            self.phantom.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        last_height = phantom.execute_script("return document.body.scrollHeight")
+        # only load for a maximum of 5 seconds
+        while True or time.time()-start_time > 5:
+            phantom.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(pause)
-            new_height = self.phantom.execute_script("return document.body.scrollHeight")
+            new_height = phantom.execute_script("return document.body.scrollHeight")
             if new_height == last_height:
                 break
             last_height = new_height
