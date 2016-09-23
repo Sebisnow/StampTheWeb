@@ -728,7 +728,7 @@ def save_render_zip_submit(html_text, sha256, url, title):
     return originstamp_result
 
 
-def distributed_timestamp(url, html_body=None, proxies=None, user="Bot"):
+def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=False, num_threads=5):
     """
     Perform a distributed timestamp where not only one file is taken into account, but several HTMLs retrieved by
     proxies from different locations. 5 pseudo random locations from the proxy list are used. Optionally default
@@ -741,58 +741,41 @@ def distributed_timestamp(url, html_body=None, proxies=None, user="Bot"):
 
     :author: Sebastian
     :param url: The URL of the website to timestamp.
-    :param html_body: The body of the site to timestamp.
-    :param proxies: A list of max 5 Proxies that should be taken
-     into account for the distributed timestamp.
+    :param html: The body of the site to timestamp.
+    :param proxies: A list of max 5 Proxies that should be taken into account for the distributed timestamp.
      Defaults to None
     :param user: The username of the user that started the distributed timestamp. If the call came from the extension
      and no user was sent the user will be set to Bot.
+    :param robot_check: Boolean value that indicates whether the downloader should honour the robots.txt of
+    the given website or not.
+    :param num_threads: Number of threads to be used for distributed timestamp. Defaults to 5.
     :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
     originStampResult, hashValue, webTitle and errors(defaults to None).
     """
-    print("timestamping")
+    print("Distributed timestamping")
     if not re.match(urlPattern, url):
         return ReturnResults(None, None, None, OriginstampError("The entered URL does not correspond "
                                                                 "to URL specifications", 501))
-    extension_triggered = False
-    if html_body:
-        extension_triggered = True
-        print("Triggered by extension!")
     proxy_list = proxy_util.get_proxy_list()
-
-    print("proxy list fetched")
     threads = []
-    if proxies is None or len(proxies) == 0:
-        print("no manual proxies set fetch them from list")
-        # TODO error is thrown in the following (string index out of range)
-        # no manual proxies set fetch them from list
-        if extension_triggered:
-            threads.append(run_thread(url, 1, html=html_body))
-        else:
-            threads.append(run_thread(url, 1, proxy_list))
-        print("first threads started")
-        for n in range(2, 6):
-            threads.append(run_thread(url, n, proxy_list))
-        print("Threads created: {}".format(threads))
 
-    else:
-        print("set proxies manually by input")
-        # manual proxies set
-        if extension_triggered:
-            threads.append(run_thread(url, 1, html=html_body))
-        else:
-            threads.append(run_thread(url, 1, [proxies[0]]))
-        # if there are entries in the proxies use them
-        cnt = 2
-        for prox in proxies:
-            if cnt > 5:
+    cnt = 0
+    if html:
+        # if an html is given the distributed timestamp was triggered by a user(extension)
+        print("Triggered by extension!")
+        threads.append(run_thread(url, cnt, html=html, robot_check=robot_check))
+        cnt += 1
+    if proxies is not None:
+        for proxy in proxies:
+            if cnt >= 5:
                 break
-            threads.append(run_thread(url, cnt, [prox]))
+            threads.append(run_thread(url, cnt, proxy_list=[proxy], robot_check=robot_check))
             cnt += 1
-        # create the rest of the threads to fill up to 5 threads with proxy_list
-        for n in range(cnt, 6):
-            threads.append(run_thread(url, n, proxy_list))
-        print("proxies set manually and threads created: {}".format(threads))
+
+    for n in range(cnt, num_threads):
+        threads.append(run_thread(url, n, proxy_list=proxy_list, robot_check=robot_check))
+    print("Threads created: {}".format(threads))
+
     # join all threads and return the DownloadThread with the most votes
     joined_threads, votes = join_threads(threads)
 
@@ -810,23 +793,25 @@ def distributed_timestamp(url, html_body=None, proxies=None, user="Bot"):
                          web_title=joined_threads[max_index].html.title)
 
 
-def run_thread(url, num, proxy_list=None, html=None):
+def run_thread(url, num, robot_check, proxy_list=None, html=None):
     """
     Convencience method to start one new thread with a downloading job and possibly with a random proxy
 
     :author: sebastian
     :param url: The URL to download from.
     :param num: The ID of the thread.
+    :param robot_check: Whether or not to honour robots.txt.
     :param proxy_list: The proxy to be used for downloading
     :param html: Defaults to None and is only specified if the user sent an HTML to timestamp.
     :return: The DownloadThread object that represents the freshly started thread.
     """
     if html is None:
         prox_num = randrange(0, len(proxy_list))
-        thread = DownloadThread(num, url=url, proxy=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0])
+        thread = DownloadThread(num, url=url, proxy=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0],
+                                robot_check=robot_check)
         thread.start()
     else:
-        thread = DownloadThread(num, html=html)
+        thread = DownloadThread(num, html=html, robot_check=robot_check)
         thread.start()
     return thread
 
