@@ -1,7 +1,9 @@
 import threading
 import re
 import os
+import urllib.error
 from urllib.robotparser import RobotFileParser
+from urllib.parse import urlparse
 import requests
 import chardet
 from flask import current_app as app
@@ -71,9 +73,9 @@ class DownloadThread(threading.Thread):
         self.path = "{}temporary".format(basepath)
         self.ipfs_hash, self.title, self.originstamp_result = None, None, None
         self.error, self.already_submitted = False, False
-        if robot_check:
-            # TODO filter domain
-            self.bot_parser = RobotFileParser().set_url(self.url)
+        if self.robot_check:
+            url_parser = urlparse(self.url)
+            self.bot_parser = RobotFileParser().set_url("{url.scheme}://{url.netloc}/robots.txt".format(url=url_parser))
             self.bot_parser.read()
 
         if self.html is None:
@@ -175,10 +177,15 @@ class DownloadThread(threading.Thread):
         :author: Sebastian
         :raises TimeoutException: If the proxy is not active anymore or unreachable for too long a TimeoutException is
         thrown to be caught and handled by calling function.
+        :raises urllib.error.URLError: raises error that should not be caught by this thread if the crawler is not
+        allowed to access the url of the html file because it is forbidden in robots.txt
         """
         if self.html is None:
             # if htm was not given to the download thread beforehand
             print("Downloading without html, proxy is set to({}): {}".format(self.prox_loc, self.proxy))
+            if self.robot_check and not self.bot_parser.can_fetch(self.url):
+                raise urllib.error.URLError("Not allowed to fetch root html file specified by url:{} because of "
+                                            "robots.txt".format(self.url))
             self.phantom.get(self.url)
             self.scroll(self.phantom)
             self.html = str(self.phantom.page_source)
@@ -233,6 +240,8 @@ class DownloadThread(threading.Thread):
                 print("Thread{} Could not connect to retrieve image. (Should be) Trying again with proxy"
                       .format(self.threadID))
                 # TODO start image load again with different proxy
+            except urllib.error.URLError as e:
+                print(str(e))
 
             filename = 'img{}'.format(str(img_ctr))
             img_ctr += 1
@@ -276,7 +285,12 @@ class DownloadThread(threading.Thread):
             print("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
             raise NameError("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
 
-        print("Thread{}: Downloading image: {}".format(self.threadID, tag))
+        print("Thread{}: Trying to download image: {}".format(self.threadID, tag))
+        if self.robot_check and not self.bot_parser.can_fetch(self.url):
+            print("Not allowed to fetch image file specified by url:{} because of "
+                  "robots.txt".format(self.url))
+            raise urllib.error.URLError("Not allowed to fetch image file specified by url:{} because of "
+                                        "robots.txt".format(self.url))
         if proxy:
             try:
                 """
