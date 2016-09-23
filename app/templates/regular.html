@@ -3,23 +3,14 @@
 {% import "_macros.html" as macros %}
 
 {% block title %}Timestamp web articles Regularly - Stamp the Web{% endblock %}
-<style>
- div#loading {
-    width: 35px;
-    height: 35px;
-    display: none;
-    background: url(/pdf/loadingimage.gif) no-repeat;
-    cursor: wait;
-    }
-</style>
-
 
 
 {% block page_content %}
 <script type="text/javascript">
-  function loading(){
+  function loading_schedule(){
     url = document.getElementById('url');
-    if(ValidURL(url.value)){
+    freq = document.getElementById('frequency');
+    if(ValidURL(url.value) && freq.value > 0){
         $("#loading").show();
         $("#content").hide();
     }

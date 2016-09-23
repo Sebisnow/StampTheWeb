@@ -12,7 +12,7 @@
 <link rel="shortcut icon" href="/pdf/icon.png" type="image/x-icon">
 <!--<link rel="icon" href="{{ url_for('static', filename='favicon.png') }}" type="image/x-icon"> -->
 <link rel="icon" href="/pdf/icon.png" type="image/x-icon">
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
 
 {% endblock %}
@@ -26,7 +26,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <img src="/pdf/icon.png" height="50" width="55" align="center">
+            <a href="{{ url_for('main.index') }}"><img src="/pdf/icon.png" height="50" width="55" align="center"></a>
             <a class="navbar-brand" href="{{ url_for('main.index') }}"></a>
 
         </div>
@@ -34,7 +34,7 @@
             <ul class="nav navbar-nav">
                 <li class="{{ home_page}}"><a id="main.index" href="{{ url_for('main.index') }}"> Submit Time-stamp <span class="glyphicon glyphicon-time"></span></a></li>
                 {% if current_user.is_authenticated %}
-                <li class="{{ comp_page}}"><a id="main.compare" href="{{ url_for('main.compare') }}">Browse Time-stamps <span class="glyphicon glyphicon-search"></span></a></li>
+                <li class="{{ comp_page}}"><a id="main.compare" href="{{ url_for('main.compare') }}">Search Time-stamps <span class="glyphicon glyphicon-search"></span></a></li>
                 <li class="dropdown {{ regular }}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                             Schedule <span class="glyphicon glyphicon-calendar"></span><b class="caret"></b>

@@ -54,42 +54,45 @@ class EditProfileAdminForm(Form):
 
 
 class PostForm(Form):
-    body = TextAreaField("Add a Title (Optional)",
+    body = TextAreaField("Add a Title (Optional) <i class='glyphicon glyphicon-info-sign'></i>",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    urlSite = URLField("Enter URL to create its timestamp", validators=[url(), DataRequired()],
+    urlSite = URLField("Enter URL to create its timestamp <i class='glyphicon glyphicon-asterisk'></i>", validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
     submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class PostEdit(Form):
-    body = TextAreaField("Edit the title",
+    body = TextAreaField("Edit the title <i class='glyphicon glyphicon-info-sign'></i>",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
     submit = SubmitField('Update', render_kw={"onclick": "loading()"})
 
 
 class PostFreq(Form):
-    body = TextAreaField("Add a Title (Optional)",
+    body = TextAreaField("Add a Title (Optional) <i class='glyphicon glyphicon-info-sign'></i>",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    url = URLField("Enter URL to be regularly timestamped", validators=[url(), DataRequired()],
+    url = URLField("Enter URL to be regularly timestamped <i class='glyphicon glyphicon-asterisk'></i>", validators=[url(), DataRequired()],
                    render_kw={"placeholder": "http://www.example.com"})
-    frequency = IntegerField('The frequency (in days) for which timestamps should be created:',
+    frequency = IntegerField("The frequency (in days) for which timestamps should be created "
+                             "<i class='glyphicon glyphicon-asterisk'></i>",
                              [DataRequired('num required.'),
                               validators.NumberRange(min=1, max=30)], default=3)
-    email = EmailField('Notify me in case there is any change in content. (email required)',
+    email = EmailField("Notify me in case there is any change in content. (email required) "
+                       "<i class='glyphicon glyphicon-info-sign'></i>",
                        render_kw={"placeholder": "email@example.com"})
-    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
+    submit = SubmitField("Submit", render_kw={"onclick": "loading_schedule()"})
 
 
 class PostCountry(Form):
-    body = TextAreaField("Add a Title (Optional)",
+    body = TextAreaField("Add a Title (Optional) <i class='glyphicon glyphicon-info-sign'></i>",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    urlSite = URLField("Enter URL to be regularly timestamped", validators=[url(), DataRequired()],
+    urlSite = URLField("Enter URL to be regularly timestamped <i class='glyphicon glyphicon-asterisk'></i>", validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
-    frequency = IntegerField('The frequency (in days) for which timestamps should be created:',
+    frequency = IntegerField("The frequency (in days) for which timestamps should be created "
+                             "<i class='glyphicon glyphicon-asterisk'></i>",
                              [DataRequired('num required.'),
                               validators.NumberRange(min=1, max=30)], default=3)
     choice_switcher = RadioField(
-        'Country?',
+        "Country? <i class='glyphicon glyphicon-info-sign'></i>",
         [DataRequired()],
         choices=[('default', 'Compare with the Default location'),
                  ('china', 'Compare with the page in China'),
@@ -97,37 +100,25 @@ class PostCountry(Form):
                  ('uk', 'Compare with the page in UK'),
                  ('russia', 'Compare with the page in Russia')], default='default'
     )
-    #china = BooleanField('Compare with the page in China',
-    #                     render_kw={"title": "If no location is selected, then Default Location would be used."})
-    #usa = BooleanField('Compare with the page in USA',
-    #                   render_kw={"title": "If no location is selected, then Default Location would be used."})
-    #uk = BooleanField('Compare with the page in UK',
-    #                  render_kw={"title": "If no location is selected, then Default Location would be used."})
-    #russia = BooleanField('Compare with the page in Russia',
-    #                      render_kw={"title": "If no location is selected, then Default Location would be used."})
-    email = EmailField('Notify me in case there is any change in content. (email required)',
+    email = EmailField("Notify me in case there is any change in content. (email) "
+                       "<i class='glyphicon glyphicon-info-sign'></i>",
                        render_kw={"placeholder": "email@example.com"})
     submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
 class PostBlock(Form):
-    body = TextAreaField("Add a Title (Optional)", render_kw={"title": "Titles help other users to"
-                                                                       " more quickly identify news articles."})
-    urlSite = URLField("Enter URL to check if it is blocked", validators=[url(), DataRequired()],
+    body = TextAreaField("Add a Title (Optional) <i class='glyphicon glyphicon-info-sign'></i>",
+                         render_kw={"title": "Titles help other users to more quickly identify news articles."})
+    urlSite = URLField("Enter URL to check if it is blocked <i class='glyphicon glyphicon-asterisk'></i>", validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
     choice_switcher = RadioField(
-        'Country?',
+        "Country? <i class='glyphicon glyphicon-info-sign'></i>",
         [DataRequired()],
         choices=[('china', 'Check if it is Blocked in China'),
                  ('usa', 'Check if it is Blocked in USA'),
                  ('uk', 'Check if it is Blocked in UK'),
                  ('russia', 'Check if it is Blocked in Russia')], default='china'
     )
-
-    #china = BooleanField('Check if it is Blocked in China')
-    #usa = BooleanField('Check if it is Blocked in USA')
-    #uk = BooleanField('Check if it is Blocked in UK')
-    #russia = BooleanField('Check if it is Blocked in Russia')
     submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
 
 
@@ -136,7 +127,7 @@ class FormSubmit(Form):
 
 
 class PostVerify(Form):
-    urlSite = StringField("Search by URL or text", validators=[DataRequired()], render_kw={"placeholder": "search"})
+    urlSite = StringField("Search by URL or text <i class='glyphicon glyphicon-asterisk'></i>", validators=[DataRequired()], render_kw={"placeholder": "search"})
     submit = SubmitField('Search', render_kw={"onclick": "loading()", "title": "some Title"})
 
 
@@ -146,8 +137,9 @@ class SearchPost(Form):
 
 
 class URL_Status(Form):
-    urlSite = URLField("Enter URL to check where it is blocked?", validators=[url(), DataRequired()],
-                       render_kw={"placeholder": "http://www.example.com"})
+    urlSite = URLField("Enter URL to check where it is blocked? <i class='glyphicon glyphicon-asterisk'></i>",
+                       validators=[url(), DataRequired()],
+                       render_kw={"placeholder": "http://www.example.com"},)
     submit = SubmitField('Search', render_kw={"onclick": "loading()"})
 
 
@@ -160,10 +152,6 @@ class SearchOptions(Form):
                  ('uk', 'Compare with same page in UK'),
                  ('russia', 'Compare with same page in Russia')], default='china'
     )
-    #china = BooleanField('Compare with same page in China')
-    #usa = BooleanField('Compare with same page in USA')
-    #uk = BooleanField('Compare with same page in UK')
-    #russia = BooleanField('Compare with same page in Russia')
     submit = SubmitField('Compare', render_kw={"onclick": "loading()"})
 
 

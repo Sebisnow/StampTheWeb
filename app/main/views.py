@@ -27,6 +27,7 @@ global selected
 def index():
     form = PostForm()
     form_freq = PostFreq()
+    global selected
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
         sha256 = None
@@ -107,6 +108,10 @@ def index():
         pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
         posts = pagination.items
+        # In case user is not comparing articles anymore
+        if 'selected' in globals():
+            if selected is not None:
+                selected = None
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
                                doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
 
@@ -214,6 +219,9 @@ def compare_options(ids):
             else:
                 flash('Change in the content found')
 
+            global selected
+            selected = None
+
             return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
                                    dateRight=datetime.utcnow(), right=Markup(text_right), search=False)
         else:
@@ -221,6 +229,8 @@ def compare_options(ids):
             text_left = verification.remove_tags(text_1)
             text_left = htmldiff(text_left, text_left)
             flash('The selected page is blocked in '+form_choice.choice_switcher.data)
+            global selected
+            selected = None
             return render_template('very.html', double=True, left=Markup(text_left), dateLeft=post_1.timestamp,
                                    dateRight=datetime.utcnow(), search=False)
 
@@ -511,6 +521,7 @@ def regular():
         regular_new = Regular(frequency=freq, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
+        flash('A new Regular Scheduled recurring Time-stamp has been created')
         return redirect(url_for('.regular'))
     page = request.args.get('page', 1, type=int)
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(

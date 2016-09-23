@@ -112,7 +112,7 @@
         post: x
         }, function(data) {
             var response = data.result;
-            console.log(response);
+            //console.log(response);
             if(response.indexOf(":") > -1){
                 url = "/verify_two/"+response.toString();
                 window.open(url,'_blank');
@@ -125,7 +125,7 @@
                 var txt;
                 BootstrapDialog.show({
                     title: 'Compare',
-                    message: 'Would you like to compare the selected post to the current(online) web-content? <br> Other Options: Compare with other saved articles / articles from other countries.',
+                    message: 'Compare selected Time-stamp with?',
                     buttons: [{
                         label: 'Current Version',
                         action: function(dialog) {
@@ -134,9 +134,18 @@
                             dialog.close();
                         }
                     }, {
-                        label: 'Other Options',
+                        label: 'With another post',
                         action: function(dialog) {
                             BootstrapDialog.alert('Please select another post!');
+                            firstPost=x.toString();
+                            //url = "/compare_options/"+firstPost+":"+'{{domain}}';
+                            //window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }, {
+                        label: 'Compare for another country',
+                        action: function(dialog) {
+                            BootstrapDialog.alert('Please select a country to compare!');
                             firstPost=x.toString();
                             url = "/compare_options/"+firstPost+":"+'{{domain}}';
                             window.open(url,'_blank');
