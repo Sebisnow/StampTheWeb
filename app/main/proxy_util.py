@@ -6,7 +6,6 @@ import asyncio
 import os
 from proxybroker import Broker
 from random import randrange
-from flask import current_app as app
 
 
 # For testing please override the path to the proxy list with the actual one. eg.:
@@ -23,7 +22,7 @@ def get_proxy_location(ip_address):
     :return: The country_code as two letter string
     """
     # Automatically geolocate the connecting IP
-    app.logger.info("Getting the proxy location of:{}".format(str(ip_address)))
+    print("Getting the proxy location of:{}".format(str(ip_address)))
     url = 'http://freegeoip.net/json/' + ip_address
     with closing(urlopen(url)) as response:
         location = json.loads(str(response.read().decode()))
@@ -37,14 +36,14 @@ def get_rand_proxy():
     :author: Sebastian
     :return: One randomly chosen proxy
     """
-    app.logger.info("Getting a random proxy.")
+    print("Getting a random proxy.")
     country_list = []
     with open(proxy_path + "/proxy_list.tsv", "r", encoding="utf8") as tsv:
         for line in csv.reader(tsv, delimiter="\t"):
             country_list.append(line[0])
 
         country = country_list[randrange(0, len(country_list))]
-        app.logger.info("Random proxy will be from: {}".format(country))
+        print("Random proxy will be from: {}".format(country))
         return get_one_proxy(country)
 
 
@@ -58,8 +57,7 @@ def get_proxy_list(update=False, prox_loc=None):
     :param update: Is set to True by default. If set to False the proxy list will not be checked for inactive proxies.
     :return: A list of lists with 3 values representing proxies [1] with their location [0].
     """
-    # TODO check proxy_list for active proxies or use python package like getprox or proxybroker to check or get them.
-    app.logger.info("Getting the proxylist")
+    print("Getting the proxylist")
     proxy_list = []
     if update:
         proxy_list = update_proxies(prox_loc)
@@ -71,7 +69,7 @@ def get_proxy_list(update=False, prox_loc=None):
             prox = get_one_proxy(prox_loc)
             if prox:
                 proxy_list.append([prox_loc, prox, None])
-    app.logger.info("Returning the proxy list")
+    print("Returning the proxy list")
     return proxy_list
 
 
@@ -84,7 +82,7 @@ def update_proxies(prox_loc=None):
     :param prox_loc: A new location to be added to the countries already in use. Defaults to None.
     :return: A list of active proxies.
     """
-    app.logger.info("Start updating the proxy list")
+    print("Start updating the proxy list")
     country_list = []
     with open(proxy_path + "/proxy_list.tsv", "r", encoding="utf8") as tsv:
         for line in csv.reader(tsv, delimiter="\t"):
@@ -93,16 +91,16 @@ def update_proxies(prox_loc=None):
             country_list.append(prox_loc)
         country_list = set(country_list)
 
-    app.logger.info("Getting the proxies now. That may take quite a while!")
+    print("Getting the proxies now. That may take quite a while!")
     proxy_list = gather_proxies(country_list)
-    app.logger.info("All proxies gathered!")
+    print("All proxies gathered!")
 
     with open(proxy_path + "/proxy_list.tsv", "w", encoding="utf8") as tsv:
         # tsv.writelines([proxy[0] + "\t" + proxy[1] for proxy in proxy_list])
         for proxy in proxy_list:
             tsv.write("{}\t{}\n".format(proxy[0], proxy[1]))
-            app.logger.info("writing proxy {} from {} to file.".format(proxy[1], proxy[0]))
-    app.logger.info("All proxies wrote to file!")
+            print("writing proxy {} from {} to file.".format(proxy[1], proxy[0]))
+    print("All proxies wrote to file!")
     return proxy_list
 
 
@@ -115,11 +113,14 @@ def gather_proxies(countries):
     :param countries: The ISO style country codes to fetch proxies for. Countries is a list of two letter strings.
     :return: A list of proxies that are themself a list with  two paramters[Location, proxy address].
     """
-    # TODO !! May take more than 45 minutes !!
+    # TODO !! May take more than 45 minutes !! Run in separate thread?
     proxy_list = []
     types = ['HTTP']
     for country in countries:
-        loop = asyncio.get_event_loop()
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
 
         proxies = asyncio.Queue(loop=loop)
         broker = Broker(proxies, loop=loop)
@@ -130,15 +131,32 @@ def gather_proxies(countries):
             proxy = proxies.get_nowait()
             if proxy is None:
                 break
-            app.logger.info(str(proxy))
+            print(str(proxy))
             proxy_list.append([country, "{}:{}".format(proxy.host, str(proxy.port))])
     return proxy_list
 
 
-def get_one_proxy(country):
-    app.logger.info("Fetching one proxy from: {}".format(country))
-    types = ['HTTP']
-    loop = asyncio.get_event_loop()
+def get_one_proxy(country, types='HTTP'):
+    """
+    Find one new, working proxy from the specified country. Run time of this method depends heavily on the country specified
+    as for some countries it is hard to find proxies (e.g. Myanmar).
+
+    :author: Sebastian
+    :param country: Two-letter ISO formatted country code. If a lookup is needed before calling this method, please
+    consult /static/country_codes.csv.
+    :param types: The type of proxy to search for as a list of strings. Defaults to HTTP.
+    If only one type should be specified a string like "HTTPS" will also work.
+    Other possibilities are HTTPS, SOCKS4, SOCKS5. E.g. types=['HTTP, HTTPS']
+    :return: A string containing the newly found proxy from the specified country in <Proxy IP>:<Port> notation.
+    """
+    print("Fetching one proxy from: {}".format(country))
+    if type(types) is not list:
+        types = list(types)
+
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
 
     proxies = asyncio.Queue(loop=loop)
     broker = Broker(proxies, loop=loop)
@@ -149,7 +167,7 @@ def get_one_proxy(country):
         proxy = proxies.get_nowait()
         if proxy is None:
             break
-        app.logger.info("Proxy from {} is: {}:{}".format(country, proxy.host, str(proxy.port)))
+        print("Proxy from {} is: {}:{}".format(country, proxy.host, str(proxy.port)))
 
         return "{}:{}".format(proxy.host, str(proxy.port))
     return None
