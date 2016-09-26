@@ -45,8 +45,8 @@
                                         {% if post.postID.fileName %}
                                         <a class="label label-primary" href=/pdf/{{  post.postID.fileName }} target="_blank"  style="margin-right: 5px;">Download File </a>
                                         {% else %}
-                                        <a class="label label-primary" href=/pdf/{{  post.postID.hashVal }}.pdf target="_blank"  style="margin-right: 5px;">Download pdf </a>
-                                        <a class="label label-primary" href=/pdf/{{  post.postID.hashVal }}.png target="_blank"  style="margin-right: 5px;">Download png </a>
+                                        <a class="label label-primary" href=/pdf/{{  post.postID.hashVal }}.pdf target="_blank"  style="margin-right: 5px;">PDF </a>
+                                        <a class="label label-primary" href=/pdf/{{  post.postID.hashVal }}.png target="_blank"  style="margin-right: 5px;">Screenshot </a>
                                         {% endif %}
                                     </td>
                                     <td>{{post.postID.origStampTime}}</td>

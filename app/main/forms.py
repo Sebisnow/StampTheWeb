@@ -9,6 +9,20 @@ from ..models import Role, User
 from wtforms.fields.html5 import URLField, IntegerField, EmailField
 from wtforms.validators import url
 
+from wtforms.widgets.core import HTMLString, html_params, escape
+
+class InlineButtonWidget(object):
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('type', 'input')
+        # Allow passing title= or alternately use field.description
+        title = kwargs.pop('title', field.description or '')
+        params = html_params(title=title, **kwargs)
+
+        html = '<div class="form-group has-feedback .has-feedback-left"> ' \
+               '<input type="text" class="form-control" placeholder="Search" %s>%s' \
+               '<i class="class="glyphicon glyphicon-user form-control-feedback""></i>' \
+               '</div>'
+        return HTMLString(html % (params, escape(field.label.text)))
 
 class NameForm(Form):
     name = StringField('What is your name?', validators=[DataRequired()])
@@ -127,6 +141,12 @@ class FormSubmit(Form):
 
 
 class PostVerify(Form):
+    #TODO Add glyph icon
+    """urlSite = StringField(
+        u'',
+        validators=[DataRequired()],
+        widget=InlineButtonWidget()
+    )"""
     urlSite = StringField("Search by URL or text <i class='glyphicon glyphicon-asterisk'></i>", validators=[DataRequired()], render_kw={"placeholder": "search"})
     submit = SubmitField('Search', render_kw={"onclick": "loading()", "title": "some Title"})
 

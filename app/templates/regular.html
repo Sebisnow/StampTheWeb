@@ -34,7 +34,7 @@
     <h6 class="text-right">Hello, <mark>{% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</mark></h6>
 </div>
 <div class="tab-content">
-    <div id="home" class="tab-pane fade in active">
+    <div id="home" class="tab-pane fade in active" style="width: 50%">
       <h3>Submit URL to be Regularly Checked for Changes</h3>
       {% if current_user.can(Permission.WRITE_ARTICLES) %}
         {{ wtf.quick_form(form, button_map={'submit':'primary'}) }}
