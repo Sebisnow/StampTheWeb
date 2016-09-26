@@ -53,7 +53,7 @@
                     </ul>
                 </li>
                 <li class="{{ stat_page }}"><a href="{{ url_for('main.statistics') }}">Statistics <span class="glyphicon glyphicon-stats"></span></a></li>
-                <li class="{{ stat_page }}"><a href="{{ url_for('main.faq') }}">FAQ <span class="glyphicon glyphicon-question-sign"></span></a></li>
+                <li class="{{ faq_page }}"><a href="{{ url_for('main.faq') }}">FAQ <span class="glyphicon glyphicon-question-sign"></span></a></li>
 
                 {% endif %}
             </ul>
@@ -72,6 +72,7 @@
                     </ul>
                 </li>
                 {% else %}
+                <li class="{{ faq_page }}"><a href="{{ url_for('main.faq') }}">FAQ <span class="glyphicon glyphicon-question-sign"></span></a></li>
                 <li><a href="{{ url_for('auth.register') }}"><span class="glyphicon glyphicon-user"></span> Register for Free</a></li>
                 <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> Log In</a></li>
                 {% endif %}

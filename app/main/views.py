@@ -383,7 +383,7 @@ def statistics():
 
 @main.route('/faq')
 def faq():
-    return render_template('faq.html')
+    return render_template('faq.html', faq_page="active")
 
 @main.route('/block_country', methods=['GET', 'POST'])
 @nocache
