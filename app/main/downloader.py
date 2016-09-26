@@ -3,14 +3,10 @@ import os
 import re
 import requests
 import traceback
-import ipfsApi
 from subprocess import check_output, DEVNULL
 import pdfkit
 import queue
 import threading
-import csv
-
-import time
 from sqlalchemy import and_
 from flask_login import current_user
 from random import randrange
@@ -23,16 +19,9 @@ from app.models import Country, Post
 from app.main import download_thread as d_thread
 from .. import db
 
-
-# regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
-urlPattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 # nullDevice = open(os.devnull, 'w')
-basePath = 'app/pdf/'
-d_thread.base_path = basePath
 errorCaught = ""
-ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 
-apiPostUrl = 'http://www.originstamp.org/api/stamps'
 blockSize = 65536
 options = {'quiet': ''}
 
@@ -67,8 +56,8 @@ def get_all_domain_names(post):
 
 
 def remove_unwanted_data_regular():
-    basePath = 'app/pdf/temp-world.geo.json'
-    with open(basePath) as data_file:
+    base_path = 'app/pdf/temp-world.geo.json'
+    with open(base_path) as data_file:
         data = json.load(data_file)
     a = 0
     while a < 211:
@@ -88,8 +77,8 @@ def remove_unwanted_data_regular():
 
 
 def remove_unwanted_data():
-    basePath = 'app/pdf/temp-world.geo.json'
-    with open(basePath) as data_file:
+    base_path = 'app/pdf/temp-world.geo.json'
+    with open(base_path) as data_file:
         data = json.load(data_file)
     a = 0
     while a < 211:
@@ -105,8 +94,8 @@ def remove_unwanted_data():
 
 
 def remove_unwanted_data_block_country():
-    basePath = 'app/pdf/temp-world.geo.json'
-    with open(basePath) as data_file:
+    base_path = 'app/pdf/temp-world.geo.json'
+    with open(base_path) as data_file:
         data = json.load(data_file)
     a = 0
     while a < 211:
@@ -125,12 +114,7 @@ def remove_unwanted_data_block_country():
 
 
 def search_for_url(url):
-    index = 0
-    proxy_list = {}
-    with open(basePath + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
-        for line in csv.reader(tsv, delimiter="\t"):
-            proxy_list[index] = [line[0], line[1], None]
-            index += 1
+    proxy_list = proxy_util.get_proxy_list()
 
     q = queue.Queue()
     for k in proxy_list:
@@ -211,62 +195,37 @@ def create_png_from_url(url, sha256):
     :author: Sebastian
     :param url: url to retrieve
     :param sha256: name of the downloaded png
-    :returns: path to the created png """
+    :returns: path to the created png or None
+    """
     app.logger.info('Creating PNG from URL:' + url)
-    path = '{}{}.png'.format(basePath, sha256)
+    path = '{}{}.png'.format(proxy_util.base_path, sha256)
     app.logger.info('PNG Path:' + path)
-    # call(['wkhtmltoimage', '--quality', '20', url, path], stderr=DEVNULL)
 
-    """dcap = dict(DesiredCapabilities.PHANTOMJS)
-    dcap[
-        "phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 " \
-                                               "(KHTML, like Gecko) Chrome/15.0.87"
-    app.logger.info('Initialize PhantomJS.')
-    phantom = webdriver.PhantomJS(d_thread.js_path, desired_capabilities=dcap)
-    phantom.capabilities["acceptSslCerts"] = True
-    max_wait = 30
-    phantom.set_window_size(1024, 768)
-    phantom.set_page_load_timeout(max_wait)
-    phantom.set_script_timeout(max_wait)"""
-    # TODO test before production
     phantom = d_thread.DownloadThread.initialize()
     app.logger.info('Initializing done fetching url.')
     phantom.get(url)
+
     app.logger.info('Downloaded url, start scrolling.')
-    start_time = time.time()
-    last_height = phantom.execute_script("return document.body.scrollHeight")
-    # only load for a maximum of 10 seconds
-    app.logger.info("{} is starttime of scrolling".format(start_time))
-    while True or time.time() - start_time > 10:
-        app.logger.info("{} is current time difference, keep scrolling".format(time.time() - start_time))
-        phantom.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(0.5)
-        new_height = phantom.execute_script("return document.body.scrollHeight")
-        if new_height == last_height:
-            app.logger.info("Done with scrolling after {} seconds".format(time.time() - start_time))
-            break
-        last_height = new_height
+    d_thread.DownloadThread.scroll(phantom)
     phantom.get_screenshot_as_file(path)
 
     app.logger.info("PNG created: {}".format(os.path.exists(path)))
-    # call(["webkit2png", "-o", path, "-g", "1000", "1260", "-t", "30", url
-    # subprocess.Popen(['wget', '-O', path, 'http://images.websnapr.com/?url='+url+'&size=s&nocache=82']).wait()
     if os.path.isfile(path):
-        return
+        return path
     if not app.config["TESTING"]:
         flash(u'Could not create PNG from ' + url, 'error')
     app.logger.error('Could not create PNG from the URL : ' + url)
-    return
+    return None
 
 
 def create_html_from_url(html_text, ipfs_hash, url):
-    path = basePath + ipfs_hash + '.html'
+    path = proxy_util.base_path + ipfs_hash + '.html'
     app.logger.info("Fetching the HTML file from IPFS to save locally.")
     # fetch the to IPFS submitted html text to store on disk
     try:
         cur_dir = os.getcwd()
-        os.chdir(basePath)
-        ipfs_Client.get(ipfs_hash)
+        os.chdir(proxy_util.base_path)
+        d_thread.ipfs_Client.get(ipfs_hash)
         app.logger.info("Trying to fetch the HTML from IPFS")
 
         app.logger.info("Fetched the html from ipfs: " + str(os.path.exists(ipfs_hash)))
@@ -286,7 +245,7 @@ def create_html_from_url(html_text, ipfs_hash, url):
             with open(path, 'w') as file:
                 file.write(html_text)
             if os.path.isfile(path):
-                ip = ipfs_Client.add(path)
+                ip = d_thread.ipfs_Client.add(path)
                 ipfs_hash = ip[0]["Hash"]
                 app.logger.info("Added following file to IPFS: " + path)
                 app.logger.info('With Hash:' + ipfs_hash)
@@ -311,12 +270,13 @@ def create_pdf_from_url(url, sha256):
     """
     Generates a pdf from the given url and stores it under the name of the given hash value.
 
+    :author Sebastian
     :param url: url to retrieve
     :param sha256: the hash of the url which is important for the filename
     method to write pdf file
     """
     app.logger.info('Creating PDF from URL:' + url)
-    path = basePath + sha256 + '.pdf'
+    path = proxy_util.base_path + sha256 + '.pdf'
     app.logger.info('PDF Path:' + path)
     try:
         # TODO throws error
@@ -336,6 +296,8 @@ def create_pdf_from_url(url, sha256):
 def calculate_hash_for_html_doc(html_text):
     """
     Calculate hash for given html document.
+
+    :author Sebastian
     :param html_text: html doc to hash as text
     :returns: calculated hash for given URL and the document used to create the hash
     """
@@ -376,7 +338,7 @@ def submit(sha256, title=None):
     """
     headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
     data = {'hash_sha256': sha256, 'title': title}
-    return requests.post(apiPostUrl, json=data, headers=headers)
+    return requests.post(d_thread.api_post_url, json=data, headers=headers)
 
 
 def get_originstamp_history(sha256):
@@ -398,7 +360,7 @@ def get_originstamp_history(sha256):
     """
     headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
 
-    return requests.get("{}/{}".format(apiPostUrl, sha256), headers=headers)
+    return requests.get("{}/{}".format(d_thread.api_post_url, sha256), headers=headers)
 
 
 def submit_add_to_db(url, sha256, title):
@@ -406,6 +368,7 @@ def submit_add_to_db(url, sha256, title):
     submit hash to originStamp and store in DB.
     # TODO store in WARC file that is described by the URL and append changed hashes of a URL to the same WARC.
 
+    :author Sebastian
     :param url: URL downloaded
     :param title: Title of the document behind the URL
     :param sha256: Hash to name file after
@@ -447,7 +410,7 @@ def load_images(soup):
     files = list()
     img_ctr = 0
     for img in soup.find_all(['amp-img', 'img']):
-        if urlPattern.match(img['src']):
+        if proxy_util.url_specification.match(img['src']):
             filename = 'img' + str(img_ctr)
             img_ctr += 1
             r = requests.get(img['src'], stream=True)
@@ -504,7 +467,7 @@ def getHashOfFile(fname):
     :param fname: The path to the File to get the hash for.
     :return: Returns the Hash of the file.
     """
-    res = ipfs_Client.add(fname)
+    res = d_thread.ipfs_Client.add(fname)
     """
     # deprecated legacy function without IPFS
     hash_sha265 = hashlib.sha256()
@@ -537,7 +500,7 @@ def save_file_ipfs(text):
     :param text: The text to be timestamped.
     :return: Returns the hash of the stored file, which equals the address on IPFS.
     """
-    path = basePath + "temp.html"
+    path = proxy_util.base_path + "temp.html"
     app.logger.info("Working Directory: " + os.getcwd() + "trying to create temporary file:" + path)
     try:
         app.logger.info(path + " File exists before modification " + str(os.path.exists(path)))
@@ -557,13 +520,14 @@ def save_file_ipfs(text):
         app.logger.error(traceback.print_exc())
 
     app.logger.info("    There is a file called " + path + ": " + str(os.path.exists(path)))
-    ipfs_hash = ipfs_Client.add(path)
+    ipfs_hash = d_thread.ipfs_Client.add(path)
     print(ipfs_hash[0]['Hash'])
     return ipfs_hash[0]['Hash']
 
 
 def get_hash_history(sha256):
     """
+    :author Waqar
     :parm sha256: the sha256 which needs to verify from OriginStamps
     """
     results = submitHash(sha256)
@@ -581,20 +545,20 @@ def ipfs_get(timestamp):
     :return: Returns the path to the locally stored data collected from IPFS.
     """
 
-    path = basePath + timestamp
+    path = proxy_util.base_path + timestamp
     cur_dir = os.getcwd()
-    os.chdir(basePath)
+    os.chdir(proxy_util.base_path)
     app.logger.info("Trying to fetch the HTML from IPFS")
     try:
         check_output(['ipfs', 'get', timestamp], stderr=DEVNULL)
         app.logger.info("ipfs command completed. Fetched File present: " +
-                        str(os.path.exists(basePath + timestamp)))
+                        str(os.path.exists(proxy_util.base_path + timestamp)))
     except FileNotFoundError as e:
         app.logger.info(e.strerror + " ipfs command not found trying another way." + str(type(timestamp)))
         check_output(['/home/ubuntu/bin/ipfs', 'get', timestamp], stderr=DEVNULL)
 
         app.logger.info("There is a file called " + path + timestamp + ": " +
-                        str(os.path.exists(basePath + timestamp)))
+                        str(os.path.exists(proxy_util.base_path + timestamp)))
         app.logger.info("There is a file called " + path + ": " + str(os.path.exists(path)))
 
     except Exception as e:
@@ -602,7 +566,7 @@ def ipfs_get(timestamp):
         app.logger.error("Error while trying to fetch from IPFS or renaming" + str(e) + "\n" +
                          "Could be a Permission problem on the Server")
         check_output(['/home/ubuntu/bin/ipfs', 'get', timestamp], stderr=DEVNULL)
-        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(basePath +
+        app.logger.info("There is a file called " + path + ": " + str(os.path.exists(proxy_util.base_path +
                                                                                      timestamp)))
     os.chdir(cur_dir)
     return path
@@ -618,7 +582,7 @@ def get_url_history(url):
     """
     # validate URL
     sha256 = None
-    if not re.match(urlPattern, url):
+    if not re.match(proxy_util.url_specification, url):
         if not app.config["TESTING"]:
             flash('100' + 'Bad URL' + 'URL needs to be valid to create timestamp for it:' + url, 'error')
         app.logger.error('100' + 'Bad URL.' + 'URL needs to be valid to create timestamp for it:\n' + url)
@@ -656,7 +620,7 @@ def get_url_history(url):
 # Deprecated Method of old STW
 def load_zip_submit(url, soup, enc):
     old_path = os.getcwd()
-    tmp_dir = basePath + str(uuid.uuid4())
+    tmp_dir = proxy_util.base_path + str(uuid.uuid4())
     os.mkdir(tmp_dir)
     os.chdir(tmp_dir)
     file_list = load_images(soup)
@@ -684,7 +648,7 @@ def save_render_zip_submit(html_text, sha256, url, title):
     :param sha256: The hash value associated with the HTML.
     :param url: The URL that is being Timestamped.
     :param title: The Title the user chose for this Timestamp.
-    :return: Returns an OriginstampResult object.
+    :returns OriginStampResult object: Returns an OriginstampResult object containing the results.
     """
     try:
         create_html_from_url(html_text, sha256, url)
@@ -693,12 +657,12 @@ def save_render_zip_submit(html_text, sha256, url, title):
         if not app.config["TESTING"]:
             flash(u'Internal System Error while creating the HTML: ' + fileError.strerror, 'error')
         app.logger.error('Internal System Error while creating HTML,: ' +
-                         fileError.strerror + "\n Maybe check the path, current base path is: " + basePath)
-    # archive = zipfile.ZipFile(basePath + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
-    # archive.write(basePath + sha256 + '.html')
-    # os.remove(basePath + sha256 + '.html')
-    # archive.write(basePath + sha256 + '.png')
-    # os.remove(basePath + sha256 + '.png')
+                         fileError.strerror + "\n Maybe check the path, current base path is: " + proxy_util.base_path)
+    # archive = zipfile.ZipFile(proxy_util.base_path + sha256 + '.zip', "w", zipfile.ZIP_DEFLATED)
+    # archive.write(proxy_util.base_path + sha256 + '.html')
+    # os.remove(proxy_util.base_path + sha256 + '.html')
+    # archive.write(proxy_util.base_path + sha256 + '.png')
+    # os.remove(proxy_util.base_path + sha256 + '.png')
     originstamp_result = submit_add_to_db(url, sha256, title)
 
     # moved image creation behind Timestamping so images are only created for new Stamps if no error occurred
@@ -742,8 +706,9 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     :author: Sebastian
     :param url: The URL of the website to timestamp.
     :param html: The body of the site to timestamp.
-    :param proxies: A list of max 5 Proxies that should be taken into account for the distributed timestamp.
-     Defaults to None
+    :param proxies: A list of two-itemed lists of max 5 Proxies that should be taken into account for the distributed
+    timestamp. Defaults to None. Each list item should consist of a list of length two with the country code at index 0
+    and the proxy in '<host>:<port>' notation as string.
     :param user: The username of the user that started the distributed timestamp. If the call came from the extension
      and no user was sent the user will be set to Bot.
     :param robot_check: Boolean value that indicates whether the downloader should honour the robots.txt of
@@ -753,7 +718,7 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     originStampResult, hashValue, webTitle and errors(defaults to None).
     """
     print("Distributed timestamping")
-    if not re.match(urlPattern, url):
+    if not re.match(proxy_util.url_specification, url):
         return ReturnResults(None, None, None, OriginstampError("The entered URL does not correspond "
                                                                 "to URL specifications", 501))
     proxy_list = proxy_util.get_proxy_list()
@@ -779,10 +744,7 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     # join all threads and return the DownloadThread with the most votes
     joined_threads, votes = join_threads(threads)
 
-    if max(votes) == 0:
-        return check_threads(joined_threads)
-
-    submit_threads_to_db(joined_threads, user)
+    submit_threads_to_db(joined_threads, user, votes)
 
     max_index = votes.index(max(votes))
     originstamp_result = submit(joined_threads[max_index].ipfs_hash, joined_threads[max_index].url)
@@ -793,25 +755,33 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
                          web_title=joined_threads[max_index].html.title)
 
 
-def run_thread(url, num, robot_check, proxy_list=None, html=None):
+def run_thread(url, num, robot_check=False, proxy_list=None, html=None):
     """
-    Convencience method to start one new thread with a downloading job and possibly with a random proxy
+    Convencience method to start one new thread with a downloading job and possibly with a random proxy depending on
+    the user input.
 
     :author: sebastian
     :param url: The URL to download from.
     :param num: The ID of the thread.
-    :param robot_check: Whether or not to honour robots.txt.
-    :param proxy_list: The proxy to be used for downloading
-    :param html: Defaults to None and is only specified if the user sent an HTML to timestamp.
+    :param robot_check: Whether or not to honour robots.txt, defaults to False.
+    :param proxy_list: The proxy to be used for downloading. If the list contains only one item this item is used.
+    :param html: Defaults to None and is only specified if the user sent his or her own HTML to timestamp.
     :return: The DownloadThread object that represents the freshly started thread.
     """
-    if html is None:
-        prox_num = randrange(0, len(proxy_list))
-        thread = DownloadThread(num, url=url, proxy=proxy_list[prox_num][1], prox_loc=proxy_list[prox_num][0],
-                                robot_check=robot_check)
-        thread.start()
-    else:
+
+    if html is not None:
         thread = DownloadThread(num, html=html, robot_check=robot_check)
+        thread.start()
+
+    elif proxy_list is None:
+        thread = DownloadThread(num, url=url, robot_check=robot_check)
+        thread.start()
+        print("Proxy list is empty starting without proxy")
+    else:
+        # if  only one proxy is given that is taken otherwise randomly choose one.
+        proxy_num = randrange(0, len(proxy_list))
+        thread = DownloadThread(num, url=url, proxy=proxy_list[proxy_num][1], prox_loc=proxy_list[proxy_num][0],
+                                robot_check=robot_check)
         thread.start()
     return thread
 
@@ -827,31 +797,16 @@ def join_threads(threads):
         website originated from, crawl the website from that country and take that country’s content as the original to
         compare with the rest of the distributed timestamp.
 
+    :author Sebastian
     :param threads: A list of DownloadThreads that need to be joined.
     :return: A list of DownloadThread objects with all important information about hash, html and infos about the
     download job and the index of the DownloadThread with the highest votes as second parameter.
     """
     app.logger.info("Joining Threads.")
-    results = []
     for thread in threads:
         thread.join()
-        results.append(thread)
 
-    # TODO store different results
-    votes = [0 for x in results]
-    for num in range(0, len(results)):
-        if results[num].error or results[num].ipfs_hash is None:
-            # An error occurred in this thread, site unreachable from this location.
-            # TODO Store to db
-            print("The url ({}) is unreachable from {}.".format(results[num].url, results[num].prox_loc))
-            app.logger.info("The url ({}) is unreachable from {}.".format(results[num].url, results[num].prox_loc))
-            continue
-        for cnt in range(0, len(results)):
-            if results[num].threadID != results[cnt].threadID and results[num].ipfs_hash == results[cnt].ipfs_hash:
-                votes[num] += 1
-    app.logger.info(votes)
-    print("Joined Threads: {}".format(votes))
-    return results, votes
+    return check_threads(threads)
 
 
 def check_threads(threads):
@@ -863,17 +818,34 @@ def check_threads(threads):
     :return: All threads and as second parameter the index of the thread that should be taken as the timestamp and
     returned to the user.
     """
-    print("------------------------------\nAll Threads supposedly returned the same result"
-          "\n---------------------------")
-    return threads, 0
+    # TODO store different results
+    votes = [0 for x in threads]
+    for num in range(0, len(threads)):
+        if threads[num].ipfs_hash is not None:
+            print("We have an ipfs_hash: {}".format(threads[num].ipfs_hash))
+
+        elif threads[num].error is not None or threads[num].ipfs_hash is None:
+            # An error occurred in this thread, site unreachable from this location.
+            # TODO Store to db
+            print("The url ({}) is unreachable from {}.".format(threads[num].url, threads[num].prox_loc))
+            app.logger.info("The url ({}) is unreachable from {}.".format(threads[num].url, threads[num].prox_loc))
+            continue
+
+        for cnt in range(0, len(threads)):
+            if threads[num].threadID != threads[cnt].threadID and threads[num].ipfs_hash == threads[cnt].ipfs_hash:
+                votes[num] += 1
+    app.logger.info(votes)
+    print("Joined Threads: {}".format(votes))
+    return threads, votes
 
 
-def submit_threads_to_db(results, user=None):
+def submit_threads_to_db(results, votes, user=None):
     """
     Submits the results to db and
 
     :author: Sebastian
     :param user:
+    :param votes:
     :param results:
     """
     for thread in results:
