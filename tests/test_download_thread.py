@@ -71,9 +71,31 @@ class BasicsTestCase(unittest.TestCase):
         self.assertEqual(thread.phantom.capabilities.get("proxy")["proxy"], proxy)
         print("    Proxy is set correctly to " + proxy + ".")
 
-    def test_class(self):
+    def test_class_with_proxy(self):
         print("\nTesting the functionality of the DownloadThread class:")
-        thread = down.DownloadThread(1, url, proxy, basepath=base_path)
+        thread = down.DownloadThread(1, url, proxy, prox_loc="FR", basepath=base_path)
+        thread.start()
+        print("    Waiting for thread to join.")
+        thread.join()
+        print("    After join:\n" + str(thread.html))
+        text = thread.html
+
+        print("    The originstamp_result of this thread: \n{}".format(thread.originstamp_result.json()))
+        self.assertIsNotNone(text, "None HTML was stored and processed.")
+        print("    Testing whether thread is alive")
+        thread.join()
+        self.assertFalse(thread.is_alive(), "Thread is still alive after join")
+        ipfs_hash = thread.ipfs_hash
+        self.assertIsNotNone(ipfs_hash, "The DownloadThread did not produce an ipfs_hash")
+        if ipfs_hash:
+            file_path = downloader.ipfs_get(ipfs_hash)
+            self.assertTrue(os.path.exists(file_path), "File not transmitted to ipfs, it cannot be fetched")
+        else:
+            raise self.failureException
+
+    def test_class_without_proxy(self):
+        print("\nTesting the functionality of the DownloadThread class:")
+        thread = down.DownloadThread(1, url, basepath=base_path)
         thread.start()
         print("    Waiting for thread to join.")
         thread.join()
@@ -101,6 +123,7 @@ class BasicsTestCase(unittest.TestCase):
         self.assertEqual(len(images), 2)
 
     def test_zip_submission(self):
+        """Deprecated"""
         print("Testing the IPFS submission of Zip files:")
         #os.chdir(base_path)
         res = down.add_to_ipfs(base_path + "sebastian.zip")
