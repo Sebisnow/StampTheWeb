@@ -1,7 +1,9 @@
 import threading
 import re
 import os
+import urllib.error
 from urllib.robotparser import RobotFileParser
+from urllib.parse import urlparse
 import requests
 import chardet
 from flask import current_app as app
@@ -20,13 +22,12 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ReadTimeout, HTTPError
 from app.main.proxy_util import get_one_proxy
+import app.main.proxy_util as proxy_util
 # from ..models import Warcs
 
 exit_flag = 0
-url_pattern = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 js_path = os.path.abspath(os.path.expanduser("~/") + '/bin/phantomjs/lib/phantom/bin/phantomjs')
-base_path = 'app/pdf/'
 
 api_key = '7be3aa0c7f9c2ae0061c9ad4ac680f5c'
 api_post_url = 'http://www.originstamp.org/api/stamps'
@@ -70,10 +71,10 @@ class DownloadThread(threading.Thread):
         self.storage_path, self.images = basepath, dict()
         self.path = "{}temporary".format(basepath)
         self.ipfs_hash, self.title, self.originstamp_result = None, None, None
-        self.error, self.already_submitted = False, False
-        if robot_check:
-            # TODO filter domain
-            self.bot_parser = RobotFileParser().set_url(self.url)
+        self.error, self.already_submitted = None, False
+        if self.robot_check:
+            url_parser = urlparse(self.url)
+            self.bot_parser = RobotFileParser().set_url("{url.scheme}://{url.netloc}/robots.txt".format(url=url_parser))
             self.bot_parser.read()
 
         if self.html is None:
@@ -94,6 +95,7 @@ class DownloadThread(threading.Thread):
                 print("Path not found: {}".format(self.path))
                 if app.config["TESTING"]:
                     self.path = os.path.abspath(os.path.expanduser("~/")) + "/testing-stw/temporary/"
+                    print("Testing, so new path is: {}".format(self.path))
                 else:
                     self.path = "{}/StampTheWeb/{}temporary/".format(os.path.abspath(os.path.expanduser("~/")),
                                                                      self.storage_path)
@@ -121,15 +123,14 @@ class DownloadThread(threading.Thread):
         :return: The PhantomJS driver object.
         """
         dcap = dict(DesiredCapabilities.PHANTOMJS)
-        dcap[
-            "phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 " \
-                                                   "(KHTML, like Gecko) Chrome/15.0.87"
+        dcap["phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 " \
+                                                    "(KHTML, like Gecko) Chrome/15.0.87"
         phantom = webdriver.PhantomJS(js_path, desired_capabilities=dcap)
         phantom.capabilities["acceptSslCerts"] = True
         if proxy:
             phantom.capabilities["proxy"] = {"proxy": proxy,
                                              "proxy-type": "http"}
-        max_wait = 30
+        max_wait = 35
 
         phantom.set_window_size(1024, 768)
         phantom.set_page_load_timeout(max_wait)
@@ -139,49 +140,48 @@ class DownloadThread(threading.Thread):
     def run(self):
         """
         Run the initialized thread and start the download job. Afterwards submit the hash to originstamp to create a
-        lasting and verifyable timestamp
+        lasting and verifyable timestamp. If HTML is not allowed to be retrieved by the crawler raise URLError.
 
         :author: Sebastian
+        :raises URLError: Is raised if HTML retrieval is forbidden by robots.txt.
         """
         print("Started Thread" + str(self.threadID))
-        failed = False
-        try:
-            self.download()
-        except TimeoutException:
-            failed = True
+        if self.robot_check and not self.bot_parser.can_fetch(self.url):
+            self.error = urllib.error.URLError("Not allowed to fetch root html file specified by url:{} because of "
+                                               "robots.txt".format(self.url))
+            raise urllib.error.URLError("Not allowed to fetch root html file specified by url:{} because of "
+                                        "robots.txt".format(self.url))
 
-            print("Couldn't reach website through proxy, trying again with new proxy")
-
-        if failed:
-            self.initialize(get_one_proxy(self.prox_loc))
-            print("Thread{} is trying again with new proxy".format(self.proxy))
-            try:
-                self.download()
-            except TimeoutException:
-                # TODO not reachable from this country - tried two proxies
-                print("Couldn't reach website through two proxies, unreachable from loc {}"
-                      .format(self.prox_loc))
-                self.error = True
-                raise TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
-                                       .format(self.prox_loc))
-        # submit the hash to originstamp to to create a lasting timestamp.
+        self.download()
+        # submit the hash to originstamp to create a lasting timestamp.
         self.handle_submission()
 
     def download(self):
         """
         Orchestrates the download job of this thread. Time consuming method that downloads the html via phantomJS.
         Makes the assumption that if a html is provided no proxy is set.
+        Raises TimeoutException if html is unreachable from two proxies of the same country.
 
         :author: Sebastian
-        :raises TimeoutException: If the proxy is not active anymore or unreachable for too long a TimeoutException is
-        thrown to be caught and handled by calling function.
+        :raises TimeoutException: If the proxy is not active anymore or the website is unreachable a
+        TimeoutException is thrown.
         """
         if self.html is None:
-            # if htm was not given to the download thread beforehand
-            print("Downloading without html, proxy is set to({}): {}".format(self.prox_loc, self.proxy))
-            self.phantom.get(self.url)
-            self.scroll(self.phantom)
-            self.html = str(self.phantom.page_source)
+            print(" Thread{}: Downloading without html, proxy is set to({}): {}".format(self.threadID, self.prox_loc,
+                                                                                        self.proxy))
+            # try downloading, if site is unreachable through proxy reinitialize with new proxy from same location.
+            if not self.download_html():
+                print("Couldn't reach website through proxy, trying again with new proxy")
+                self.scroll(self.phantom)
+                self.initialize(get_one_proxy(self.prox_loc))
+
+                # try again, if False is returned site was unreachable again -> propagate upwards by raising error
+                if not self.download_html():
+                    print("Couldn't reach website through two proxies, unreachable from loc {}"
+                          .format(self.prox_loc))
+                    self.error = True
+                    raise TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
+                                           .format(self.prox_loc))
 
         self.html, self.title = preprocess_doc(self.html)
         soup = BeautifulSoup(self.html, "lxml")
@@ -203,6 +203,24 @@ class DownloadThread(threading.Thread):
         self.ipfs_hash = add_to_ipfs(self.path + 'STW.zip')"""
         self.ipfs_hash = add_to_ipfs(self.path + 'page_source.html')
         print("Thread{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
+
+    def download_html(self):
+        """
+        Helper Method that downloads the HTML after scrolling down to enable dynamic content.
+
+        :author: Sebastian
+        :returns: returns False if an error occurred during the HTML downloading. Otherwise returns True
+        """
+        try:
+            self.phantom.get(self.url)
+        except TimeoutException as e:
+            print(e)
+            print(self.phantom.page_source[:100])
+            return False
+
+        self.scroll(self.phantom)
+        self.html = str(self.phantom.page_source)
+        return True
 
     def load_images(self, soup, proxy=None):
         """
@@ -233,6 +251,8 @@ class DownloadThread(threading.Thread):
                 print("Thread{} Could not connect to retrieve image. (Should be) Trying again with proxy"
                       .format(self.threadID))
                 # TODO start image load again with different proxy
+            except urllib.error.URLError as e:
+                print(str(e))
 
             filename = 'img{}'.format(str(img_ctr))
             img_ctr += 1
@@ -264,19 +284,24 @@ class DownloadThread(threading.Thread):
         :param proxy: The proxy that is to be used to download the image. Defaults to None, to download it directly.
         :return: A Response object with the response status and the image to store.
         """
-        if 'src' in img.attrs and url_pattern.match(img['src']):
+        if 'src' in img.attrs and proxy_util.url_specification.match(img['src']):
             tag = img['src']
-        elif 'data-full-size' in img.attrs and url_pattern.match(img['data-full-size']):
+        elif 'data-full-size' in img.attrs and proxy_util.url_specification.match(img['data-full-size']):
             tag = img['data-full-size']
-        elif 'data-original' in img.attrs and url_pattern.match(img['data-original']):
+        elif 'data-original' in img.attrs and proxy_util.url_specification.match(img['data-original']):
             tag = img['data-original']
-        elif 'data' in img.attrs and url_pattern.match(img['data']):
+        elif 'data' in img.attrs and proxy_util.url_specification.match(img['data']):
             tag = img['data']
         else:
             print("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
             raise NameError("Thread{}: An image did not have a html specification url: {}".format(self.threadID, img))
 
-        print("Thread{}: Downloading image: {}".format(self.threadID, tag))
+        print("Thread{}: Trying to download image: {}".format(self.threadID, tag))
+        if self.robot_check and not self.bot_parser.can_fetch(self.url):
+            print("Not allowed to fetch image file specified by url:{} because of "
+                  "robots.txt".format(self.url))
+            raise urllib.error.URLError("Not allowed to fetch image file specified by url:{} because of "
+                                        "robots.txt".format(self.url))
         if proxy:
             try:
                 """
@@ -355,15 +380,15 @@ class DownloadThread(threading.Thread):
                       "exists already.".format(self.threadID))
                 # hash already submitted
                 self.already_submitted = True
-                if not os.path.exists("{}{}.png".format(base_path, self.ipfs_hash)):
-                    self.phantom.get_screenshot_as_file("{}{}.png".format(base_path, self.ipfs_hash))
+                if not os.path.exists("{}{}.png".format(proxy_util.base_path, self.ipfs_hash)):
+                    self.phantom.get_screenshot_as_file("{}{}.png".format(proxy_util.base_path, self.ipfs_hash))
                     print("Hash submitted but png not existent. Wrote png to: {}"
-                          .format("{}{}.png".format(base_path, self.ipfs_hash)))
+                          .format("{}{}.png".format(proxy_util.base_path, self.ipfs_hash)))
 
             else:
                 print("Thread{} successfully submitted hash to originstamp and created a new timestamp."
                       .format(self.threadID))
-                self.phantom.get_screenshot_as_file("{}{}.png".format(base_path, self.ipfs_hash))
+                self.phantom.get_screenshot_as_file("{}{}.png".format(proxy_util.base_path, self.ipfs_hash))
 
     @staticmethod
     def scroll(phantom):
@@ -429,6 +454,7 @@ def add_to_ipfs(fname):
             return res[0]['Hash']
 
         print("IPFS result: " + str(res))
+        # TODO
         return res['Hash']
     else:
         res = ipfs_Client.add(fname, recursive=False)[0]
@@ -455,9 +481,9 @@ def get_from_ipfs(timestamp, file_path=None):
     if file_path:
         path = file_path + timestamp
     else:
-        path = base_path + timestamp
+        path = proxy_util.base_path + timestamp
     cur_dir = os.getcwd()
-    os.chdir(base_path)
+    os.chdir(proxy_util.base_path)
     print("Trying to fetch the File from IPFS: {}".format(timestamp))
     try:
         ipfs_Client.get(timestamp, timeout=5)

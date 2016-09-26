@@ -306,8 +306,8 @@ def block():
 
         if text_2 is not None:
             flash("The Article is not blocked in " + form.choice_switcher.data)
-            post = Post.query.get_or_404(post_new.id)
-            return render_template('very.html', verify=[post], single=True, search=False)
+            loaded_post = Post.query.get_or_404(post_new.id)
+            return render_template('very.html', verify=[loaded_post], single=True, search=False)
         else:
 
             block_new = Block(china=china, uk=uk, usa=usa, russia=russia, postID=post_new)

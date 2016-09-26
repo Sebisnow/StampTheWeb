@@ -1,11 +1,24 @@
 import unittest
 from app.main import downloader as down
+from app.main import proxy_util, download_thread
 from flask import current_app
 from app import create_app, db
 import ipfsApi
 import os
 import logging
 from subprocess import check_output, DEVNULL
+
+url = "http://www.theverge.com/2016/8/12/12444920/no-mans-sky-travel-journal-day-four-ps4-pc"
+sz_url = "http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480"
+
+
+class ThreadSubstitute:
+    def __init__(self, threadID, ipfs_hash, url, prox_loc, error=None):
+        self.threadID = threadID
+        self.ipfs_hash = ipfs_hash
+        self.url = url
+        self.prox_loc = prox_loc
+        self.error = error
 
 
 class BasicsTestCase(unittest.TestCase):
@@ -16,6 +29,8 @@ class BasicsTestCase(unittest.TestCase):
         self.client = ipfsApi.Client()
         db.create_all()
         down.basePath = "/home/sebastian/testing-stw/"
+        download_thread.base_path = "/home/sebastian/testing-stw/"
+        proxy_util.proxy_path = "/home/sebastian/PycharmProjects/STW/static/"
         log_handler = logging.FileHandler('/home/sebastian/testing-stw/STW.log')
         log_handler.setLevel(logging.INFO)
         self.app.logger.setLevel(logging.INFO)
@@ -76,10 +91,8 @@ class BasicsTestCase(unittest.TestCase):
 
     def test_sys(self):
         print("System testing")
-        down.basePath = '/home/sebastian/testing-stw/'
-
-        result = down.get_url_history("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
-                                      "-oelflut-ist-zu-ende-1.3047480")
+        result = down.get_url_history(url)
+        # TODO fails so far
         self.assertEqual(result.originStampResult.status_code, 200, "   Status code is " +
                          str(result.originStampResult.status_code))
         print("    Submitted URL, Status code: " + str(result.originStampResult.status_code))
@@ -101,13 +114,10 @@ class BasicsTestCase(unittest.TestCase):
 
     def test_hash_consistency(self):
         print("Testing the Hash Values")
-        down.basePath = '/home/sebastian/testing-stw/'
 
-        thread1 = down.get_url_history("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
-                                       "-oelflut-ist-zu-ende-1.3047480")
+        thread1 = down.get_url_history(sz_url)
         print("    Testing the resulting Hash Values for consistency")
-        thread2 = down.get_url_history("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
-                                       "-oelflut-ist-zu-ende-1.3047480")
+        thread2 = down.get_url_history(sz_url)
         print(thread1.hashValue)
         print(thread2.hashValue)
         print("    Second function call finished")
@@ -120,7 +130,6 @@ class BasicsTestCase(unittest.TestCase):
         self._baseAssertEqual(thread2.hashValue, thread3.hashValue, "The Hash Values of 2 and 3 do not match")
 
     def test_save_file_ipfs(self):
-        down.basePath = '/home/sebastian/testing-stw/'
         test_sha = "QmREyeWxAGtuQ5UiiTs13zp5ZamjkVBYpnDCF1bTgn7Atc"
         # :param test_sha: this is the IPFS hash of the example.html content
         print("Testing the save_file_ipfs with test hash and example input file to verify the IPFS saving steps")
@@ -132,7 +141,6 @@ class BasicsTestCase(unittest.TestCase):
         self.assertEqual(sha256, test_sha)
 
     def test_create_html_from_url(self):
-        down.basePath = '/home/sebastian/testing-stw/'
         test_sha = "QmREyeWxAGtuQ5UiiTs13zp5ZamjkVBYpnDCF1bTgn7Atc"
         print("Testing the create_html_from_url method to verify IPFS gets the file and it is renamed to have a .html "
               "ending.")
@@ -150,7 +158,33 @@ class BasicsTestCase(unittest.TestCase):
         self.assertTrue(os.path.exists(down.basePath + test_sha + '.html'))
 
     def test_distributed_timestamp_not_none(self):
-        down.basePath = '/home/sebastian/testing-stw/'
-        result = down.distributed_timestamp("http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die"
-                                            "-oelflut-ist-zu-ende-1.3047480")
+        result = down.distributed_timestamp(url)
+        self.assertIsNotNone(result)\
+
+
+    def test_distributed_timestamp_with_proxy(self):
+        result = down.distributed_timestamp(url, proxies=[["FR", "5.135.176.41:3123"]])
         self.assertIsNotNone(result)
+
+    def test_check_threads_same_result(self):
+        threads = list()
+        for i in range(5):
+            threads.append(ThreadSubstitute(threadID=i, ipfs_hash=33, url=str(i), prox_loc="any"))
+        result_threads, votes = down.check_threads(threads)
+        self.assertEqual(4, max(votes))
+
+    def test_check_threads_twice_same_result(self):
+        threads = list()
+        for i in range(2):
+            threads.append(ThreadSubstitute(threadID=i, ipfs_hash=33, url=str(i), prox_loc="any"))
+        for i in range(3):
+            threads.append(ThreadSubstitute(threadID=i, ipfs_hash=35, url=str(i), prox_loc="other"))
+        result_threads, votes = down.check_threads(threads)
+        self.assertEqual(2, max(votes))
+
+    def test_check_threads_no_same_result(self):
+        threads = list()
+        for i in range(5):
+            threads.append(ThreadSubstitute(threadID=i, ipfs_hash=i, url=str(i), prox_loc="any"))
+        result_threads, votes = down.check_threads(threads)
+        self.assertEqual(0, max(votes))
