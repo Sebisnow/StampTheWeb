@@ -1,16 +1,22 @@
 from urllib.request import urlopen
+from urllib.parse import urlparse
 from contextlib import closing
 import json
 import csv
 import asyncio
 import os
+import re
 from proxybroker import Broker
 from random import randrange
+import geoip
+import socket
 
-
-# For testing please override the path to the proxy list with the actual one. eg.:
+# For lcoal testing please override the path to the proxy list with the actual one. eg.:
 # proxy_util.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
 proxy_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static/")
+# regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
+url_specification = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
+base_path = 'app/pdf/'
 
 
 def get_proxy_location(ip_address):
@@ -65,7 +71,7 @@ def get_proxy_list(update=False, prox_loc=None):
         with open(proxy_path + "/proxy_list.tsv", "rt", encoding="utf8") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
                 proxy_list.append([line[0], line[1], None])
-        if prox_loc:
+        if prox_loc and len(prox_loc) == 2 and type(prox_loc) == str:
             prox = get_one_proxy(prox_loc)
             if prox:
                 proxy_list.append([prox_loc, prox, None])
@@ -111,7 +117,7 @@ def gather_proxies(countries):
 
     :author: Sebastian
     :param countries: The ISO style country codes to fetch proxies for. Countries is a list of two letter strings.
-    :return: A list of proxies that are themself a list with  two paramters[Location, proxy address].
+    :return: A list of proxies that are themselves a list with  two paramters[Location, proxy address].
     """
     # TODO !! May take more than 45 minutes !! Run in separate thread?
     proxy_list = []
@@ -120,6 +126,7 @@ def gather_proxies(countries):
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
+            print("----New event loop")
             loop = asyncio.new_event_loop()
 
         proxies = asyncio.Queue(loop=loop)
@@ -138,8 +145,8 @@ def gather_proxies(countries):
 
 def get_one_proxy(country, types='HTTP'):
     """
-    Find one new, working proxy from the specified country. Run time of this method depends heavily on the country specified
-    as for some countries it is hard to find proxies (e.g. Myanmar).
+    Find one new, working proxy from the specified country. Run time of this method depends heavily on the country
+    specified as for some countries it is hard to find proxies (e.g. Myanmar).
 
     :author: Sebastian
     :param country: Two-letter ISO formatted country code. If a lookup is needed before calling this method, please
@@ -151,7 +158,7 @@ def get_one_proxy(country, types='HTTP'):
     """
     print("Fetching one proxy from: {}".format(country))
     if type(types) is not list:
-        types = list(types)
+        types = [types]
 
     try:
         loop = asyncio.get_event_loop()
@@ -171,3 +178,42 @@ def get_one_proxy(country, types='HTTP'):
 
         return "{}:{}".format(proxy.host, str(proxy.port))
     return None
+
+
+def get_country_of_url(url):
+    """
+    Takes a URL and computes the country where this website is hosted to return.
+
+    :author: Sebastian
+    :param url: The url of the website to get the country of.
+    :return: The country as two letter ISO-code of the website specified by the url.
+    """
+    return _ip_lookup_country(_lookup_website_ip(url))
+
+
+def _ip_lookup_country(ip):
+    """
+    Looks up an IP address in the MaxMindDataBase GeoLite2-Country.mmdb to find out to which country the IP address l
+    links to.
+    This DB should be updated once in a while.
+    (For update purposes Database downloadable from: http://dev.maxmind.com/geoip/geoip2/geolite2/
+
+    :author: Sebastian
+    :param ip: The IP address as string (without the port).
+    :raises ValueError: A Value Error is raised if the IP address specified does not match IP specifications.
+    :return: The location of the IP address as two letter ISO-code.
+    """
+    db = geoip.open_database("/home/sebastian/PycharmProjects/STW/static/GeoLite2-Country.mmdb")
+    return db.lookup(ip).country
+
+
+def _lookup_website_ip(url):
+    """
+    Looks up a URL to find out which IP address it is linked to.
+
+    :author: Sebastian
+    :param url: The URL to get the IP address for.
+    :return: Returns the IP address of the website.
+    """
+    domain = urlparse(url).netloc
+    return socket.gethostbyname_ex(domain)[2][0]
