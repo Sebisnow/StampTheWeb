@@ -43,18 +43,18 @@
 </div>
 
   <div class="tab-content">
-    <div id="home" class="tab-pane fade in active">
+    <div id="home" class="tab-pane fade in active ">
       <h3>Search articles in a Time-Line view</h3>
 
         {% if current_user.can(Permission.WRITE_ARTICLES) %}
-        {{ wtf.quick_form(form, button_map={'submit':'primary'} ) }}
+          {{ wtf.quick_form(form, button_map={'submit':'primary'} ) }}
         {% endif %}
     </div>
   </div>
 {% set alphabets ='abcdefghijklmnopqrstuvwxyz' %}
 
 <div class="container">
-  <h3>Browse Time-stamps Alphabetically <span class="glyphicon glyphicon-calendar"></span></h3>
+  <h3>Search Time-stamps by Domains <span class="glyphicon glyphicon-calendar"></span></h3>
   <ul class="nav nav-tabs">
       {% for c in alphabets %}
     <li><a title="Search by clicking on the first letter of the domain of your interest!" data-toggle="tab" href=#{{c}}>{{c.upper()}} </a></li>

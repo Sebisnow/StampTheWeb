@@ -55,6 +55,7 @@ def index():
             db.session.add(post_new)
             db.session.commit()
             current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
+            flash('A new time-stamp has been created. Scroll down to view it.')
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_freq.validate_on_submit() and form_freq.frequency.data > 0:
@@ -89,6 +90,8 @@ def index():
         db.session.add(regular_new)
         db.session.commit()
         current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Regular task added")
+        flash('A new regular has been added task added. '
+              'In case of change in the provided URL a new time-stamp would be created.')
         page = request.args.get('page', 1, type=int)
         pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
             page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
@@ -119,6 +122,7 @@ def index():
 @main.route('/compare', methods=['GET', 'POST'])
 def compare():
     form = PostVerify()
+    global selected
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
         search_keyword = form.urlSite.data
@@ -160,6 +164,10 @@ def compare():
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     verify = pagination.items
+    # In case user is not comparing articles anymore
+    if 'selected' in globals():
+        if selected is not None:
+            selected = None
     return render_template('verify.html', form=form, verify=verify,
                            pagination=pagination, doman_name=domain_name_unique, comp_page="active")
 
@@ -264,6 +272,7 @@ def compare_options(ids):
 @main.route('/block', methods=['GET', 'POST'])
 def block():
     form = PostBlock()
+    global selected
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         sha256 = None
         date_time_gmt = None
@@ -310,12 +319,17 @@ def block():
     pagination = Block.query.order_by(Block.timestamp.desc()).paginate(
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
     posts = pagination.items
+    # In case user is not comparing articles anymore
+    if 'selected' in globals():
+        if selected is not None:
+            selected = None
     return render_template('block.html', form=form, posts=posts,
                            pagination=pagination, block_block="active", block_page="active")
 
 
 @main.route('/statistics')
 def statistics():
+    global selected
     domain_name = downloader.get_all_domain_names(Post)
     domain_name_unique = set(domain_name)
     counter_stat = {}
@@ -361,14 +375,21 @@ def statistics():
                 data["features"][a]["properties"]["Percentage"] = counter_stat[key][2]
 
     json.dump(data, open("app/pdf/stat-data.geo.json", 'w'))
-
+    # In case user is not comparing articles anymore
+    if 'selected' in globals():
+        if selected is not None:
+            selected = None
     return render_template('statistics.html', stat_page="active")
 
+@main.route('/faq')
+def faq():
+    return render_template('faq.html')
 
 @main.route('/block_country', methods=['GET', 'POST'])
 @nocache
 def block_country():
     form = URL_Status()
+    global selected
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         block_list = downloader.search_for_url(form.urlSite.data)
         data = downloader.remove_unwanted_data_block_country()
@@ -394,7 +415,10 @@ def block_country():
         return render_template('block_country.html', block_country="active", block_page="active",
                                form=form, file='block-data-country.geo.json', version=randint(0, 1000),
                                url_site=form.urlSite.data)
-
+    # In case user is not comparing articles anymore
+    if 'selected' in globals():
+        if selected is not None:
+            selected = None
     return render_template('block_country.html', block_country="active", block_page="active",
                            form=form, file='tempelate_block_country.json', version=randint(0, 1000))
 
@@ -402,6 +426,7 @@ def block_country():
 @main.route('/compare_country', methods=['GET', 'POST'])
 def compare_country():
     form = PostCountry()
+    global selected
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         freq = form.frequency.data
         sha256 = None
@@ -434,6 +459,8 @@ def compare_country():
         regular_new = Regular(frequency=freq, china=china, uk=uk, usa=usa, russia=russia, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
+        flash('A new Regular Scheduled recurring Time-stamp has been created. '
+              'This will compare the changes in the content of the provided URL with the selected country.')
         return redirect(url_for('.compare_country'))
     page = request.args.get('page', 1, type=int)
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
@@ -485,7 +512,10 @@ def compare_country():
                 break
 
     json.dump(data, open("app/pdf/country-map.geo.json", 'w'))
-
+    # In case user is not comparing articles anymore
+    if 'selected' in globals():
+        if selected is not None:
+            selected = None
     return render_template('compare_country.html', form=form, posts=posts,
                            pagination=pagination, reg_sch="active", regular="active")
 
@@ -493,6 +523,7 @@ def compare_country():
 @main.route('/regular', methods=['GET', 'POST'])
 def regular():
     form_freq = PostFreq()
+    global selected
     if current_user.can(Permission.WRITE_ARTICLES) and form_freq.validate_on_submit():
         sha256 = None
         date_time_gmt = None
@@ -527,7 +558,16 @@ def regular():
     pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
+
+    """TODO write appropriate query to get records for current user
+    pagination = Regular.query.filter_by(Regular.post_id.author_id == current_user).paginate(
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
+        error_out=False)"""
     posts = pagination.items
+    # In case user is not comparing articles anymore
+    if 'selected' in globals():
+        if selected is not None:
+            selected = None
     return render_template('regular.html', form=form_freq, posts=posts,
                            pagination=pagination, reg_page="active", regular="active")
 
@@ -677,6 +717,7 @@ def verify_two(ids):
 @login_required
 @nocache
 def verify_domain(domain):
+    global selected
     posts = Post.query.filter(Post.urlSite.contains(domain))
     verification.writePostsData(posts)
     page = request.args.get('page', 1, type=int)
@@ -684,6 +725,10 @@ def verify_domain(domain):
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
+    # In case user is not comparing articles anymore
+    if 'selected' in globals():
+        if selected is not None:
+            selected = None
     return render_template('search_domains.html', verify=posts,
                            pagination=pagination, domain=domain, comp_page="active")
 

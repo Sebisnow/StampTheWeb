@@ -64,10 +64,10 @@
                                         {% if post.fileName %}
                                         <a class="label label-primary" href=/pdf/{{  post.fileName }} target="_blank"  style="margin-right: 5px;">Download File </a>
                                         {% else %}
-                                        <a class="label label-primary" href=/pdf/{{  post.hashVal }}.pdf target="_blank"  style="margin-right: 5px;">Download pdf </a>
-                                        <a class="label label-primary" href=/pdf/{{  post.hashVal }}.png target="_blank"  style="margin-right: 5px;">Download png </a>
+                                        <a class="label label-primary" href=/pdf/{{  post.hashVal }}.pdf target="_blank"  style="margin-right: 5px;">PDF </a>
+                                        <a class="label label-primary" href=/pdf/{{  post.hashVal }}.png target="_blank"  style="margin-right: 5px;">Screenshot </a>
                                         <a class="label label-primary"  onclick="myFunction({{post.id}})" > Compare</a>
-                                        <a class="label label-primary" href="http://www.originstamp.org/s/{{post.hashVal}}" target="_blank"> Verify Hash</a>
+                                        <a class="label label-primary" href="http://www.originstamp.org/s/{{post.hashVal}}" target="_blank"> Verify Time-stamp</a>
 
                                         {% endif %}
                                     </td>

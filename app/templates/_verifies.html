@@ -70,13 +70,13 @@
                                         {% if very.fileName %}
                                         <a class="label label-primary" href=/pdf/{{  very.fileName }} target="_blank"  style="margin-right: 5px;">Download File </a>
                                         {% else %}
-                                        <a class="label label-primary" href=/pdf/{{  very.hashVal }}.pdf target="_blank"  style="margin-right: 5px;">Download pdf </a>
-                                        <a class="label label-primary" href=/pdf/{{  very.hashVal }}.png target="_blank"  style="margin-right: 5px;">Download png </a>
+                                        <a class="label label-primary" href=/pdf/{{  very.hashVal }}.pdf target="_blank"  style="margin-right: 5px;">PDF </a>
+                                        <a class="label label-primary" href=/pdf/{{  very.hashVal }}.png target="_blank"  style="margin-right: 5px;">Screenshot </a>
                                         <!--<a class="label label-primary" href="{{ url_for('.verifyID', id=very.id) }}"  target="_blank"> Compare</a>-->
 
                                         <a class="label label-primary"  onclick="myFunction({{very.id}})" > Compare</a>
 
-                                        <a class="label label-primary" href="http://www.originstamp.org/s/{{very.hashVal}}" target="_blank"> Verify Hash</a>
+                                        <a class="label label-primary" href="http://www.originstamp.org/s/{{very.hashVal}}" target="_blank"> Verify Time-stamp</a>
                                         {% endif %}
                                     </td>
                                     <td>{{very.origStampTime}}</td>
