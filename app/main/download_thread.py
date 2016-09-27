@@ -93,11 +93,11 @@ class DownloadThread(threading.Thread):
                 # should only be thrown and caught in testing mode!
                 print("Path not found: {}".format(self.path))
                 if app.config["TESTING"]:
-                    self.path = os.path.abspath(os.path.expanduser("~/")) + "/testing-stw/temporary/"
+                    self.path = os.path.abspath(os.path.expanduser("~/")) + "/testing-stw/temporary"
                     print("Testing, so new path is: {}".format(self.path))
                 else:
-                    self.path = "{}/StampTheWeb/{}temporary/".format(os.path.abspath(os.path.expanduser("~/")),
-                                                                     self.storage_path)
+                    self.path = "{}/StampTheWeb/{}temporary".format(os.path.abspath(os.path.expanduser("~/")),
+                                                                    self.storage_path)
                     if not os.path.exists(self.path.rpartition("/")[0]):
                         os.mkdir(self.path.rpartition("/")[0])
 
@@ -165,6 +165,8 @@ class DownloadThread(threading.Thread):
         :raises TimeoutException: If the proxy is not active anymore or the website is unreachable a
         TimeoutException is thrown.
         """
+
+        print("Thread {} path so far, before download is:{}".format(self.threadID, self.path))
         if self.html is None:
             print(" Thread{}: Downloading without html, proxy is set to({}): {}".format(self.threadID, self.prox_loc,
                                                                                         self.proxy))
@@ -185,8 +187,10 @@ class DownloadThread(threading.Thread):
         self.html, self.title = preprocess_doc(self.html)
         soup = BeautifulSoup(self.html, "lxml")
 
+        print("Thread {} path so far, before image download is:{}".format(self.threadID, self.path))
         # self.proxy is None if html was given to DownloadThread.
         self.images = self.load_images(soup, self.proxy)
+        print("Thread {} path so far, before page source storage is:{}".format(self.threadID, self.path))
         with open(self.path + "page_source.html", "w") as f:
             f.write(self.html)
 
@@ -443,7 +447,7 @@ def add_to_ipfs(fname):
         :return: Returns the Hash of the file.
     """
     if not os.path.isdir(fname):
-        #TODO only submit ZIP not the whole structure /home/seb...
+        #TO DO only submit ZIP not the whole structure /home/seb...
         # os.chdir(fname.rpartition("/")[0])
         # os.chdir(fname)
         res = ipfs_Client.add(fname, recursive=False)
@@ -453,6 +457,7 @@ def add_to_ipfs(fname):
             return res[0]['Hash']
 
         print("IPFS result: " + str(res))
+        print("IPFS result type for {} is: {}".format(fname, type(res)))
         # TODO
         return res['Hash']
     else:
