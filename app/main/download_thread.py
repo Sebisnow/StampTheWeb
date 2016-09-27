@@ -21,8 +21,7 @@ from readability.readability import Document
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ReadTimeout, HTTPError
-from app.main.proxy_util import get_one_proxy
-import app.main.proxy_util as proxy_util
+from app.main import proxy_util
 # from ..models import Warcs
 
 exit_flag = 0
@@ -173,7 +172,7 @@ class DownloadThread(threading.Thread):
             if not self.download_html():
                 print("Couldn't reach website through proxy, trying again with new proxy")
                 self.scroll(self.phantom)
-                self.initialize(get_one_proxy(self.prox_loc))
+                self.initialize(proxy_util.get_one_proxy(self.prox_loc))
 
                 # try again, if False is returned site was unreachable again -> propagate upwards by raising error
                 if not self.download_html():
