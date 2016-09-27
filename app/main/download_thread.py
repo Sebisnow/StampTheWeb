@@ -23,6 +23,7 @@ from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ReadTimeout, HTTPError
 from app.main.proxy_util import get_one_proxy
 import app.main.proxy_util as proxy_util
+
 # from ..models import Warcs
 
 exit_flag = 0
