@@ -1,7 +1,7 @@
 from flask import abort, flash, current_app, render_template, request, redirect, url_for, Response
 from flask_login import login_required, current_user
 
-from app.main import proxy_util
+#from app.main import proxy_util
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, PostVerify, PostFreq, \
     SearchPost, SearchOptions, PostBlock, PostCountry, URL_Status
