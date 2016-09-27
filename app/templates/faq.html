@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Frequently Asked Questions - Stamp The Web{% endblock %}
+{% block page_content %}
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/pdf/css/default.css?123456">
+  <link rel="stylesheet" href="/pdf/css/badgebuilder.css">
+  <script src="/pdf/js/modernizr.js"></script>
+</head>
+
+<div id="content">
+    <section id="the-logo">
+      <div id="the-logo-description-faq">
+        <h2 id="faq-header">Frequently Asked Questions</h2>
+        <ul id="faq-menu">
+        	<li><a href="#what-is">What is StampTheWeb?</a></li>
+            <li><a href="#how-work">How does it work?</a></li>
+			<li><a href="#manipul">Why can’t the time-stamp be manipulated?</a></li>
+			<li><a href="#services">What services StampTheWeb offers?</a></li>
+			<li><a href="#time-stamp">How can I time-stamp a web article?</a></li>
+			<li><a href="#compare-articles">How can I compare web articles?</a></li>
+			<li><a href="#who-contact">I have a question, who can I contact?</a></li>
+        </ul>
+      </div>
+    </section>
+    <section id="faq">
+
+<h3 id="what-is">What is StampTheWeb?</h3>
+StampTheWeb is a free Trusted time-stamping service for online web content. Trusted time-stamping is the process of securely keeping track of the creation and
+modification time of a document. This system creates time-stamps of the requested web pages. To find more about Trusted time-stamps visit its <a href="https://en.wikipedia.org/wiki/Trusted_timestamping">Wikipedia Page.</a>
+<br> <br>Use Cases<br>
+<br><span class="glyphicon glyphicon-ok"></span> Proving an information online existed at a certain point in time.
+<br><span class="glyphicon glyphicon-ok"></span> Comparing online information with a version from past.
+<br><span class="glyphicon glyphicon-ok"></span> Finding if changes occur in online news pages with time.
+<br><span class="glyphicon glyphicon-ok"></span> Proving an idea or information published online at a certain date and time.
+<br><br>Trusted time-stamps for offline digital documents can also be created using <a href="http://www.originstamp.org/">OriginStamp</a></p>
+<h3 id="how-work">How does it work?</h3>
+<p>StampTheWeb extracts data from the requested web pages and calculates its hash and then creates time-stamp for the hash which represents time-stamp for the web content. Furthermore this time-stamp and hash is aggregated to Bitcoin block chain network, by performing a Bitcoin transaction. This process makes it secure, since hash is always present in the distributed Bitcoin block chain network and could be verified from Bitcoin.
+<br><img src="/pdf/Working.png"  style="width:768px;height:360px;"><br>
+	<br>1) When you submits a URL 'StampTheWeb' extracts the URL from the internet and extracts the text from that URL and calculates hash from the text.
+	<br>2) StampTheWeb submit this hash to the Bitcoin Blockchain.
+	<br>3) The hash is forever embedded in Bitcoin Blockchian and can be verified by using blockchain.info or using blockchain itself or by using StampTheWeb's parent system <a href="http://www.originstamp.org/">OriginStamp</a>
+</p>
+
+<h3 id="manipul">Why can’t the time-stamp be manipulated?</h3>
+<p>This time-stamping services uses the cryptographic blockchain of the virtual currency bitcoin. The blockchain was designed to be tamper proof. If they could be manipulated than the whole currency would be worthless. In addition to the blockchain OriginStamp also publish the hash immediately on <a href="https://twitter.com">twitter</a></p>
+
+<h3 id="services">What services StampTheWeb offers?</h3>
+<p><span class="glyphicon glyphicon-ok"></span> Stamps web articles, news articles or blog posts etc
+<br><span class="glyphicon glyphicon-ok"></span> Compare two saved (time-stamped) web pages with each other or with the current online version.
+<br><span class="glyphicon glyphicon-ok"></span> Compare a time-stamped article with the same article from any other part of the world for e.g. Russia, UK, USA etc.
+<br><span class="glyphicon glyphicon-ok"></span> Compare a time-stamped article from a certain date with its current online version.
+<br><span class="glyphicon glyphicon-ok"></span>Compare a time-stamped article from a certain date with its time-stamped version from another date.
+<br><span class="glyphicon glyphicon-ok"></span> Check if an online article is blocked in any other part of the world.
+<br><span class="glyphicon glyphicon-ok"></span> Check where in the world an article is blocked through a map.
+<br><span class="glyphicon glyphicon-ok"></span> Review statistics of web pages most visited in the system with respect to country of origin.
+<br><span class="glyphicon glyphicon-ok"></span> Time-stamp an article according to a user-defined schedule. If any change is detected in that article the user is notified by email (if email is provided), or information is automatically stored in the system.
+<br><span class="glyphicon glyphicon-ok"></span> Time-stamp an article according to a user-defined schedule and compare it at regular intervals with the same page from other countries. The user is notified by email if changes are found.
+</p>
+
+<h3 id="time-stamp">How can I time-stamp a web article?</h3>
+<p> Time-stamping a web article is very easy just provide the URL of the article you would like to time-stamp.
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Ruc7L6qL3Kk" frameborder="0" allowfullscreen></iframe></p>
+
+<h3 id="compare-articles">How can I compare web articles?</h3>
+<p><iframe width="560" height="315" src="https://www.youtube.com/embed/Ruc7L6qL3Kk" frameborder="0" allowfullscreen></iframe></p>
+
+
+<h3 id="who-contact">I have a question, who can I contact?</h3>
+<p>Please send comments to <a href="mailto:admin@stamptheweb.org">admin@stamptheweb.org</a></p>
+</section>
+
+<script src="/pdf/js/jquery.1.4.4.min.js"></script>
+<script>
+  window.$j = window.$ = jQuery;
+
+  $j(document).ready(function() {
+
+
+// jQuery SmoothScroll | Version 10-04-30
+$('a[href*=#]').click(function() {
+
+   // duration in ms
+   var duration=1000;
+
+   // easing values: swing | linear
+   var easing='swing';
+
+   // get / set parameters
+   var newHash=this.hash;
+   var target=$(this.hash).offset().top;
+   var oldLocation=window.location.href.replace(window.location.hash, '');
+   var newLocation=this;
+
+   // make sure it's the same location
+
+   if(oldLocation+newHash==newLocation)
+   {
+      // set selector
+      if($.browser.safari) var animationSelector='body:not(:animated)';
+      else var animationSelector='html:not(:animated)';
+
+      // animate to target and set the hash to the window.location after the animation
+      $(animationSelector).animate({ scrollTop: target }, duration, easing, function() {
+
+         // add new hash to the browser location
+         window.location.href=newLocation;
+      });
+
+      // cancel default click action
+      return false;
+   }
+});
+
+
+  });
+</script>
+{% endblock %}

@@ -21,7 +21,13 @@ from readability.readability import Document
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ReadTimeout, HTTPError
+<<<<<<< HEAD
+from app.main.proxy_util import get_one_proxy
+import app.main.proxy_util as proxy_util
+
+=======
 from app.main import proxy_util
+>>>>>>> d824bd1960ac955df3f7b861739041eaff3dcba5
 # from ..models import Warcs
 
 exit_flag = 0
