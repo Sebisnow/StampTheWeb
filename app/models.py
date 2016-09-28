@@ -213,7 +213,7 @@ class Post(db.Model):
     body = db.Column(db.Text)
     body_html = db.Column(db.Text)
     urlSite = db.Column(db.Text)
-    hashVal = db.Column(db.Text)
+    hashVal = db.Column(db.String(128))
     webTitl = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
@@ -221,6 +221,7 @@ class Post(db.Model):
     fileName = db.Column(db.Text)
     regular = db.relationship('Regular', backref='postID', lazy='dynamic')
     block = db.relationship('Block', backref='postID', lazy='dynamic')
+    count = db.Column(db.Integer, default=0)
 
     @staticmethod
     def generate_fake(count=100):
@@ -319,4 +320,4 @@ class Country(db.Model):
     ID = db.Column(db.Integer, primary_key=True)
     country_code = db.Column(db.String(2), index=True, unique=True)
     country_name = db.Column(db.String(44), unique=True)
-    block_count = db.Column(db.Integer,)
+    block_count = db.Column(db.Integer)
