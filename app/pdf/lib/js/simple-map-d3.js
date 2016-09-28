@@ -33,7 +33,7 @@ function SimpleMapD3(o) {
     projection: 'albersUsa',
     legendFormatter: d3.format(','),
     legendOn: true,
-    legendTitle: 'Legend (%age)',
+    legendTitle: '%age of Most visited articles',
     legendOffset: [10, 10],
     styles: {},
     stylesHover: {},
@@ -420,7 +420,8 @@ function SimpleMapD3(o) {
     var qs;
     var formatter = smd.options.legendFormatter || d3.format(',');
     var unit = 10;
-    var width = smd.options.legendWidth || (smd.width / 5);
+    //var width = smd.options.legendWidth || (smd.width / 5);
+	var width = 150;
     var scale = smd.options.legendScale || 1;
     var min = d3.min(smd.valuesSet);
     var max = d3.max(smd.valuesSet);
@@ -441,10 +442,15 @@ function SimpleMapD3(o) {
     
     // Quantize
     if (smd.options.colorScale === 'quantize') {
+		//legendSwatches.push(0);
+		//legendSwatches.push(0.1);
       for (c = 0; c < smd.options.colorSet.length; c++) {
         legendSwatches.push(smd.colorRange.invertExtent(smd.options.colorSet[c])[0]);
       }
     }
+	//for (c = 1; c < legendSwatches.length; c++) {
+		//legendSwatches[c] = legendSwatches[c].toFixed(2);
+	//}
     
     // Ensure we have something to make a legend with
     if (legendSwatches.length === 0) {
@@ -493,7 +499,7 @@ function SimpleMapD3(o) {
       // Add text label
       smd.legendGroup
         .selectAll('text.smd-legend-amount')
-          .data(legendSwatches)
+          .data(legendSwatches.toFixed(2))
         .enter().append('text')
           .attr('class', 'smd-legend-amount')
           .attr('font-size', unit)

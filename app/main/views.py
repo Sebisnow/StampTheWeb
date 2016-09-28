@@ -384,6 +384,51 @@ def statistics():
 
 @main.route('/faq')
 def faq():
+    data = downloader.remove_unwanted_data_regular()
+    # Getting locations of our proxies
+    ips = list()
+    ips.append(current_app.config['CHINA_PROXY'])
+    ips.append(current_app.config['USA_PROXY'])
+    ips.append(current_app.config['UK_PROXY'])
+    ips.append(current_app.config['RUSSIA_PROXY'])
+    ips.append("")
+
+    x = 1
+    for ip in ips:
+        loc = Location.query.filter_by(ip=ip).first()
+        location = None
+        country_code = None
+        if loc:
+            location = loc.country_name
+            country_code = loc.country_code
+        else:
+            url = 'http://freegeoip.net/json/' + ip
+            response = None
+            try:
+                response = requests.get(url)
+            except:
+                flash("An Error occur while finding the location of a URL")
+            if response:
+                js = response.json()
+                location = js['country_name'] + ' ' + js['region_name'] + ' ' + js['city']
+                country_code = js['country_code']
+                location = Location(ip=ip, country_code=js['country_code'], country_name=location)
+                db.session.add(location)
+                db.session.commit()
+        a = 0
+        while a < 210:
+            a += 1
+            if data["features"][a]["properties"]["Country_Code"] == country_code:
+                if x == 5:
+                    data["features"][a]["properties"]["Location"] = "(Default) " + location
+
+                else:
+                    data["features"][a]["properties"]["Location"] = location
+                data["features"][a]["properties"]["Location_no"] = x
+                x += 1
+                break
+
+    json.dump(data, open("app/pdf/country-map.geo.json", 'w'))
     return render_template('faq.html', faq_page="active")
 
 
@@ -469,51 +514,6 @@ def compare_country():
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
     posts = pagination.items
 
-    data = downloader.remove_unwanted_data_regular()
-    # Getting locations of our proxies
-    ips = list()
-    ips.append(current_app.config['CHINA_PROXY'])
-    ips.append(current_app.config['USA_PROXY'])
-    ips.append(current_app.config['UK_PROXY'])
-    ips.append(current_app.config['RUSSIA_PROXY'])
-    ips.append("")
-
-    x = 1
-    for ip in ips:
-        loc = Location.query.filter_by(ip=ip).first()
-        location = None
-        country_code = None
-        if loc:
-            location = loc.country_name
-            country_code = loc.country_code
-        else:
-            url = 'http://freegeoip.net/json/' + ip
-            response = None
-            try:
-                response = requests.get(url)
-            except:
-                flash("An Error occur while finding the location of a URL")
-            if response:
-                js = response.json()
-                location = js['country_name'] + ' ' + js['region_name'] + ' ' + js['city']
-                country_code = js['country_code']
-                location = Location(ip=ip, country_code=js['country_code'], country_name=location)
-                db.session.add(location)
-                db.session.commit()
-        a = 0
-        while a < 210:
-            a += 1
-            if data["features"][a]["properties"]["Country_Code"] == country_code:
-                if x == 5:
-                    data["features"][a]["properties"]["Location"] = "(Default) " + location
-
-                else:
-                    data["features"][a]["properties"]["Location"] = location
-                data["features"][a]["properties"]["Location_no"] = x
-                x += 1
-                break
-
-    json.dump(data, open("app/pdf/country-map.geo.json", 'w'))
     # In case user is not comparing articles anymore
     if 'selected' in globals():
         if selected is not None:
