@@ -18,6 +18,11 @@ class MyTestCase(unittest.TestCase):
         log_handler.setLevel(logging.INFO)
         self.app.logger.setLevel(logging.INFO)
 
+    def tearDown(self):
+        db.session.remove()
+        # db.drop_all()
+        self.app_context.pop()
+
     def test_ip_location_lookup(self):
         self.assertEqual("FR", p.get_proxy_location("5.135.176.41"))
 

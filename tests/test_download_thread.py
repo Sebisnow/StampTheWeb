@@ -54,7 +54,7 @@ class BasicsTestCase(unittest.TestCase):
 
     def tearDown(self):
         db.session.remove()
-        db.drop_all()
+        # db.drop_all()
         self.app_context.pop()
 
     def test_thread_initialization(self):

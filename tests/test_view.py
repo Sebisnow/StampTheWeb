@@ -7,9 +7,9 @@ import logging
 import json
 from flask import request
 from .post_data import post_data_json
-import app.main.proxy_util as prox
+import app.main.proxy_util as proxy
 
-prox.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
+proxy.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
 
 
 class BasicsTestCase(unittest.TestCase):
@@ -33,7 +33,7 @@ class BasicsTestCase(unittest.TestCase):
 
     def tearDown(self):
         db.session.remove()
-        db.drop_all()
+        # db.drop_all()
         self.app_context.pop()
 
     def test_index(self):
@@ -50,7 +50,8 @@ class BasicsTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_extension_api_basic(self):
-        with self.app.test_request_context('/timestamp', method='POST', content_type='application/json', data=post_data_json):
+        with self.app.test_request_context('/timestamp', method='POST', content_type='application/json',
+                                           data=post_data_json):
             # now you can do something with the request until the
             # end of the with block, such as basic assertions:
             print(request.headers["content-type"])
@@ -65,7 +66,8 @@ class BasicsTestCase(unittest.TestCase):
 
         self.app.logger.info("Testing the web interface for the Timestamp Extension:")
         print("Testing the web interface for the Timestamp Extension:")
-        resp = self.client.post('/timestamp', data=post_data_json, content_length=len(post_data_json), content_type="application/json", follow_redirects=True)
+        resp = self.client.post('/timestamp', data=post_data_json, content_length=len(post_data_json),
+                                content_type="application/json", follow_redirects=True)
         self.app.logger.info("    Response is: " + str(resp))
         print("    Response is: " + str(resp))
         print("    Header: " + str(resp.headers))
