@@ -324,6 +324,7 @@ class DownloadThread(threading.Thread):
                 res = requests.get(tag, stream=True, proxies={"http": "http://" + proxy}, headers=header)
             except ConnectionResetError as reset:
                 self.error = reset
+                raise self.error
         else:
             res = requests.get(tag, stream=True)
         return res
