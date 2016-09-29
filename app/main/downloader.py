@@ -1,3 +1,4 @@
+import csv
 import json
 import os
 import re
@@ -113,17 +114,22 @@ def remove_unwanted_data_block_country():
 
 
 def search_for_url(url):
-    proxy_list = proxy_util.get_proxy_list()
+    index = 0
+    proxy_list = {}
+    with open(proxy_util.base_path + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
+        for line in csv.reader(tsv, delimiter="\t"):
+            proxy_list[index] = [line[0], line[1], None]
+            index += 1
 
     q = queue.Queue()
-    for proxy in proxy_list:
-        p = proxy[1]
+    for k in proxy_list:
+        p = proxy_list[k][1]
         t = threading.Thread(target=get_url, args=(q, p, url))
         t.daemon = True
         t.start()
 
-    for proxy in proxy_list:
-        proxy[2] = q.get()
+    for k in proxy_list:
+        proxy_list[k][2] = q.get()
         #print(proxy_list[k][2], proxy_list[k][0])  # TODO for Debugging open this
 
     return proxy_list
