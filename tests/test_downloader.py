@@ -194,7 +194,7 @@ class BasicsTestCase(unittest.TestCase):
     def test_check_user(self):
         user = "Bot"
         sha256 = "Qmb833LJQKVSzdUJadMmjNyQRzarD2cmYx1LJFBX589zkK"
-        db_user = down.check_user(user).first()
+        db_user = down.check_user(user)
         db.session.commit()
         print("The user: {}".format(str(db_user)))
         self.assertEqual(113, db_user.id)

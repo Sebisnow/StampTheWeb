@@ -809,26 +809,7 @@ def timestamp_api():
                 else:
                     response.headers["user"] = "BOT"
                     # TODO store with bot reference instead of user
-                already_exist = Post.query.filter(and_(Post.urlSite.like(url),
-                                                       Post.hashVal.like(result.hashValue))).first()
-                if already_exist is not None:
-                    current_app.logger.info('The URL was already submitted and the content of the website has not '
-                                            'changed since!')
-                    response.reason = 'The URL was already submitted and the content of the website has not ' \
-                                      'changed since!'
-                    post_old = Post.query.get_or_404(already_exist.id)
-                    response.date = post_old
-                    response.headers["AlreadySubmitted"] = already_exist.id
-                else:
-                    # TODO associate user and create a bot user
-                    post_new = Post(body=result.originStampResult.webTitle, urlSite=url,
-                                    hashVal=result.originStampResult.hashValue,
-                                    webTitl=result.originStampResult.webTitle,
-                                    origStampTime=result.originStampResult.json()["created_at"],
-                                    author=current_user._get_current_object())
-                    db.session.add(post_new)
-                    db.session.commit()
-                    current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
+
             else:
                 if result.hashValue:
                     response.headers["json"] = result.hashValue

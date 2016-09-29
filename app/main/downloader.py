@@ -833,6 +833,7 @@ def submit_threads_to_db(results, votes, user=None):
             print("Add error thread to db")
             country = Country.query.filter_by(country_code=thread.prox_loc)
             count = country.block_count + 1
+            # TODO check functionality of update
             country.update({'block_count': count})
             db.session.commit()
             print("Finished adding error thread to db")
@@ -860,7 +861,8 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
     already_exists = Post.query.filter(Post.hashVal == sha256).first()
     print("Query Adding one new post. Already exists: {}".format(already_exists))
     if already_exists is not None:
-        already_exists.count += 1
+        count = already_exists.count + 1
+        already_exists.update({"count": count})
         # db.session.add(already_exists)
         db.session.commit()
     else:
