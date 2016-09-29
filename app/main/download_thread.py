@@ -21,13 +21,8 @@ from readability.readability import Document
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ReadTimeout, HTTPError
-<<<<<<< HEAD
-from app.main.proxy_util import get_one_proxy
-import app.main.proxy_util as proxy_util
 
-=======
 from app.main import proxy_util
->>>>>>> d824bd1960ac955df3f7b861739041eaff3dcba5
 # from ..models import Warcs
 
 exit_flag = 0
@@ -99,11 +94,11 @@ class DownloadThread(threading.Thread):
                 # should only be thrown and caught in testing mode!
                 print("Path not found: {}".format(self.path))
                 if app.config["TESTING"]:
-                    self.path = os.path.abspath(os.path.expanduser("~/")) + "/testing-stw/temporary/"
+                    self.path = os.path.abspath(os.path.expanduser("~/")) + "/testing-stw/temporary"
                     print("Testing, so new path is: {}".format(self.path))
                 else:
-                    self.path = "{}/StampTheWeb/{}temporary/".format(os.path.abspath(os.path.expanduser("~/")),
-                                                                     self.storage_path)
+                    self.path = "{}/StampTheWeb/{}temporary".format(os.path.abspath(os.path.expanduser("~/")),
+                                                                    self.storage_path)
                     if not os.path.exists(self.path.rpartition("/")[0]):
                         os.mkdir(self.path.rpartition("/")[0])
 
@@ -154,10 +149,17 @@ class DownloadThread(threading.Thread):
         if self.robot_check and not self.bot_parser.can_fetch(self.url):
             self.error = urllib.error.URLError("Not allowed to fetch root html file specified by url:{} because of "
                                                "robots.txt".format(self.url))
-            raise urllib.error.URLError("Not allowed to fetch root html file specified by url:{} because of "
-                                        "robots.txt".format(self.url))
-
-        self.download()
+            raise self.error
+        try:
+            self.download()
+        except RuntimeError as e:
+            # store error and reraise to stop thread.
+            self.error = e
+            raise e
+        except ConnectionResetError as e:
+            # store error and reraise to stop thread.
+            self.error = e
+            raise e
         # submit the hash to originstamp to create a lasting timestamp.
         self.handle_submission()
 
@@ -184,9 +186,9 @@ class DownloadThread(threading.Thread):
                 if not self.download_html():
                     print("Couldn't reach website through two proxies, unreachable from loc {}"
                           .format(self.prox_loc))
-                    self.error = True
-                    raise TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
-                                           .format(self.prox_loc))
+                    self.error = TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
+                                                  .format(self.prox_loc))
+                    raise self.error
 
         self.html, self.title = preprocess_doc(self.html)
         soup = BeautifulSoup(self.html, "lxml")
@@ -320,6 +322,9 @@ class DownloadThread(threading.Thread):
                 print("Thread{} Could not request image due to: {}\ntrying with proxy: {}".format(
                     self.threadID, con.strerror, proxy))
                 res = requests.get(tag, stream=True, proxies={"http": "http://" + proxy}, headers=header)
+            except ConnectionResetError as reset:
+                self.error = reset
+                raise self.error
         else:
             res = requests.get(tag, stream=True)
         return res
@@ -372,28 +377,33 @@ class DownloadThread(threading.Thread):
 
     def handle_submission(self):
         """
-        Handles the submission of the hash to originstamp and the resulting consequences. Like PNG creation and storage.
+        Handles the submission of the hash to originstamp to create the actual timestamp and the resulting consequences.
+        Handles PNG creation and storage.
 
         :author: Sebastian
         """
+        print("Thread{} submit hash to originstamp.".format(self.threadID))
         self.originstamp_result = submit(self.ipfs_hash, title="Distributed timestamp of {} from location {}"
                                          .format(self.url, self.prox_loc))
 
+        print("Originstamp result: {}".format(str(self.originstamp_result.text)))
         if self.originstamp_result.status_code == 200:
-            if "errors" in self.originstamp_result.json():
+            if "errors" in self.originstamp_result.text:
                 print("Thread{} submitted hash to originstamp but the content has not changed. A timestamp "
                       "exists already.".format(self.threadID))
                 # hash already submitted
                 self.already_submitted = True
-                if not os.path.exists("{}{}.png".format(proxy_util.base_path, self.ipfs_hash)):
-                    self.phantom.get_screenshot_as_file("{}{}.png".format(proxy_util.base_path, self.ipfs_hash))
+                self.originstamp_result = get_originstamp_history(self.ipfs_hash).json()
+                if not os.path.exists("{}{}.png".format(self.storage_path, self.ipfs_hash)):
+                    self.phantom.get_screenshot_as_file("{}{}.png".format(self.storage_path, self.ipfs_hash))
                     print("Hash submitted but png not existent. Wrote png to: {}"
-                          .format("{}{}.png".format(proxy_util.base_path, self.ipfs_hash)))
+                          .format("{}{}.png".format(self.storage_path, self.ipfs_hash)))
 
             else:
                 print("Thread{} successfully submitted hash to originstamp and created a new timestamp."
                       .format(self.threadID))
-                self.phantom.get_screenshot_as_file("{}{}.png".format(proxy_util.base_path, self.ipfs_hash))
+                self.originstamp_result = self.originstamp_result.json()
+                self.phantom.get_screenshot_as_file("{}{}.png".format(self.storage_path, self.ipfs_hash))
 
     @staticmethod
     def scroll(phantom):
@@ -449,7 +459,7 @@ def add_to_ipfs(fname):
         :return: Returns the Hash of the file.
     """
     if not os.path.isdir(fname):
-        #TODO only submit ZIP not the whole structure /home/seb...
+        #TO DO only submit ZIP not the whole structure /home/seb...
         # os.chdir(fname.rpartition("/")[0])
         # os.chdir(fname)
         res = ipfs_Client.add(fname, recursive=False)
@@ -459,7 +469,6 @@ def add_to_ipfs(fname):
             return res[0]['Hash']
 
         print("IPFS result: " + str(res))
-        # TODO
         return res['Hash']
     else:
         res = ipfs_Client.add(fname, recursive=False)[0]
@@ -563,3 +572,25 @@ def submit(sha256, title=None):
     headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="{}"'.format(api_key)}
     data = {'hash_sha256': sha256, 'title': title}
     return requests.post(api_post_url, json=data, headers=headers)
+
+
+def get_originstamp_history(sha256):
+    """
+    Fetches the history of the hash from originstamp. Response object looks like the following. Most important for
+    StampTheWeb is the created_at tag:
+    {'title': '', 'created_at': '2016-06-23T08:36:21.242Z', 'updated_at': '2016-06-24T00:02:28.728Z',
+    'blockchain_transaction': {'created_at': '2016-06-24T00:02:26.796Z', 'updated_at': '2016-06-26T20:04:08.674Z',
+    'public_key': '03a1673f7e06c345e3f8f26160b42616f421041e13b301e561b52aaeaa62f2deda', 'status': 1,
+    'seed': '<very long seed representing the blockchain>',
+    'private_key': 'a3dabafdc73c4b0bcc50191aef89c3fdb5cf9e728af6bcddec3a9905b04a4092',
+    'recipient': '1KLwyN4qoA6yTmdr39Eqj5b1FCW6hxik9R', 'tx_hash':
+    'd9496339662ad07e693605e9e374fb3cc09058f59b7c4ab2a958d713d9232cb2'},
+    'hash_sha256': 'QmXiSkFRT7agFChpLa5BhJkvDAVHEefrekAf7DWjZKnmE8', 'submitted_at': None}
+
+    :author: Sebastian
+    :param sha256: hash to submit
+    :returns: resulting response object
+    """
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token={}'.format(api_key)}
+
+    return requests.get("{}/{}".format(api_post_url, sha256), headers=headers)

@@ -8,6 +8,8 @@ import os
 import logging
 from subprocess import check_output, DEVNULL
 
+from app.models import Post
+
 url = "http://www.theverge.com/2016/8/12/12444920/no-mans-sky-travel-journal-day-four-ps4-pc"
 sz_url = "http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480"
 
@@ -37,7 +39,7 @@ class BasicsTestCase(unittest.TestCase):
 
     def tearDown(self):
         db.session.remove()
-        db.drop_all()
+        # db.drop_all()
         self.app_context.pop()
 
     def test_app_exists(self):
@@ -188,3 +190,11 @@ class BasicsTestCase(unittest.TestCase):
             threads.append(ThreadSubstitute(threadID=i, ipfs_hash=i, url=str(i), prox_loc="any"))
         result_threads, votes = down.check_threads(threads)
         self.assertEqual(0, max(votes))
+
+    def test_check_user(self):
+        user = "Bot"
+        sha256 = "Qmb833LJQKVSzdUJadMmjNyQRzarD2cmYx1LJFBX589zkK"
+        db_user = down.check_user(user)
+        db.session.commit()
+        print("The user: {}".format(str(db_user)))
+        self.assertEqual(113, db_user.id)

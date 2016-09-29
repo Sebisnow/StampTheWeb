@@ -1,21 +1,21 @@
+import csv
 import json
 import os
 import re
+from datetime import datetime
 import requests
 import traceback
 from subprocess import check_output, DEVNULL
 import pdfkit
 import queue
 import threading
-from sqlalchemy import and_
-from flask_login import current_user
 from random import randrange
 from flask import flash
 from flask import current_app as app
 from urllib.parse import urlparse
 from app.main.download_thread import DownloadThread
 from app.main import proxy_util
-from app.models import Country, Post
+from app.models import Country, Post, User
 from app.main import download_thread as d_thread
 from .. import db
 
@@ -114,7 +114,12 @@ def remove_unwanted_data_block_country():
 
 
 def search_for_url(url):
-    proxy_list = proxy_util.get_proxy_list()
+    index = 0
+    proxy_list = {}
+    with open(proxy_util.base_path + "proxy_list.tsv", "rt", encoding="utf8") as tsv:
+        for line in csv.reader(tsv, delimiter="\t"):
+            proxy_list[index] = [line[0], line[1], None]
+            index += 1
 
     q = queue.Queue()
     for k in proxy_list:
@@ -336,31 +341,9 @@ def submit(sha256, title=None):
     :param title: title of the hashed document
     :returns: resulting request object
     """
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token={}'.format(d_thread.api_key)}
     data = {'hash_sha256': sha256, 'title': title}
     return requests.post(d_thread.api_post_url, json=data, headers=headers)
-
-
-def get_originstamp_history(sha256):
-    """
-    Fetches the history of the hash from originstamp. Response object looks like the following. Most important for
-    StampTheWeb is the created_at tag:
-    {'title': '', 'created_at': '2016-06-23T08:36:21.242Z', 'updated_at': '2016-06-24T00:02:28.728Z',
-    'blockchain_transaction': {'created_at': '2016-06-24T00:02:26.796Z', 'updated_at': '2016-06-26T20:04:08.674Z',
-    'public_key': '03a1673f7e06c345e3f8f26160b42616f421041e13b301e561b52aaeaa62f2deda', 'status': 1,
-    'seed': '<very long seed representing the blockchain>',
-    'private_key': 'a3dabafdc73c4b0bcc50191aef89c3fdb5cf9e728af6bcddec3a9905b04a4092',
-    'recipient': '1KLwyN4qoA6yTmdr39Eqj5b1FCW6hxik9R', 'tx_hash':
-    'd9496339662ad07e693605e9e374fb3cc09058f59b7c4ab2a958d713d9232cb2'},
-    'hash_sha256': 'QmXiSkFRT7agFChpLa5BhJkvDAVHEefrekAf7DWjZKnmE8', 'submitted_at': None}
-
-    :author: Sebastian
-    :param sha256: hash to submit
-    :returns: resulting response object
-    """
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="7be3aa0c7f9c2ae0061c9ad4ac680f5c"'}
-
-    return requests.get("{}/{}".format(d_thread.api_post_url, sha256), headers=headers)
 
 
 def submit_add_to_db(url, sha256, title):
@@ -442,13 +425,13 @@ def submitHash(sha256):
     elif originstamp_result.status_code == 200:
         if "errors" in originstamp_result.json():
             # hash already submitted
-            history = get_originstamp_history(sha256)
+            history = d_thread.get_originstamp_history(sha256)
             if not app.config["TESTING"]:
                 flash(u'Submitted hash to Originstamp successfully but hash already taken: '
                       u'{}'.format(history.json()["created_at"]))
             app.logger.error('Submitted hash to Originstamp successfully but hash already taken: '
                              '{}'.format(history.json()["created_at"]))
-            return ReturnResults(originstamp_result, sha256, "None", originstamp_result.text)
+            return ReturnResults(history, sha256, "None", originstamp_result.text)
         else:
             if not app.config["TESTING"]:
                 flash(u'Hash was submitted to OriginStamp successfully' + ' Hash ' + sha256)
@@ -744,15 +727,13 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     # join all threads and return the DownloadThread with the most votes
     joined_threads, votes = join_threads(threads)
 
-    submit_threads_to_db(joined_threads, user, votes)
+    submit_threads_to_db(joined_threads, votes, user)
 
     max_index = votes.index(max(votes))
-    originstamp_result = submit(joined_threads[max_index].ipfs_hash, joined_threads[max_index].url)
-    app.logger.info("The result from Originstamp:{}".format(originstamp_result))
     # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
-
-    return ReturnResults(originstamp_result=originstamp_result, hash_value=joined_threads[max_index].ipfs_hash,
-                         web_title=joined_threads[max_index].html.title)
+    print("Distributed timestamp done, return results.")
+    return ReturnResults(originstamp_result=joined_threads[max_index].originstamp_result,
+                         hash_value=joined_threads[max_index].ipfs_hash, web_title=joined_threads[max_index].html.title)
 
 
 def run_thread(url, num, robot_check=False, proxy_list=None, html=None):
@@ -822,17 +803,20 @@ def check_threads(threads):
     votes = [0 for x in threads]
     for num in range(0, len(threads)):
         if threads[num].ipfs_hash is not None:
-            print("We have an ipfs_hash: {}".format(threads[num].ipfs_hash))
+            print("We have an ipfs_hash from {} in Thread-{}: {}".format(threads[num].prox_loc, threads[num].threadID,
+                                                                         threads[num].ipfs_hash))
 
         elif threads[num].error is not None or threads[num].ipfs_hash is None:
             # An error occurred in this thread, site unreachable from this location.
-            # TODO Store to db
-            print("The url ({}) is unreachable from {}.".format(threads[num].url, threads[num].prox_loc))
+            # TODO Store to db as blocked
+            print("The url of Thread-{} ({}) is unreachable from {}.".format(threads[num].threadID, threads[num].url,
+                                                                             threads[num].prox_loc))
             app.logger.info("The url ({}) is unreachable from {}.".format(threads[num].url, threads[num].prox_loc))
             continue
 
         for cnt in range(0, len(threads)):
-            if threads[num].threadID != threads[cnt].threadID and threads[num].ipfs_hash == threads[cnt].ipfs_hash:
+            if threads[num].ipfs_hash == threads[cnt].ipfs_hash:
+                # increment even if it is the same thread to separate if no other was successful
                 votes[num] += 1
     app.logger.info(votes)
     print("Joined Threads: {}".format(votes))
@@ -848,32 +832,76 @@ def submit_threads_to_db(results, votes, user=None):
     :param votes:
     :param results:
     """
+    print("Add to db")
     for thread in results:
-        if thread.error:
+        print("Adding thread{} to db".format(thread.threadID))
+        if thread.error is not None or True:
+            print("Add error thread to db")
             country = Country.query.filter_by(country_code=thread.prox_loc)
-            country.block_count += 1
-            db.update(country)
-            db.commit()
+            count = country.block_count + 1
+            # TODO check functionality of update
+            country.update({'block_count': count})
+            db.session.commit()
+            print("Finished adding error thread to db")
         else:
-            # TODO no such value: originstamp submission is still missing
+            print(str(thread.originstamp_result))
             add_post_to_db(thread.url, thread.html, thread.title, thread.ipfs_hash,
-                           thread.originstamp_result.originstamp_time, user)
+                           thread.originstamp_result["created_at"], user=user)
+    print("Adding threads to db done.")
 
 
 def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
-    already_exists = Post.query.filter(and_(Post.urlSite.like(url), Post.hashVal.like(sha256))).first()
+    """
+    Method to add one new post to the database.
+
+    :author: Sebastian
+    :param url: The url of the post.
+    :param body: The preprocessed html associated to the url that was the base of the timestamp.
+    :param title: Optional title of the Post. Should mostly be the title of the website.
+    :param sha256: The hash associated to the timestamp.
+    :param originstamp_time: The time of the timestamp retrieved from originstamp.org.
+    :param user: The user tat initiated this timestamp and to whom the post will eb attributed.
+    If no user is named it will be attributed to the Stamp The Web 'Bot'.
+    """
+    print("Adding one new post")
+    already_exists = Post.query.filter(Post.hashVal == sha256).first()
+    print("Query Adding one new post. Already exists: {}".format(already_exists))
     if already_exists is not None:
-        post_new = already_exists
-        # TODO
+        count = already_exists.count + 1
+        already_exists.update({"count": count})
+        # db.session.add(already_exists)
+        db.session.commit()
     else:
+        print("Make new post")
         if user is None:
+            # Use bot to post
             post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
-                            origStampTime=originstamp_time, author=current_user._get_current_object())
+                            origStampTime=datetime.strptime(originstamp_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                            author_id=113)
         else:
+            user = check_user(user)
+            print("We have a user:{}".format(user))
             post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
-                            origStampTime=originstamp_time, author=user)
+                            origStampTime=datetime.strptime(originstamp_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
+                            author_id=user.id)
+        print("Finished adding one new post, committing")
         db.session.add(post_new)
         db.session.commit()
+
+
+def check_user(user):
+    """
+    Check the database for a username to retrieve the user object from it.
+    If no user can be found None will be returned.
+
+    :author: Sebastian
+    :param user: The username to search the db for.
+    :return: An object of the db class User with al the information stored for a user.
+    If no user can be found None will be returned.
+    """
+    db_user = User.query.filter(User.username == user).first()
+    print(str(db_user))
+    return db_user
 
 
 def main():
