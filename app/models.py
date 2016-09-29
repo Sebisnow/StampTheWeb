@@ -311,8 +311,8 @@ class Warcs(db.Model):
 class Country(db.Model):
     """
     Representation of Database Table 'countries' that serves as a lookup table for Countries and sums up how many
-    articles were blocked in theses countries.
-    countries.
+    articles were blocked in theses countries. The articles itself are semicolon-separated
+    stored in the text field blocked_urls.
 
     :author: Sebastian
     """
@@ -321,3 +321,4 @@ class Country(db.Model):
     country_code = db.Column(db.String(2), index=True, unique=True)
     country_name = db.Column(db.String(44), unique=True)
     block_count = db.Column(db.Integer)
+    blocked_urls = db.Column(db.Text)
