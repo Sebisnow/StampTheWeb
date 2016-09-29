@@ -1,7 +1,6 @@
 <style>
-    div.space-needed {
-    white-space: pre-wrap;
-}
+
+dif.compare_text { word-wrap: break-word; }
     ins{
     background-color: #9F9;}
 
@@ -11,6 +10,7 @@
     .post-footer div{
     display:inline;
 }
+
 div#content {
     display: none;
     }
@@ -40,22 +40,22 @@ div#loading {
   window.onload = loading;
 </script>
 
-<div id="loading"></div>
-<div id="content">
-
-<div class="space-needed" style="float:left; width:50%;" onload="pop_alert();">
+<div class="compare_text" style="float:left; width:50%;" onload="pop_alert();">
     <a class="label label-primary" href=/pdf/{{  hash1 }}.pdf target="_blank"  style="margin-right: 5px;">View pdf </a>
     <a class="label label-primary" href=/pdf/{{  hash1 }}.png target="_blank"  style="margin-right: 5px;">View Screenshot</a>
     <h3>Original Text ( {{dateLeft}} )</h3>
-    <p>{{left}}</p> <!-- Set Div As your requirement -->
+    <p align="left">{{left}}</p> <!-- Set Div As your requirement -->
 </div>
-<div class="space-needed" style="float:left; width:50%;" onload="pop_alert();">
+<div class="compare_text" style="float:left; width:50%;" onload="pop_alert();">
     <a class="label label-primary" href=/pdf/{{  hash2 }}.pdf target="_blank"  style="margin-right: 5px;">View pdf </a>
     <a class="label label-primary" href=/pdf/{{  hash2 }}.png target="_blank"  style="margin-right: 5px;">View Screenshot</a>
     <h3>Current Text ({{dateRight}})</h3>
-<p>{{right}}</p>  <!-- Set Div As your requirement -->
+<p align="left">{{right}}</p>  <!-- Set Div As your requirement -->
 
 </div>
+
+<div id="loading"></div>
+<div id="content">
 
 {% else %}
 {% include '_verifies.html' %}
