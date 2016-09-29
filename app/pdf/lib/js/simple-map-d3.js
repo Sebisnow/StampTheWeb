@@ -448,9 +448,9 @@ function SimpleMapD3(o) {
         legendSwatches.push(smd.colorRange.invertExtent(smd.options.colorSet[c])[0]);
       }
     }
-	//for (c = 1; c < legendSwatches.length; c++) {
-		//legendSwatches[c] = legendSwatches[c].toFixed(2);
-	//}
+	for (c = 1; c < legendSwatches.length; c++) {
+		legendSwatches[c] = legendSwatches[c].toFixed(2);
+	}
     
     // Ensure we have something to make a legend with
     if (legendSwatches.length === 0) {
@@ -499,7 +499,7 @@ function SimpleMapD3(o) {
       // Add text label
       smd.legendGroup
         .selectAll('text.smd-legend-amount')
-          .data(legendSwatches.toFixed(2))
+          .data(legendSwatches)
         .enter().append('text')
           .attr('class', 'smd-legend-amount')
           .attr('font-size', unit)
