@@ -440,7 +440,7 @@ def block_country():
     if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
         block_list = downloader.search_for_url(form.urlSite.data)
         data = downloader.remove_unwanted_data_block_country()
-        for k in block_list:
+        for k in range(len(block_list)):
             a = 0
             while a < 210:
                 if data["features"][a]["properties"]["NAME"] == block_list[k][0]:
