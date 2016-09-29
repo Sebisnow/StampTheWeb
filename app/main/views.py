@@ -772,54 +772,43 @@ def timestamp_api():
     if header['content-type'] == 'application/json':
         print("The data is of json format")
         try:
-            user = None
+            submitting_user = None
             post_data = request.get_json()
             if "user" in post_data:
-                user = post_data["user"]
+                submitting_user = post_data["user"]
             current_app.logger.info("The data that was posted: \n" + str(post_data.keys()))
             url = post_data["URL"]
             current_app.logger.info("Starting distributed timestamp by extension call")
-            print("starting dist timestamp with the following data:URL: {}\nHTML:\n{}".format(post_data["URL"],
+            print("starting dist timestamp with the following data:URL: {}\nHTML:\n{}".format(url,
                                                                                               type(post_data["body"])))
-            # user_location = proxy_util.get_proxy_location(header["host"])
-            # TODO determine location by ip address and hand over to distributed_timestamp to store in db for stats
-            result = downloader.distributed_timestamp(post_data["URL"], post_data["body"], user=user)
+
+            result = downloader.distributed_timestamp(url, post_data["body"], user=submitting_user, loc=header["host"])
             # TODO do not store new POST
             current_app.logger.info("Result of distributed_timestamp:\n" + str(result))
             print("Result of distributed_timestamp:\n" + str(result.originStampResult))
+            originstamp_result = result.originStampResult
+            if result is None:
+                response.status_code = 404
+            elif result.original is None:
+                # users input is the original data of the website, return the originstamp result
+                response.response = originstamp_result
 
-            if result.originStampResult and result.originStampResult.status_code == 200:
-                current_app.logger.info("Originstamp submission succeeded")
-                response.status_code = 200
-
-                """if result.errors:
-                    history = downloader.get_originstamp_history(result.hashValue).json()
-                    current_app.logger.info("Hash was already "
-                                            "submitted to Originstamp on: {}".format(history["created_at"]))
-                    response.headers["Duplicate"] = True
-                    response.headers["SubmissionTime"] = history["created_at"]"""
-
-                response.headers["URL"] = "http://stamptheweb.org/timestamp/" + result.hashValue
-                response.response = result.originStampResult
-                response.headers["HashValue"] = result.hashValue
-
-                if post_data["user"]:
-                    response.headers["user"] = post_data["user"]
-
-                else:
-                    response.headers["user"] = "BOT"
-                    # TODO store with bot reference instead of user
-                
             else:
-                if result.hashValue:
-                    response.headers["json"] = result.hashValue
-                    response.status_code = 451
-                    response.reason = "Really deep internal server error but we have a hash. " \
-                                      "Timestamp might have been created."
-                else:
-                    response.status_code = 452
-                    response.reason = "Really deep internal server error. " \
-                                      "Timestamp could not be created."
+                # users input is the original data of the website, return the originstamp result
+                resp_data = dict()
+                resp_data["Original_data"] = originstamp_result
+                resp_data["Your_Submitted_data"] = result.user_input.originstamp_result
+                response.response = resp_data
+                response.headers["UserHashValue"] = result.user_input.ipfs_hash
+
+            response.status_code = 200
+            response.headers["URL"] = "http://stamptheweb.org/timestamp/{}".format(result.hashValue)
+            response.headers["HashValue"] = result.hashValue
+            if post_data["user"]:
+                response.headers["user"] = submitting_user
+            else:
+                response.headers["user"] = "BOT"
+
         except Exception as e:
             # DO NOT  YET! Catch error and continue, but log the error
             current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
@@ -828,7 +817,6 @@ def timestamp_api():
             response.reason = "Error in try catch block!"
 
         finally:
-
             current_app.logger.info("cleaning up and returning response")
             current_app.config["TESTING"] = testing
             return response
