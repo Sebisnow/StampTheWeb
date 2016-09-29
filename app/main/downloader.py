@@ -28,15 +28,17 @@ options = {'quiet': ''}
 
 class ReturnResults(object):
     """
-    :author: Waqar and Sebastian
+    :author:Sebastian
     Helper class to return the results from downloader to the views. Therefore this class is equivalent to an API.
     """
 
-    def __init__(self, originstamp_result, hash_value, web_title, errors=None):
+    def __init__(self, originstamp_result, hash_value, web_title, errors=None, user_input=None, original=None):
         self.originStampResult = originstamp_result
         self.hashValue = hash_value
         self.webTitle = web_title
         self.errors = errors
+        self.user_input = user_input
+        self.original = original
 
 
 def get_all_domain_names(post):
@@ -675,7 +677,53 @@ def save_render_zip_submit(html_text, sha256, url, title):
     return originstamp_result
 
 
-def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=False, num_threads=5):
+def location_independent_timestamp(url, proxies=None, robot_check=False, num_threads=5, user="Bot"):
+    """
+    This way of timestamping starts several threads(usually 5). The first thread downloads what will be considered the
+    original content as it uses a proxy from the country of origin of the url. Thus this method retrieves a baseline
+    for result comparisons together with four (per default) other random locations if none are specified in the list
+    'proxies'. The Method returns all DownloadThread objects as a list. The first is the benchmark (original content)
+    to compare the rest with.
+    The results of the download are stored in the db, on IPFS and as WARC automatically.
+
+
+    :author: Sebastian
+    :param url: he URL of the website to timestamp.
+    :param proxies: A list of two-itemed lists of max 5 Proxies that should be taken into account for the timestamp.
+    Defaults to None. Each list item should consist of a list of length two with the country code at index 0
+    and the proxy in '<host>:<port>' notation as string.
+    :param robot_check: Boolean value that indicates whether the downloader should honour the robots.txt of
+    the given website or not -- if the users view is needed do not use False.
+    :param num_threads: Number of threads to be used for the timestamp. Defaults to 5.
+    :param user: The username of the user that initiated the timestamp. As default the Bot user will be used.
+    :return: a list of DownloadThread objects where the first (at index 0).is the result of the timestamp from the
+    country of origin of the website.
+    Votes has an integer stored for each thread, the highest is taken as the original.
+    """
+    original_country = proxy_util.get_country_of_url(url)
+    proxy_list = proxy_util.get_proxy_list()
+    orig_proxy = None
+    for proxy in proxy_list:
+        if proxy[0] == original_country:
+            print("Got a country match: {}".format(proxy))
+            orig_proxy = proxy
+            break
+    if orig_proxy is None:
+        orig_proxy = proxy_util.get_one_proxy(original_country)
+    threads = list()
+
+    original = run_thread(url, 0, proxy_list=[orig_proxy], robot_check=robot_check, location=original_country)
+    threads.append(original)
+    threads = start_threads(proxies, threads, url, 1, num_threads, robot_check, proxy_list)
+
+    # join all threads and return them
+    joined_threads, votes = join_threads(threads)
+
+    submit_threads_to_db(joined_threads, votes, user, original_hash=original.ipfs_hash)
+    return threads
+
+
+def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=False, num_threads=5, location=None):
     """
     Perform a distributed timestamp where not only one file is taken into account, but several HTMLs retrieved by
     proxies from different locations. 5 pseudo random locations from the proxy list are used. Optionally default
@@ -697,10 +745,16 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     :param robot_check: Boolean value that indicates whether the downloader should honour the robots.txt of
     the given website or not.
     :param num_threads: Number of threads to be used for distributed timestamp. Defaults to 5.
-    :return: Returns the result of the distributed Timestamp as a ReturnResults Object, including the
-    originStampResult, hashValue, webTitle and errors(defaults to None).
+    :param location: Defaults to None. Specifies the location the html comes from or should come from.
+    :return: If extension triggered: Returns the result of the distributed Timestamp as a ReturnResults Object,
+    including the originStampResult, hashValue, webTitle and errors(defaults to None) together with the original if the
+    user_input is not the same as the original. Otherwise of the two only the user_input is returned.
+
+    If not extension triggered this method returns a list of DownloadThread objects and the votes list.
+    Votes has an integer stored for each thread, the highest is taken as the original.
     """
     print("Distributed timestamping")
+    extension_triggered = False
     if not re.match(proxy_util.url_specification, url):
         return ReturnResults(None, None, None, OriginstampError("The entered URL does not correspond "
                                                                 "to URL specifications", 501))
@@ -711,8 +765,37 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     if html:
         # if an html is given the distributed timestamp was triggered by a user(extension)
         print("Triggered by extension!")
-        threads.append(run_thread(url, cnt, html=html, robot_check=robot_check))
+        extension_triggered = True
+        threads.append(run_thread(url, cnt, html=html, robot_check=robot_check, location=location))
         cnt += 1
+
+    threads = start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_list)
+
+    # join all threads and return the DownloadThread with the most votes
+    joined_threads, votes = join_threads(threads)
+
+    submit_threads_to_db(joined_threads, votes, user)
+
+    max_index = votes.index(max(votes))
+    # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
+    print("Distributed timestamp done, return results.")
+    if extension_triggered:
+        if max(votes) == votes[0]:
+            # The input of the user is the same result as the one with the highest votes.
+            return ReturnResults(originstamp_result=joined_threads[max_index].originstamp_result,
+                                 hash_value=joined_threads[max_index].ipfs_hash,
+                                 web_title=joined_threads[max_index].html.title, user_input=joined_threads[0])
+
+        return ReturnResults(originstamp_result=joined_threads[max_index].originstamp_result,
+                             hash_value=joined_threads[max_index].ipfs_hash,
+                             web_title=joined_threads[max_index].html.title,
+                             user_input=joined_threads[0],
+                             original=joined_threads[max_index])
+    else:
+        return joined_threads, votes
+
+
+def start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_list):
     if proxies is not None:
         for proxy in proxies:
             if cnt >= 5:
@@ -723,20 +806,10 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     for n in range(cnt, num_threads):
         threads.append(run_thread(url, n, proxy_list=proxy_list, robot_check=robot_check))
     print("Threads created: {}".format(threads))
-
-    # join all threads and return the DownloadThread with the most votes
-    joined_threads, votes = join_threads(threads)
-
-    submit_threads_to_db(joined_threads, votes, user)
-
-    max_index = votes.index(max(votes))
-    # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
-    print("Distributed timestamp done, return results.")
-    return ReturnResults(originstamp_result=joined_threads[max_index].originstamp_result,
-                         hash_value=joined_threads[max_index].ipfs_hash, web_title=joined_threads[max_index].html.title)
+    return threads
 
 
-def run_thread(url, num, robot_check=False, proxy_list=None, html=None):
+def run_thread(url, num, robot_check=False, proxy_list=None, html=None, location=None):
     """
     Convencience method to start one new thread with a downloading job and possibly with a random proxy depending on
     the user input.
@@ -747,11 +820,12 @@ def run_thread(url, num, robot_check=False, proxy_list=None, html=None):
     :param robot_check: Whether or not to honour robots.txt, defaults to False.
     :param proxy_list: The proxy to be used for downloading. If the list contains only one item this item is used.
     :param html: Defaults to None and is only specified if the user sent his or her own HTML to timestamp.
+    :param location: Defaults to None. Specifies the location the html comes from or should come from.
     :return: The DownloadThread object that represents the freshly started thread.
     """
 
     if html is not None:
-        thread = DownloadThread(num, html=html, robot_check=robot_check)
+        thread = DownloadThread(num, html=html, robot_check=robot_check, prox_loc=location)
         thread.start()
 
     elif proxy_list is None:
@@ -823,26 +897,39 @@ def check_threads(threads):
     return threads, votes
 
 
-def submit_threads_to_db(results, votes, user=None):
+def submit_threads_to_db(results, votes, user=None, original_hash=None):
     """
     Submits the results to db and
 
     :author: Sebastian
     :param user:
     :param votes:
+    :param original_hash: The hash to compare the results with to identify censored/modified content.
     :param results:
     """
     print("Add to db")
     for thread in results:
         print("Adding thread{} to db".format(thread.threadID))
-        if thread.error is not None or True:
-            print("Add error thread to db")
-            country = Country.query.filter_by(country_code=thread.prox_loc)
-            count = country.block_count + 1
-            # TODO check functionality of update
-            country.update({'block_count': count})
+        # TODO check if statement
+
+        if thread.error is not None:
+            print("Add error thread {} from {} to db".format(thread.threadID, thread.prox_loc))
+            country = Country.query.filter_by(country_code=thread.prox_loc).first()
+
+            print(str(country.block_count))
+            country.block_count += 1
+            db.session.add(country)
             db.session.commit()
+            print("Updated to: " + str(country.block_count))
             print("Finished adding error thread to db")
+        elif thread.originstamp_result is None:
+            # No error but originstamp result is not there -> something went really wrong
+            print("No error but originstamp result is not there -> something went really wrong in Thread-{}"
+                  .format(thread.threadID))
+
+        elif original_hash != thread.ipfs_hash:
+            print("The content from Thread-{} from {} does not match the original!"
+                  .format(thread.threadID, thread.prox_loc))
         else:
             print(str(thread.originstamp_result))
             add_post_to_db(thread.url, thread.html, thread.title, thread.ipfs_hash,
@@ -867,9 +954,9 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
     already_exists = Post.query.filter(Post.hashVal == sha256).first()
     print("Query Adding one new post. Already exists: {}".format(already_exists))
     if already_exists is not None:
-        count = already_exists.count + 1
-        already_exists.update({"count": count})
-        # db.session.add(already_exists)
+        already_exists.count += 1
+        #already_exists.update({"count": count})
+        db.session.add(already_exists)
         db.session.commit()
     else:
         print("Make new post")
