@@ -116,14 +116,14 @@ def search_for_url(url):
     proxy_list = proxy_util.get_proxy_list()
 
     q = queue.Queue()
-    for k in proxy_list:
-        p = proxy_list[k][1]
+    for proxy in proxy_list:
+        p = proxy[1]
         t = threading.Thread(target=get_url, args=(q, p, url))
         t.daemon = True
         t.start()
 
-    for k in proxy_list:
-        proxy_list[k][2] = q.get()
+    for proxy in proxy_list:
+        proxy[2] = q.get()
         #print(proxy_list[k][2], proxy_list[k][0])  # TODO for Debugging open this
 
     return proxy_list
@@ -829,7 +829,7 @@ def submit_threads_to_db(results, votes, user=None):
     print("Add to db")
     for thread in results:
         print("Adding thread{} to db".format(thread.threadID))
-        if thread.error is not None:
+        if thread.error is not None or True:
             print("Add error thread to db")
             country = Country.query.filter_by(country_code=thread.prox_loc)
             count = country.block_count + 1
