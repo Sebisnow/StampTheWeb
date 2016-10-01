@@ -5,6 +5,8 @@ import ipfsApi
 import logging
 import os
 
+fr_proxy = "178.32.153.219:80"
+
 
 class MyTestCase(unittest.TestCase):
     def setUp(self):
@@ -50,8 +52,12 @@ class MyTestCase(unittest.TestCase):
     def test_get_proxy_list(self):
         print("\nTesting the loading of the proxy list:")
         p_list = p.get_proxy_list()
+        print(p_list)
         self.assertGreater(len(p_list), 10, "Did not gather more than 10 proxies. Proxy list generation failed!")
 
+    def test_proxy_check(self):
+
+        self.assertTrue(p.is_proxy_alive(fr_proxy))
 
 if __name__ == '__main__':
     unittest.main()

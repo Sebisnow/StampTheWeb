@@ -6,6 +6,9 @@ import csv
 import asyncio
 import os
 import re
+
+import requests
+import urllib3
 from proxybroker import Broker
 from random import randrange
 import geoip
@@ -17,6 +20,7 @@ proxy_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static/")
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
 url_specification = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 base_path = 'app/pdf/'
+default_event_loop = None
 
 
 def get_proxy_location(ip_address):
@@ -96,7 +100,7 @@ def update_proxies(prox_loc=None):
         if prox_loc:
             country_list.append(prox_loc)
         country_list = set(country_list)
-
+    print(country_list)
     print("Getting the proxies now. That may take quite a while!")
     proxy_list = gather_proxies(country_list)
     print("All proxies gathered!")
@@ -143,7 +147,7 @@ def gather_proxies(countries):
     return proxy_list
 
 
-def get_one_proxy(country, types='HTTP'):
+def get_one_proxy(country, types='HTTP', event_loop=None):
     """
     Find one new, working proxy from the specified country. Run time of this method depends heavily on the country
     specified as for some countries it is hard to find proxies (e.g. Myanmar).
@@ -159,16 +163,23 @@ def get_one_proxy(country, types='HTTP'):
     print("Fetching one proxy from: {}".format(country))
     if type(types) is not list:
         types = [types]
-
+    loop = None
     try:
         loop = asyncio.get_event_loop()
     except RuntimeError:
+        if default_event_loop is None and event_loop is None:
+            loop = asyncio.new_event_loop()
+        elif default_event_loop is not None:
+            loop = default_event_loop
+        elif event_loop is not None:
+            loop = event_loop
+    if loop is None:
         loop = asyncio.new_event_loop()
-
     proxies = asyncio.Queue(loop=loop)
     broker = Broker(proxies, loop=loop)
-
-    loop.run_until_complete(broker.find(limit=1, countries=country, types=types))
+    print(type(country))
+    print(type(types))
+    loop.run_until_complete(broker.find(limit=1, countries=[country], types=types))
 
     while True:
         proxy = proxies.get_nowait()
@@ -178,6 +189,25 @@ def get_one_proxy(country, types='HTTP'):
 
         return "{}:{}".format(proxy.host, str(proxy.port))
     return None
+
+
+def is_proxy_alive(proxy):
+    """
+    Tests whether the specified HTTP proxy is alive.
+
+    :param proxy: The proxy to check. <Host>:<Post>
+    :return: Either True if the proxy is alive ot False if it is not alive
+    """
+    try:
+        res = requests.get("http://google.com", stream=True, proxies={"http": "http://" + proxy})
+        if res.status_code <= 400:
+            print("Proxy {} is alive!".format(proxy))
+            return True
+        else:
+            print("Status code {} indicates proxy not alive or website down.".format(res.status_code))
+    except IOError as e:
+        print(str(e))
+        return False
 
 
 def get_country_of_url(url):
@@ -216,4 +246,6 @@ def _lookup_website_ip(url):
     :return: Returns the IP address of the website.
     """
     domain = urlparse(url).netloc
+
     return socket.gethostbyname_ex(domain)[2][0]
+
