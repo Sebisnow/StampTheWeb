@@ -6,6 +6,7 @@ import logging
 import os
 
 fr_proxy = "178.32.153.219:80"
+china_proxy = "222.161.3.163:9999"
 
 
 class MyTestCase(unittest.TestCase):

@@ -1,14 +1,9 @@
-from urllib.request import urlopen
 from urllib.parse import urlparse
-from contextlib import closing
-import json
 import csv
 import asyncio
 import os
 import re
-
 import requests
-import urllib3
 from proxybroker import Broker
 from random import randrange
 import geoip
@@ -23,21 +18,21 @@ base_path = 'app/pdf/'
 default_event_loop = None
 
 
-def get_proxy_location(ip_address):
-    """
+"""def get_proxy_location(ip_address):
+    ""
     Looks up the location of an IP Address and returns the two-letter ISO country code.
 
     :author: Sebastian
     :param ip_address: The IP Address to get the location for.
     :return: The country_code as two letter string
-    """
+    ""
     # Automatically geolocate the connecting IP
     print("Getting the proxy location of:{}".format(str(ip_address)))
     url = 'http://freegeoip.net/json/' + ip_address
     with closing(urlopen(url)) as response:
         location = json.loads(str(response.read().decode()))
         return location['country_code']
-
+"""
 
 def get_rand_proxy():
     """
@@ -168,7 +163,7 @@ def get_one_proxy(country, types='HTTP', event_loop=None):
         loop = asyncio.get_event_loop()
     except RuntimeError:
         if default_event_loop is None and event_loop is None:
-            loop = asyncio.new_event_loop()
+            loop = asyncio.set_event_loop(asyncio.new_event_loop())
         elif default_event_loop is not None:
             loop = default_event_loop
         elif event_loop is not None:
@@ -199,12 +194,13 @@ def is_proxy_alive(proxy):
     :return: Either True if the proxy is alive ot False if it is not alive
     """
     try:
-        res = requests.get("http://google.com", stream=True, proxies={"http": "http://" + proxy})
+        res = requests.get("http://google.com", timeout=15, proxies={"http": "http://" + proxy})
         if res.status_code <= 400:
             print("Proxy {} is alive!".format(proxy))
             return True
         else:
             print("Status code {} indicates proxy not alive or website down.".format(res.status_code))
+            return False
     except IOError as e:
         print(str(e))
         return False
@@ -218,10 +214,10 @@ def get_country_of_url(url):
     :param url: The url of the website to get the country of.
     :return: The country as two letter ISO-code of the website specified by the url.
     """
-    return _ip_lookup_country(_lookup_website_ip(url))
+    return ip_lookup_country(_lookup_website_ip(url))
 
 
-def _ip_lookup_country(ip):
+def ip_lookup_country(ip):
     """
     Looks up an IP address in the MaxMindDataBase GeoLite2-Country.mmdb to find out to which country the IP address l
     links to.
