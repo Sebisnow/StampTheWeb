@@ -4,9 +4,12 @@ import os
 import urllib.error
 from urllib.robotparser import RobotFileParser
 from urllib.parse import urlparse
+
+import asyncio
 import requests
 import chardet
 from flask import current_app as app
+from requests.packages.urllib3.exceptions import MaxRetryError
 from selenium import webdriver
 from warcat.model import WARC
 from warcat.model.field import Header
@@ -78,9 +81,11 @@ class DownloadThread(threading.Thread):
             self.bot_parser.read()
 
         if self.html is None:
+            self.proxy_setup()
             self.extension_triggered = False
+
             print("Thread{} is using Proxy: {}".format(self.threadID, self.proxy))
-            self.phantom = self.initialize(self.proxy)
+            self.phantom = self.initialize(self.proxy, self.prox_loc)
         else:
             self.extension_triggered = True
             self.phantom = self.initialize()
@@ -114,28 +119,64 @@ class DownloadThread(threading.Thread):
         os.mkdir(self.path)
 
     @staticmethod
-    def initialize(proxy=None):
+    def initialize(proxy=None, proxy_location=None):
         """
         Helper method that initializes the PhantomJS Headless browser and sets the proxy.
 
         :author: Sebastian
         :param proxy: The proxy to set.
+        :param proxy_location: A location for a proxy. If no proxy is specified it is fetched from that location.
         :return: The PhantomJS driver object.
         """
+        print("Initialize Phantom with proxy:{} and location: {}".format(proxy, proxy_location))
         dcap = dict(DesiredCapabilities.PHANTOMJS)
         dcap["phantomjs.page.settings.userAgent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/53 " \
                                                     "(KHTML, like Gecko) Chrome/15.0.87"
-        phantom = webdriver.PhantomJS(js_path, desired_capabilities=dcap)
-        phantom.capabilities["acceptSslCerts"] = True
-        if proxy:
-            phantom.capabilities["proxy"] = {"proxy": proxy,
-                                             "proxy-type": "http"}
+
+        if proxy is not None:
+            service_args = [
+                '--proxy={}'.format(proxy),
+                '--proxy-type=http',
+            ]
+        elif proxy_location is not None:
+            try:
+                print("retrieve proxy for location: {}".format(proxy_location))
+                new_proxy = proxy_util.get_one_proxy(proxy_location)
+
+            except:
+                print("Restarted proxy retrieval with new event loop")
+                new_proxy = proxy_util.get_one_proxy(proxy_location, asyncio.new_event_loop())
+
+            service_args = [
+                '--proxy={}'.format(new_proxy),
+                '--proxy-type=http',
+            ]
+        else:
+            service_args = []
+            print("Neither proxy not location are set, doing things locally")
+        dcap["acceptSslCerts"] = True
+        phantom = webdriver.PhantomJS(js_path, desired_capabilities=dcap, service_args=service_args)
+
         max_wait = 35
 
         phantom.set_window_size(1024, 768)
         phantom.set_page_load_timeout(max_wait)
         phantom.set_script_timeout(max_wait)
         return phantom
+
+    def proxy_setup(self):
+        """
+        Prepare proxies, check if alive and get new one if necessary.
+
+        """
+        if self.proxy is not None and not proxy_util.is_proxy_alive(self.proxy) and self.prox_loc is not None:
+            self.proxy = proxy_util.get_one_proxy(self.prox_loc)
+
+        elif not proxy_util.is_proxy_alive(self.proxy) and self.prox_loc is None:
+            self.proxy = proxy_util.get_rand_proxy()
+
+        if self.proxy is None and self.prox_loc is not None:
+            self.proxy = proxy_util.get_one_proxy(self.prox_loc)
 
     def run(self):
         """
@@ -160,8 +201,12 @@ class DownloadThread(threading.Thread):
             # store error and reraise to stop thread.
             self.error = e
             raise e
+        except TimeoutException as timeout:
+            self.error = timeout
+            raise timeout
         # submit the hash to originstamp to create a lasting timestamp.
-        self.handle_submission()
+        if self.error is None:
+            self.handle_submission()
 
     def download(self):
         """
@@ -179,7 +224,6 @@ class DownloadThread(threading.Thread):
             # try downloading, if site is unreachable through proxy reinitialize with new proxy from same location.
             if not self.download_html():
                 print("Couldn't reach website through proxy, trying again with new proxy")
-                self.scroll(self.phantom)
                 self.initialize(proxy_util.get_one_proxy(self.prox_loc))
 
                 # try again, if False is returned site was unreachable again -> propagate upwards by raising error
@@ -189,7 +233,7 @@ class DownloadThread(threading.Thread):
                     self.error = TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
                                                   .format(self.prox_loc))
                     raise self.error
-
+        print(str(self.html))
         self.html, self.title = preprocess_doc(self.html)
         soup = BeautifulSoup(self.html, "lxml")
 
@@ -220,12 +264,12 @@ class DownloadThread(threading.Thread):
         """
         try:
             self.phantom.get(self.url)
+            self.scroll(self.phantom)
         except TimeoutException as e:
+            self.error = e
             print(e)
-            print(self.phantom.page_source[:100])
             return False
-
-        self.scroll(self.phantom)
+        print("Fetched website successfully")
         self.html = str(self.phantom.page_source)
         return True
 
@@ -246,11 +290,10 @@ class DownloadThread(threading.Thread):
         img_ctr = 0
         current_directory = os.getcwd()
         os.chdir(self.path)
-        header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0'}
 
         for img in soup.find_all(['amp-img', 'img']):
             try:
-                res = self.down_image(img, header, proxy)
+                res = self.down_image(img, proxy)
             except NameError:
                 # the picture in the url was not retrievable, continue to next image
                 continue
@@ -279,7 +322,7 @@ class DownloadThread(threading.Thread):
         os.chdir(current_directory)
         return files
 
-    def down_image(self, img, header, proxy=None):
+    def down_image(self, img, proxy=None):
         """
         Downloads only one image. Helper Method to load_images
 
@@ -287,10 +330,11 @@ class DownloadThread(threading.Thread):
         :raises NameError: If there is an image that can not be fetched because no known attribute
         containing a link to it exists or has a link that satisfies the urlPattern.
         :param img: The img tag object.
-        :param header: The header that is used if the image is retrieved via proxy
         :param proxy: The proxy that is to be used to download the image. Defaults to None, to download it directly.
         :return: A Response object with the response status and the image to store.
         """
+        header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0'}
+
         if 'src' in img.attrs and proxy_util.url_specification.match(img['src']):
             tag = img['src']
         elif 'data-full-size' in img.attrs and proxy_util.url_specification.match(img['data-full-size']):
@@ -309,24 +353,25 @@ class DownloadThread(threading.Thread):
                   "robots.txt".format(self.url))
             raise urllib.error.URLError("Not allowed to fetch image file specified by url:{} because of "
                                         "robots.txt".format(self.url))
-        if proxy:
-            try:
-                """
-                First we try to get the image without a proxy and only if that fails the proxy is used.
-                Alternatively or possibly another exception needs to be handled if MaxRetryError occurs
-                due to too many connections to proxy.
-                """
-                res = requests.get(tag, stream=True)
-                print("Thread{} Requested image without proxy.".format(self.threadID))
-            except ConnectionRefusedError as con:
-                print("Thread{} Could not request image due to: {}\ntrying with proxy: {}".format(
-                    self.threadID, con.strerror, proxy))
+        res = None
+        try:
+            """
+            First we try to get the image with a proxy. If that fails we try it without proxy.
+            """
+            if proxy:
+
                 res = requests.get(tag, stream=True, proxies={"http": "http://" + proxy}, headers=header)
-            except ConnectionResetError as reset:
-                self.error = reset
-                raise self.error
-        else:
-            res = requests.get(tag, stream=True)
+                return res
+
+            print("Thread{} Requested image with proxy.".format(self.threadID))
+        except ConnectionRefusedError or MaxRetryError as con:
+            print("Thread{} Could not request image due to: {}\ntrying without proxy.".format(
+                self.threadID, con.strerror))
+            res = requests.get(tag, stream=True, headers=header)
+        except ConnectionResetError as reset:
+            self.error = reset
+            raise self.error
+
         return res
 
     def add_to_warc(self):
