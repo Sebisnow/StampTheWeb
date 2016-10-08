@@ -4,18 +4,14 @@ import os
 import urllib.error
 from urllib.robotparser import RobotFileParser
 from urllib.parse import urlparse
-
 import asyncio
+
+import pdfkit
 import requests
 import chardet
 from flask import current_app as app
 from requests.packages.urllib3.exceptions import MaxRetryError
 from selenium import webdriver
-from warcat.model import WARC
-from warcat.model.field import Header
-from warcat.model.record import Record
-from warcat.model.block import BlockWithPayload
-from warcat.model.field import Fields
 from bs4 import BeautifulSoup
 import ipfsApi
 import shutil
@@ -24,6 +20,7 @@ from readability.readability import Document
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 from requests.exceptions import ReadTimeout, HTTPError
+from warc3 import warc
 
 from app.main import proxy_util
 # from ..models import Warcs
@@ -39,6 +36,7 @@ negative_tag_classes = ["ad", "advertisement", "gads", "iqad", "anzeige", "dfp_a
 # :param negative_tags: if any HTML tags are definitely just advertisement and definitely not describe the content
 # the tag can be added using a pipe. E.g "aside|ad".
 negative_tags = re.compile("aside", re.I)
+positive_tags = re.compile("article|article-title|headline|breitwandaufmacher|article-section", re.I)
 
 
 class DownloadThread(threading.Thread):
@@ -50,7 +48,7 @@ class DownloadThread(threading.Thread):
     :author: Sebastian
     """
     def __init__(self, thread_id, url=None, proxy=None, prox_loc=None, basepath='app/pdf/', html=None,
-                 robot_check=False):
+                 robot_check=False, create_warc=True):
         """
         Default constructor for the DownloadThread class, that initializes the creation of a new download job in a
         separate thread.
@@ -65,23 +63,25 @@ class DownloadThread(threading.Thread):
         StampTheWeb extension.
         :param robot_check: Boolean value that indicates whether the downloader should honour the robots.txt of
         the given website or not.
+        :param create_warc: This boolean parameter specifies whether or not a warc should be created for this
+        download job.
         """
         threading.Thread.__init__(self)
         print("Starting Thread")
 
         self.url, self.html, self.robot_check, self.threadID = url, html, robot_check, thread_id
-        self.proxy, self.prox_loc = proxy, prox_loc
+        self.proxy, self.prox_loc, self.warc = proxy, prox_loc, create_warc
         self.storage_path, self.images = basepath, dict()
         self.path = "{}temporary".format(basepath)
         self.ipfs_hash, self.title, self.originstamp_result = None, None, None
-        self.error, self.already_submitted = None, False
+        self.error, self.screenshot, self.already_submitted = None, dict(), False
         if self.robot_check:
             url_parser = urlparse(self.url)
             self.bot_parser = RobotFileParser().set_url("{url.scheme}://{url.netloc}/robots.txt".format(url=url_parser))
             self.bot_parser.read()
 
         if self.html is None:
-            self.proxy_setup()
+            self._proxy_setup()
             self.extension_triggered = False
 
             print("Thread{} is using Proxy: {}".format(self.threadID, self.proxy))
@@ -143,7 +143,7 @@ class DownloadThread(threading.Thread):
                 print("retrieve proxy for location: {}".format(proxy_location))
                 new_proxy = proxy_util.get_one_proxy(proxy_location)
 
-            except:
+            except RuntimeError:
                 print("Restarted proxy retrieval with new event loop")
                 new_proxy = proxy_util.get_one_proxy(proxy_location, asyncio.new_event_loop())
 
@@ -153,7 +153,7 @@ class DownloadThread(threading.Thread):
             ]
         else:
             service_args = []
-            print("Neither proxy not location are set, doing things locally")
+            print("Neither proxy nor location are set, doing things locally")
         dcap["acceptSslCerts"] = True
         phantom = webdriver.PhantomJS(js_path, desired_capabilities=dcap, service_args=service_args)
 
@@ -164,19 +164,22 @@ class DownloadThread(threading.Thread):
         phantom.set_script_timeout(max_wait)
         return phantom
 
-    def proxy_setup(self):
+    def _proxy_setup(self):
         """
         Prepare proxies, check if alive and get new one if necessary.
 
         """
-        if self.proxy is not None and not proxy_util.is_proxy_alive(self.proxy) and self.prox_loc is not None:
-            self.proxy = proxy_util.get_one_proxy(self.prox_loc)
+        print("Setting up proxies")
+        if self.proxy is not None:
+            alive = proxy_util.is_proxy_alive(self.proxy)
+            if self.prox_loc is None:
+                self.prox_loc = proxy_util.ip_lookup_country(self.proxy.split(":")[0])
+            if not alive:
+                self.proxy = proxy_util.get_one_proxy(self.prox_loc)
 
-        elif not proxy_util.is_proxy_alive(self.proxy) and self.prox_loc is None:
-            self.proxy = proxy_util.get_rand_proxy()
-
-        if self.proxy is None and self.prox_loc is not None:
-            self.proxy = proxy_util.get_one_proxy(self.prox_loc)
+        else:
+            if self.prox_loc is not None:
+                self.proxy = proxy_util.get_one_proxy(self.prox_loc)
 
     def run(self):
         """
@@ -222,23 +225,29 @@ class DownloadThread(threading.Thread):
             print(" Thread{}: Downloading without html, proxy is set to({}): {}".format(self.threadID, self.prox_loc,
                                                                                         self.proxy))
             # try downloading, if site is unreachable through proxy reinitialize with new proxy from same location.
-            if not self.download_html():
+            if not self._download_html():
                 print("Couldn't reach website through proxy, trying again with new proxy")
                 self.initialize(proxy_util.get_one_proxy(self.prox_loc))
 
                 # try again, if False is returned site was unreachable again -> propagate upwards by raising error
-                if not self.download_html():
+                if not self._download_html():
                     print("Couldn't reach website through two proxies, unreachable from loc {}"
                           .format(self.prox_loc))
                     self.error = TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
                                                   .format(self.prox_loc))
                     raise self.error
-        print(str(self.html))
+
+        # check that HTML was really downloaded by checking the size
+        if len(self.html) < 50:
+            print("Could not retrieve website.")
+            self.error = TimeoutException("Couldn't reach website through two proxies, unreachable from loc {}"
+                                          .format(self.prox_loc))
+            raise self.error
+
         self.html, self.title = preprocess_doc(self.html)
         soup = BeautifulSoup(self.html, "lxml")
 
-        # self.proxy is None if html was given to DownloadThread.
-        self.images = self.load_images(soup, self.proxy)
+        self.images = self._load_images(soup, self.proxy)
         with open(self.path + "page_source.html", "w") as f:
             f.write(self.html)
 
@@ -252,10 +261,11 @@ class DownloadThread(threading.Thread):
         # would not be necessary to add folder to ipfs since the html has the ipfs_hash
         # of the images stored within the img tags and thus is unique itself.
         self.ipfs_hash = add_to_ipfs(self.path + 'STW.zip')"""
+
         self.ipfs_hash = add_to_ipfs(self.path + 'page_source.html')
         print("Thread{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
 
-    def download_html(self):
+    def _download_html(self):
         """
         Helper Method that downloads the HTML after scrolling down to enable dynamic content.
 
@@ -266,14 +276,13 @@ class DownloadThread(threading.Thread):
             self.phantom.get(self.url)
             self.scroll(self.phantom)
         except TimeoutException as e:
-            self.error = e
             print(e)
             return False
         print("Fetched website successfully")
         self.html = str(self.phantom.page_source)
         return True
 
-    def load_images(self, soup, proxy=None):
+    def _load_images(self, soup, proxy=None):
         """
         Takes a BeautifulSoup Object and downloads all the images referenced in the HTML of the BS object.
         The method also changes the HTML, since it adds a tag attribute of ipfs-src with the hash returned
@@ -293,36 +302,36 @@ class DownloadThread(threading.Thread):
 
         for img in soup.find_all(['amp-img', 'img']):
             try:
-                res = self.down_image(img, proxy)
+                res = self._down_image(img, proxy)
             except NameError:
                 # the picture in the url was not retrievable, continue to next image
                 continue
             except ConnectionError:
-                print("Thread{} Could not connect to retrieve image. (Should be) Trying again with proxy"
+                print("Thread{} Could not connect to retrieve image. Can't retrieve from this location."
                       .format(self.threadID))
-                # TODO start image load again with different proxy
             except urllib.error.URLError as e:
                 print(str(e))
 
-            filename = 'img{}'.format(str(img_ctr))
-            img_ctr += 1
             if res.status_code == 200:
+                filename = 'img{}'.format(str(img_ctr))
+                img_ctr += 1
+
                 with open(filename, 'wb') as f:
                     for chunk in res.iter_content(1024):
                         f.write(chunk)
+
                 image_hash = add_to_ipfs(filename)
                 print("Added image to ipfs: " + filename)
                 img['ipfs-src'] = image_hash
                 files[img_ctr] = {"filename": filename,
-                                  "hash":     image_hash
-                                  }
+                                  "hash":     image_hash}
 
         print("Thread{} Downloaded images: {}".format(self.threadID, str(files)))
         self.html = str(soup.find("html"))
         os.chdir(current_directory)
         return files
 
-    def down_image(self, img, proxy=None):
+    def _down_image(self, img, proxy=None):
         """
         Downloads only one image. Helper Method to load_images
 
@@ -359,7 +368,6 @@ class DownloadThread(threading.Thread):
             First we try to get the image with a proxy. If that fails we try it without proxy.
             """
             if proxy:
-
                 res = requests.get(tag, stream=True, proxies={"http": "http://" + proxy}, headers=header)
                 return res
 
@@ -369,55 +377,94 @@ class DownloadThread(threading.Thread):
                 self.threadID, con.strerror))
             res = requests.get(tag, stream=True, headers=header)
         except ConnectionResetError as reset:
-            self.error = reset
-            raise self.error
+            raise reset
 
         return res
 
-    def add_to_warc(self):
+    def _make_pdf(self):
+        """
+        Creates a pdf file from the preprocessed html with the images embedded in it.
+
+        """
+        html_path = "{}pdf_source.html".format(self.path)
+        pdf_path = "{}{}.pdf".format(self.storage_path, self.ipfs_hash)
+        if not os.path.exists(pdf_path):
+            soup = BeautifulSoup(self.html, "lxml")
+            for img in soup.find_all(['amp-img', 'img']):
+                if "ipfs-src" in img.attrs:
+                    for key in self.images:
+                        if img["ipfs-src"] == self.images[key]["hash"]:
+                            img["src"] = self.images[key]["filename"]
+
+            with open(html_path, "w") as html_file:
+                html_file.write(str(soup.find("html")).replace("noscript", "div"))
+            # PDF is written to the basepath of the application (usually app/pdf/)
+            pdfkit.from_file(html_path, pdf_path)
+            print("Created PDF file from Preprocessed and img source changed html file: {}".format(pdf_path))
+        else:
+            print("PDF exists already in {}!".format(pdf_path))
+
+    def _add_to_warc(self):
         """
         Creates a WARC record for this download job.
         If no WARC file exists for this url a new Warc file with one record is created.
         This should only be called if a new timestamp was created.
+        The first record (at index 0) is the Header of the entire WARC specifying the URL again and the creation time.
+        Every record consists of a header and data. The header states what content-type to expect, the timestamp etc.
 
         :author: Sebastian
         :return: The path to the WARC file.
         """
-
+        print("Adding to warc")
+        # TODO only store references to ipfs in warc. binary data is difficult to work with.
         # TODO store one WARC per URL instead of only one WARC - issue is the IPFS/IPNS publishing.
-        originstamp_result = self.originstamp_result.json()
-        warc = WARC()
-        path_to_warc = "{}warcs/{}.warc.gz".format(self.storage_path, self.url)
-        # found_warc = Warcs.query.filter(Warcs.url.equals(self.url))
-        found_warc = os.path.exists(path_to_warc)
-        if found_warc:
-            warc.load(path_to_warc)
-        else:
-            warc.records[0] = Header(fields={'url': self.url, 'creation_time': time.time()})
-        # TODO fill in Header, Fields and Record with data
-        record_header = Header(fields={'hash_value': self.ipfs_hash, 'title': originstamp_result['title'],
-                                       'creation_time': originstamp_result['created_at'],
-                                       'content_type': 'application/json'})
+        originstamp_result = self.originstamp_result
 
-        content_block = BlockWithPayload(fields=self.create_content())
-        record = Record(header=record_header)
-        record.content_block = content_block
-        warc.records.append(record)
+        path_to_warc = "{}warcs/{}.warc.gz".format(self.storage_path, urlparse(self.url).netloc)
+        # found_warc = Warcs.query.filter(Warcs.url.equals(self.url))
+        with warc.open(path_to_warc, "ab") as warc_file:
+
+            record_header = warc.WARCHeader({'hash_value': self.ipfs_hash, 'title': originstamp_result['title'],
+                                             'creation_time': originstamp_result['created_at'],
+                                             'content_type': 'application/warc-fields', 'WARC-Target-URI': self.url,
+                                             'country': self.prox_loc, 'robots_txt': self.robot_check})
+
+            content_block = '"{}"\n'.format(self._create_content()).encode()
+            record = warc.WARCRecord(record_header, content_block, defaults=True)
+            record.header.setdefault("content-type", "application/json")
+
+            warc_file.write_record(record)
+        print("Finished adding to warc, the path is: {}".format(path_to_warc))
         return path_to_warc
 
-    def create_content(self):
+    def _create_content(self):
         """
-        Helper Method to create a filled warc content field.
+        Helper Method to create a filled warc content field. The HTML is added as one field.
+        One field for the images. The image field contains all images with their ipfs_hash and their binary_data.
+        A screenshot of the website is added. For completeness the originstamp_result is added as well.
 
         :author: Sebastian
-        :return:
+        :return: The content field filled with information concerning this download.
         """
-        # TODO
-        content = Fields()
-        content.add('html', self.html)
+        content = dict()
+        content['html'] = self.html
+        pictures = dict()
+        cnt = 0
         for img in self.images:
-            with open(img, 'rb') as binary_image:
-                content.add(img.rpartition("/")[0], binary_image.read())
+            with open(self.path + self.images[img]["filename"], 'rb') as binary_image:
+                image_data = dict()
+                image_data["ipfs_hash"] = self.images[img]["hash"]
+                image_data["binary_data"] = binary_image.read()
+                pictures[str(img)] = image_data
+            cnt += 1
+
+        content["images"] = pictures
+        with open(self.screenshot["path"], 'rb') as binary_screenshot:
+            image_data = dict()
+            image_data["ipfs_hash"] = self.screenshot["ipfs_hash"]
+            image_data["binary_data"] = binary_screenshot.read()
+            content["screenshot"] = image_data
+        content["originstamp_result"] = self.originstamp_result
         return content
 
     def handle_submission(self):
@@ -432,23 +479,46 @@ class DownloadThread(threading.Thread):
                                          .format(self.url, self.prox_loc))
 
         print("Originstamp result: {}".format(str(self.originstamp_result.text)))
-        if self.originstamp_result.status_code == 200:
+        if self.originstamp_result.status_code != 200:
+            self.error = HTTPError("Originstamp submission returned {} and failed for some reason: {}"
+                                   .format(str(self.originstamp_result.status_code), self.originstamp_result.text))
+            raise self.error
+        else:
+            self._take_screenshot()
+            self._make_pdf()
+
             if "errors" in self.originstamp_result.text:
                 print("Thread{} submitted hash to originstamp but the content has not changed. A timestamp "
                       "exists already.".format(self.threadID))
                 # hash already submitted
                 self.already_submitted = True
                 self.originstamp_result = get_originstamp_history(self.ipfs_hash).json()
-                if not os.path.exists("{}{}.png".format(self.storage_path, self.ipfs_hash)):
-                    self.phantom.get_screenshot_as_file("{}{}.png".format(self.storage_path, self.ipfs_hash))
-                    print("Hash submitted but png not existent. Wrote png to: {}"
-                          .format("{}{}.png".format(self.storage_path, self.ipfs_hash)))
 
             else:
                 print("Thread{} successfully submitted hash to originstamp and created a new timestamp."
                       .format(self.threadID))
                 self.originstamp_result = self.originstamp_result.json()
-                self.phantom.get_screenshot_as_file("{}{}.png".format(self.storage_path, self.ipfs_hash))
+                # Only add content to warc for new or changed content -> only for new timestamps
+                if self.warc:
+                    self._add_to_warc()
+
+    def _take_screenshot(self):
+        """
+        Takes a screenshot of the website that was downloaded using this DownloadThread.
+        It sets the screenshot variable of DownlaodThread to consist of the ipfs_hash and the path to the screenshot.
+
+        :author: Sebastian
+        """
+
+        screenshot_path = "{}{}.png".format(self.storage_path, self.ipfs_hash)
+        if not os.path.exists(screenshot_path):
+            print("Hash submitted but png not existent. Writing png to: {}"
+                  .format(screenshot_path))
+            self.phantom.get_screenshot_as_file(screenshot_path)
+        else:
+            print("Screenshot present at: {}".format(screenshot_path))
+        self.screenshot["ipfs_hash"] = add_to_ipfs(screenshot_path)
+        self.screenshot["path"] = screenshot_path
 
     @staticmethod
     def scroll(phantom):
@@ -575,7 +645,7 @@ def preprocess_doc(html_text):
     for tag_desc in negative_tag_classes:
         for tag in bs.findAll(attrs={'class': re.compile(r".*\b{}\b.*".format(tag_desc))}):
             tag.extract()
-    doc = Document(str(bs.html), negative_keywords=negative_tags)
+    doc = Document(str(bs.html), negative_keywords=negative_tags, positive_keywords=positive_tags)
     try:
         # Detect the encoding of the html, if not detectable use utf-8 as default.
         encoding = chardet.detect(doc.content().encode()).get('encoding')
