@@ -719,7 +719,7 @@ def location_independent_timestamp(url, proxies=None, robot_check=False, num_thr
     # join all threads and return them
     joined_threads, votes = join_threads(threads)
 
-    submit_threads_to_db(joined_threads, votes, user, original_hash=original.ipfs_hash)
+    _submit_threads_to_db(joined_threads, user, original_hash=original.ipfs_hash)
     return threads
 
 
@@ -774,7 +774,7 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     # join all threads and return the DownloadThread with the most votes
     joined_threads, votes = join_threads(threads)
 
-    submit_threads_to_db(joined_threads, votes, user)
+    _submit_threads_to_db(joined_threads, user)
 
     max_index = votes.index(max(votes))
     # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
@@ -873,7 +873,6 @@ def check_threads(threads):
     :return: All threads and as second parameter the index of the thread that should be taken as the timestamp and
     returned to the user.
     """
-    # TODO store different results
     votes = [0 for x in threads]
     for num in range(0, len(threads)):
         if threads[num].ipfs_hash is not None:
@@ -882,7 +881,6 @@ def check_threads(threads):
 
         elif threads[num].error is not None or threads[num].ipfs_hash is None:
             # An error occurred in this thread, site unreachable from this location.
-            # TODO Store to db as blocked
             print("The url of Thread-{} ({}) is unreachable from {}.".format(threads[num].threadID, threads[num].url,
                                                                              threads[num].prox_loc))
             app.logger.info("The url ({}) is unreachable from {}.".format(threads[num].url, threads[num].prox_loc))
@@ -897,20 +895,19 @@ def check_threads(threads):
     return threads, votes
 
 
-def submit_threads_to_db(results, votes, user=None, original_hash=None):
+def _submit_threads_to_db(results, user=None, original_hash=None):
     """
-    Submits the results to db and
+    Submits the results to db and judges the results as blocked or censored. According to judgement the result is
+    either submitted or  the countries table is updated to reflect the results.
 
     :author: Sebastian
-    :param user:
-    :param votes:
+    :param results: The results of the timestamping in list form with DownloadThread objects as items.
+    :param user: The user that submitted the timestamp request as String of his username.
     :param original_hash: The hash to compare the results with to identify censored/modified content.
-    :param results:
     """
     print("Add to db")
     for thread in results:
         print("Adding thread{} to db".format(thread.threadID))
-        # TODO check if statement
 
         if thread.error is not None:
             print("Add error thread {} from {} to db".format(thread.threadID, thread.prox_loc))
@@ -918,6 +915,7 @@ def submit_threads_to_db(results, votes, user=None, original_hash=None):
 
             print(str(country.block_count))
             country.block_count += 1
+            country.blocked_urls = "{}{};".format(country.blocked_urls, thread.url)
             db.session.add(country)
             db.session.commit()
             print("Updated to: " + str(country.block_count))
@@ -930,6 +928,11 @@ def submit_threads_to_db(results, votes, user=None, original_hash=None):
         elif original_hash != thread.ipfs_hash:
             print("The content from Thread-{} from {} does not match the original!"
                   .format(thread.threadID, thread.prox_loc))
+            country.censor_count += 1
+            country.censored_urls = "{}{};".format(country.censored_urls, thread.url)
+            db.session.add(country)
+            db.session.commit()
+
         else:
             print(str(thread.originstamp_result))
             add_post_to_db(thread.url, thread.html, thread.title, thread.ipfs_hash,
