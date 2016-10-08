@@ -45,9 +45,9 @@ class MyTestCase(unittest.TestCase):
         prox_list = p.update_proxies()
 
         print(str(prox_list))
-        self.assertGreater(len(prox_list), 10, "Gathered more than 10 proxies")
-        tested_proxies = p.test_proxies(proxy_list)
-        print("{} tested proxies compared to {} retrieved prxies".format(len(proxy_list), len(tested_proxies)))
+        self.assertGreater(len(prox_list), 30, "Gathered no more than 10 proxies")
+        tested_proxies = p.test_proxies(prox_list)
+        print("{} tested proxies compared to {} retrieved prxies".format(len(prox_list), len(tested_proxies)))
         print(tested_proxies)
         """except UnicodeDecodeError as e:
             print("Encountered UnicodeDecodeError, nothing to be done but to try later as it is internal error of "
