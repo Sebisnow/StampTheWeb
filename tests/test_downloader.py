@@ -195,10 +195,9 @@ class BasicsTestCase(unittest.TestCase):
         user = "Bot"
         sha256 = "Qmb833LJQKVSzdUJadMmjNyQRzarD2cmYx1LJFBX589zkK"
         db_user = down.check_user(user)
-        db.session.commit()
         print("The user: {}".format(str(db_user)))
         self.assertEqual(113, db_user.id)
 
-    def test_location_independant_timestamp(self):
+    def test_location_independent_timestamp(self):
         threads = down.location_independent_timestamp(url)
         self.assertIsNotNone(threads)

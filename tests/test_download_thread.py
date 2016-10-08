@@ -1,22 +1,24 @@
 import unittest
-
 import asyncio
-
+from urllib.parse import urlparse
+from warc3 import warc
 from app.main import download_thread as down
 import app.main.downloader as downloader
 from app import create_app, db
 import ipfsApi
 import os
 import logging
-from bs4 import BeautifulSoup as Bs, BeautifulSoup
+from bs4 import BeautifulSoup as Bs
 import app.main.proxy_util as prox
 from app.main import proxy_util
 
 proxy = "5.135.176.41:3123"
-china_proxy = "58.67.159.50:80"
+china_proxy = "120.52.72.48:80"
 fr_proxy = "178.32.153.219:80"
 url = "http://www.theverge.com/2016/8/12/12444920/no-mans-sky-travel-journal-day-four-ps4-pc"
 blocked_url = "http://www.nytimes.com/2016/09/29/opinion/vladimir-putins-outlaw-state.html"
+spiegel_url = "http://www.spiegel.de/politik/ausland/syrien-john-kerry-will-ermittlungen-wegen-" \
+              "kriegsverbrechen-a-1115714.html"
 ip_check_url = "http://httpbin.org/ip"
 base_path = "/home/sebastian/testing-stw/"
 downloader.basePath = base_path
@@ -83,7 +85,8 @@ class BasicsTestCase(unittest.TestCase):
 
     def test_class_with_proxy(self):
         print("\nTesting the functionality of the DownloadThread class:")
-        thread = down.DownloadThread(1, "http://www.ip-address.org/find-ip/check-my-ip.php", "122.193.14.106:80", prox_loc="CN", basepath=base_path)
+        thread = down.DownloadThread(1, "http://www.ip-address.org/find-ip/check-my-ip.php", "122.193.14.106:80",
+                                     prox_loc="CN", basepath=base_path)
         thread.start()
         print("    Waiting for thread to join.")
         thread.join()
@@ -129,7 +132,7 @@ class BasicsTestCase(unittest.TestCase):
         print("\nTesting the load_images method")
         thread = down.DownloadThread(2, url, html=html, basepath=base_path)
         soup = Bs(html, "lxml")
-        images = thread.load_images(soup)
+        images = thread._load_images(soup)
         self.assertEqual(len(images), 2)
 
     def test_zip_submission(self):
@@ -155,17 +158,15 @@ class BasicsTestCase(unittest.TestCase):
         self.assertIsNotNone(thread.error)
 
     def test_phantom_proxy(self):
-        this_proxy = china_proxy
+        # TODO for this test to pass the proxy set must be alive! If a new proxy is fetched this will not be successful
+
+        this_proxy = fr_proxy
+        country = proxy_util.ip_lookup_country(this_proxy.split(":")[0])
+
         print(this_proxy.split(":")[0])
-        thread = down.DownloadThread(101, ip_check_url, proxy=this_proxy,  prox_loc="CN")
+        thread = down.DownloadThread(101, ip_check_url, proxy=this_proxy,  prox_loc=country, basepath=base_path)
         thread.start()
         thread.join()
-        """soup = BeautifulSoup(thread.html, "lxml")
-        ips = list()
-        for div in soup.find_all("div"):
-            if div["class"] and div["class"] == "lanip":
-                ips.append(div.string)
-                print(ips)"""
 
         print(thread.html)
         print(str(thread.error) + " | Was the error")
@@ -174,13 +175,26 @@ class BasicsTestCase(unittest.TestCase):
         self.assertNotEqual(-1, thread.html.find(this_proxy.split(":")[0]))
 
     def test_get_one_proxy_if_not_set(self):
-        thread = down.DownloadThread(101, ip_check_url, prox_loc="CN")
+        thread = down.DownloadThread(101, url, prox_loc="DE", basepath=base_path)
         thread.start()
         thread.join()
-        soup = BeautifulSoup(thread.html, "lxml")
-        ips = list()
-        for div in soup.find_all("div"):
-            if div["class"] and div["class"] == "lanip":
-                ips.append(div.string)
-                print(ips)
+        self.assertIsNone(thread.error)
         self.assertIsNotNone(thread.html)
+
+    def test_warc_creation(self):
+        thread = down.DownloadThread(101, spiegel_url, proxy=fr_proxy, prox_loc="FR", basepath=base_path)
+        thread.start()
+        thread.join()
+        path_to_warc = "{}warcs/{}.warc.gz".format(thread.storage_path, urlparse(thread.url).netloc)
+        file_size = 0
+        exists = os.path.exists(path_to_warc)
+        if exists:
+            file_size = os.path.getsize(path_to_warc)
+        print("Path exists already: {}".format(exists))
+        thread._add_to_warc()
+        self.assertGreater(os.path.getsize(path_to_warc), file_size)
+        print("Path exists already: {}".format(os.path.exists(path_to_warc)))
+        with warc.open(path_to_warc) as warc_file:
+            for record, offset, leftover in warc_file.browse():
+                print(str(record.header))
+                print(str(record.payload.read()))
