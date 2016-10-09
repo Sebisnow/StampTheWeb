@@ -13,6 +13,9 @@ from random import randrange
 from flask import flash
 from flask import current_app as app
 from urllib.parse import urlparse
+
+from selenium.common.exceptions import WebDriverException
+
 from app.main.download_thread import DownloadThread
 from app.main import proxy_util
 from app.models import Country, Post, User
@@ -213,7 +216,12 @@ def create_png_from_url(url, sha256):
     phantom.get(url)
 
     app.logger.info('Downloaded url, start scrolling.')
-    d_thread.DownloadThread.scroll(phantom)
+    try:
+        d_thread.DownloadThread.scroll(phantom)
+    except WebDriverException as e:
+        #print error but continue without scrolling down until alternative is found
+        #TODO find alternative to scrolling via javascript eval()
+        app.logger.info(e.msg)
     phantom.get_screenshot_as_file(path)
 
     app.logger.info("PNG created: {}".format(os.path.exists(path)))
@@ -653,9 +661,8 @@ def save_render_zip_submit(html_text, sha256, url, title):
     # moved image creation behind Timestamping so images are only created for new Stamps if no error occurred
     if originstamp_result.status_code == 200:
         try:
-            create_png_from_url(url, sha256)
-            # TODO  pdf creation throws error on server - check
             create_pdf_from_url(url, sha256)
+            create_png_from_url(url, sha256)
         except FileNotFoundError as fileError:
             # can only occur if data was submitted successfully but png or pdf creation failed
             if not app.config["TESTING"]:

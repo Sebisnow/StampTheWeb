@@ -18,7 +18,7 @@ import shutil
 import time
 from readability.readability import Document
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from requests.exceptions import ReadTimeout, HTTPError
 from warc3 import warc
 
@@ -274,11 +274,17 @@ class DownloadThread(threading.Thread):
         """
         try:
             self.phantom.get(self.url)
-            self.scroll(self.phantom)
         except TimeoutException as e:
             print(e)
             return False
         print("Fetched website successfully")
+        try:
+            self.scroll(self.phantom)
+        except WebDriverException as e:
+            #print error but continue without scrolling down until alternative is found
+            #TODO find alternative to scrolling via javascript eval()
+            print(e.msg)
+
         self.html = str(self.phantom.page_source)
         return True
 
@@ -522,17 +528,22 @@ class DownloadThread(threading.Thread):
 
     @staticmethod
     def scroll(phantom):
-        pause = 0.2
-        start_time = time.time()
-        last_height = phantom.execute_script("return document.body.scrollHeight")
-        # only load for a maximum of 5 seconds
-        while True or time.time()-start_time > 5:
-            phantom.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(pause)
-            new_height = phantom.execute_script("return document.body.scrollHeight")
-            if new_height == last_height:
-                break
-            last_height = new_height
+        try:
+            pause = 0.2
+            start_time = time.time()
+            last_height = phantom.execute_script("return document.body.scrollHeight")
+            # only load for a maximum of 5 seconds
+            while True or time.time()-start_time > 5:
+                phantom.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(pause)
+                new_height = phantom.execute_script("return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_height
+        except WebDriverException as e:
+            print("Could not scroll down due to javascript security policy forbidding the use of eval: {}"
+                  .format(e.msg))
+            raise e
 
 
 def add_to_ipns(path):
