@@ -236,7 +236,7 @@ class DownloadThread(threading.Thread):
         """
         if self.html is None:
             print(" Thread-{}: Downloading {}, proxy is set to({}): {}".format(self.threadID, self.url, self.prox_loc,
-                                                                              self.proxy))
+                                                                               self.proxy))
             # try downloading, if site is unreachable through proxy reinitialize with new proxy from same location.
             if not self._download_html():
                 print("Thread-{}: Couldn't reach website through proxy, trying again with new proxy"
