@@ -42,9 +42,9 @@ class MyTestCase(unittest.TestCase):
         # TODO !! may take more than 45 minutes !!
         print("\nTesting and updating the proxy list - This will take over half an hour!! :")
         #try:
-        prox_list = p.update_proxies()
+        prox_list = p.update_proxies(logger=self.app.logger.info)
 
-        print(str(prox_list))
+        print("Finished gathering proxies. wrote all to file: {}".format(str(prox_list)))
         self.assertGreater(len(prox_list), 30, "Gathered no more than 10 proxies")
         tested_proxies = p.test_proxies([x[1] for x in prox_list])
         print("{} tested proxies compared to {} retrieved prxies".format(len(prox_list), len(tested_proxies)))
