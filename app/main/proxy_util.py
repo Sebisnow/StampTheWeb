@@ -327,7 +327,7 @@ def ip_lookup_country(ip):
     :raises ValueError: A Value Error is raised if the IP address specified does not match IP specifications.
     :return: The location of the IP address as two letter ISO-code.
     """
-    database = geoip.open_database("/home/sebastian/PycharmProjects/STW/static/GeoLite2-Country.mmdb")
+    database = geoip.open_database("{}/GeoLite2-Country.mmdb".format(static_path))
     return database.lookup(ip).country
 
 
