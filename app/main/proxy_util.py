@@ -12,9 +12,11 @@ import socket
 # TODO instead of  proxyfile use db table for active proxies
 # from .. import db
 
-# For lcoal testing please override the path to the proxy list with the actual one. eg.:
-# proxy_util.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
-proxy_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static/")
+# For local testing please override the path to the proxy list with the actual one. eg.:
+static_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static")
+# static_path = = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static")
+proxy_path = static_path + "/proxy_list.tsv"
+country_path = static_path + "/country_codes.csv"
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
 url_specification = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 base_path = 'app/pdf/'
@@ -73,7 +75,7 @@ def get_proxy_list(update=False, prox_loc=None):
     if update:
         proxy_list = update_proxies(prox_loc)
     else:
-        with open(proxy_path + "/proxy_list.tsv", "rt", encoding="utf8") as tsv:
+        with open(proxy_path, "rt", encoding="utf8") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
                 if prox_loc is None or prox_loc == line[0]:
                     proxy_list.append([line[0], line[1], None])
@@ -93,7 +95,7 @@ def update_proxies(prox_loc=None):
     """
     print("Start updating the proxy list")
     country_list = []
-    with open(proxy_path + "/proxy_list.tsv", "r", encoding="utf8") as tsv:
+    with open(proxy_path, "r", encoding="utf8") as tsv:
         for line in csv.reader(tsv, delimiter="\t"):
             country_list.append(line[0])
         if prox_loc:
@@ -112,7 +114,7 @@ def update_proxies(prox_loc=None):
         #proxy_list = gather_proxies_alternative()
     print("All proxies gathered!")
 
-    with open(proxy_path + "/proxy_list.tsv", "w", encoding="utf8") as tsv:
+    with open(proxy_path, "w", encoding="utf8") as tsv:
         # tsv.writelines([proxy[0] + "\t" + proxy[1] for proxy in proxy_list])
         for proxy in proxy_list:
             tsv.write("{}\t{}\n".format(proxy[0], proxy[1]))
@@ -179,21 +181,32 @@ def get_one_proxy(country, types='HTTP'):
 
         proxies = asyncio.Queue(loop=loop)
         broker = Broker(proxies, loop=loop)
-        print(type(country))
-        print(type(types))
         loop.run_until_complete(broker.find(limit=1, countries=[country], types=types))
 
         while True:
             proxy = proxies.get_nowait()
             if proxy is None:
                 break
-            print("Proxy from {} is: {}:{}".format(country, proxy.host, str(proxy.port)))
-
-            return "{}:{}".format(proxy.host, str(proxy.port))
+            fetched_proxy = "{}:{}".format(proxy.host, str(proxy.port))
+            print("Proxy from {} is: {}".format(country, fetched_proxy))
+            _add_to_proxy_list(country, fetched_proxy)
+            return fetched_proxy
         return None
     except RuntimeError as e:
         print("Proxybroker not working properly due to {}\n, trying the static proxylist.".format(str(e)))
         return get_one_proxy_alternative(country)
+
+
+def _add_to_proxy_list(country, proxy):
+    """
+    Adds one proxy with the associated country to the proxy list file.
+
+    :author: Sebastian
+    :param country: ISO country code of the country.
+    :param proxy: The working proxy to add to the proxy file.
+    """
+    with open(proxy_path, "a") as prox_file:
+        prox_file.write("{}\t{}".format(country, proxy))
 
 
 def get_one_proxy_alternative(country):
@@ -205,7 +218,7 @@ def get_one_proxy_alternative(country):
     proxies = get_proxy_list()
     for proxy in proxies:
         if country == proxy[0] and is_proxy_alive(proxy[1]):
-            return proxy
+            return proxy[1]
     return None
 
 
@@ -275,8 +288,8 @@ def is_proxy_alive(proxy, timeout=8):
         if res.status_code <= 400:
             print("Proxy {} is alive!".format(proxy))
             return True
-    except IOError as e:
-        print(str(e))
+    except IOError:
+        print("----{} not alive".format(proxy))
 
     try:
         res = requests.head("http://baidu.com/", timeout=timeout, proxies={"http": "http://" + proxy},
@@ -284,8 +297,8 @@ def is_proxy_alive(proxy, timeout=8):
         if res.status_code <= 400:
             print("Proxy {} is alive!".format(proxy))
             return True
-    except IOError as e:
-        print(str(e))
+    except IOError:
+        print("----Second check failed {} definitely not alive. Returning False".format(proxy))
     return False
 
 
@@ -327,3 +340,49 @@ def _lookup_website_ip(url):
     domain = urlparse(url).netloc
 
     return socket.gethostbyname_ex(domain)[2][0]
+
+
+def get_country_list():
+    """
+    Gets a list for country codes decoding with full english name and two letter iso code.
+
+    :author: Sebastian
+    :return: A list of lists. The inner lists consist of two parameters. Parameter at index 0 is the full, english name
+    of the country described in two letters by index 1.
+    """
+    country_list = list()
+    print(proxy_path)
+    with open(country_path, "r") as tsv:
+        for line in csv.reader(tsv, delimiter=";"):
+            country_list.append(line)
+    return country_list
+
+
+def get_proxy_from_url(url, proxy_list=None):
+    """
+    Find out the country of origin of a url and then fetch a proxy from that country.
+
+    :author: Sebastian
+    :param url: The URL to of the website to get a proxy for.
+    :param proxy_list: Optional parameter. If not present the proxy list is read from file. If it was read from file
+    before it is not necessary to do so again.
+    :return: Returns the proxy as string and the country as two letter ISO code of the same country as the URL.
+    """
+    print("Getting a proxy for url {}".format(url))
+    if proxy_list is None:
+        proxy_list = get_proxy_list()
+    original_country = get_country_of_url(url)
+    orig_proxy = None
+
+    for proxy in proxy_list:
+        if proxy[0] == original_country:
+            orig_proxy = proxy[1]
+            break
+    if orig_proxy is None:
+        orig_proxy = get_one_proxy(original_country)
+        if orig_proxy is None:
+            # The Fallback is to use a German proxy as the original
+            orig_proxy = get_one_proxy("DE")
+
+    print("Found a proxy {} from {}".format(orig_proxy, original_country))
+    return orig_proxy, original_country
