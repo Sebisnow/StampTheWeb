@@ -50,9 +50,9 @@ Stamp The Web is a trusted timestamping service for web-based content that can b
 <div class="container">
 
   <ul class="nav nav-tabs">
-    <li class="active"></span>
-        <a data-toggle="tab" href="#home">Time-Stamp <span class="glyphicon glyphicon-time" id="linkIcon"></a></li>
-    <li><a data-toggle="tab" href="#freq">Schedule recurring URL Time-stamp <span class="glyphicon glyphicon-calendar" id="hashIcon"></a></li>
+    <li class="active">
+        <a data-toggle="tab" href="#home">Time-Stamp <span class="glyphicon glyphicon-time" id="linkIcon"></span></a></li>
+    <li><a data-toggle="tab" href="#freq">Schedule recurring URL Time-stamp <span class="glyphicon glyphicon-calendar" id="hashIcon"></span></a></li>
   </ul>
 
   <div class="tab-content">
@@ -111,6 +111,7 @@ Stamp The Web is a trusted timestamping service for web-based content that can b
 {% if pagination %}
 <div class="pagination">
     {{ macros.pagination_widget(pagination, '.index') }}
+</div>
 </div>
 {% endif %}
 {% endblock %}
