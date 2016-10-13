@@ -2,9 +2,10 @@ from flask import abort, flash, current_app, render_template, request, redirect,
 from flask_login import login_required, current_user
 
 #from app.main import proxy_util
+from app.main import proxy_util
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, PostVerify, PostFreq, \
-    SearchPost, SearchOptions, PostBlock, PostCountry, URL_Status
+    SearchPost, SearchOptions, PostBlock, PostCountry, URL_Status, TimestampForm
 from .. import db
 from ..models import Permission, Role, User, Post, Regular, Location, Block
 from ..decorators import admin_required
@@ -32,6 +33,7 @@ def index():
             form.validate_on_submit():
         sha256 = None
         date_time_gmt = None
+
         url_site = form.urlSite.data
         results = downloader.get_url_history(url_site)
         origin_stamp_result = results.originStampResult
@@ -394,6 +396,8 @@ def faq():
     ips.append("")
 
     x = 1
+    # TODO in proxy_util we have a tool with a db where checking an ip for its location is easy and quick!
+    # TODo checkout ip_lookup_country
     for ip in ips:
         loc = Location.query.filter_by(ip=ip).first()
         location = None
@@ -561,6 +565,7 @@ def regular():
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
         error_out=False)
 
+    # TODO
     """TODO write appropriate query to get records for current user
     pagination = Regular.query.filter_by(Regular.post_id.author_id == current_user).paginate(
         page, per_page=current_app.config['STW_POSTS_PER_PAGE'],
@@ -762,67 +767,117 @@ def timestamp_api():
     If successful it will contain a link to the data.
     """
     header = request.headers
-    current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
-    print("received Post \n" + str(request.headers))
-    # change app config to testing in order to disable flashes or messages.
-    testing = current_app.config["TESTING"]
-    current_app.config["TESTING"] = True
-    response = Response()
-    response.content_type = 'application/json'
-    if header['content-type'] == 'application/json':
-        print("The data is of json format")
-        try:
-            submitting_user = None
-            post_data = request.get_json()
-            if "user" in post_data:
-                submitting_user = post_data["user"]
-            current_app.logger.info("The data that was posted: \n" + str(post_data.keys()))
-            url = post_data["URL"]
-            current_app.logger.info("Starting distributed timestamp by extension call")
-            print("starting dist timestamp with the following data:URL: {}\nHTML:\n{}".format(url,
-                                                                                              type(post_data["body"])))
+    if request.method == 'POST':
+        current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
+        print("received Post \n" + str(request.headers))
+        # change app config to testing in order to disable flashes or messages.
+        testing = current_app.config["TESTING"]
+        current_app.config["TESTING"] = True
+        response = Response()
+        response.content_type = 'application/json'
+        if header['content-type'] == 'application/json':
+            print("The data is of json format")
+            try:
+                submitting_user = None
+                post_data = request.get_json()
+                if "user" in post_data:
+                    submitting_user = post_data["user"]
+                current_app.logger.info("The data that was posted: \n" + str(post_data.keys()))
+                url = post_data["URL"]
+                current_app.logger.info("Starting distributed timestamp by extension call")
+                print("starting dist timestamp with the following data:URL: {}\nHTML:\n{}".format(url,
+                                                                                                  type(post_data["body"])))
 
-            result = downloader.distributed_timestamp(url, post_data["body"], user=submitting_user, loc=header["host"])
-            # TODO do not store new POST
-            current_app.logger.info("Result of distributed_timestamp:\n" + str(result))
-            print("Result of distributed_timestamp:\n" + str(result.originStampResult))
-            originstamp_result = result.originStampResult
-            if result is None:
-                response.status_code = 404
-            elif result.original is None:
-                # users input is the original data of the website, return the originstamp result
-                response.response = originstamp_result
+                result = downloader.distributed_timestamp(url, post_data["body"], user=submitting_user)
+                # TODO do not store new POST
+                originstamp_result = result.originStampResult
+                if result is None:
+                    response.status_code = 404
+                elif result.original is None:
+                    # users input is the original data of the website, return the originstamp result
+                    response.response = originstamp_result
 
-            else:
-                # users input is the original data of the website, return the originstamp result
-                resp_data = dict()
-                resp_data["Original_data"] = originstamp_result
-                resp_data["Your_Submitted_data"] = result.user_input.originstamp_result
-                response.response = resp_data
-                response.headers["UserHashValue"] = result.user_input.ipfs_hash
+                else:
+                    # users input is not the original data of the website, return the originstamp result
+                    resp_data = dict()
+                    resp_data["Original_data"] = originstamp_result
+                    resp_data["Your_Submitted_data"] = result.user_input.originstamp_result
+                    response.response = resp_data
+                    response.headers["UserHashValue"] = result.user_input.ipfs_hash
+                current_app.logger.info("Result of distributed_timestamp:\n" + str(result.originStampResult))
 
-            response.status_code = 200
-            response.headers["URL"] = "http://stamptheweb.org/timestamp/{}".format(result.hashValue)
-            response.headers["HashValue"] = result.hashValue
-            if post_data["user"]:
-                response.headers["user"] = submitting_user
-            else:
-                response.headers["user"] = "BOT"
+                response.status_code = 200
+                response.headers["URL"] = "http://stamptheweb.org/timestamp/{}".format(result.hashValue)
+                response.headers["HashValue"] = result.hashValue
+                if post_data["user"]:
+                    response.headers["user"] = submitting_user
+                else:
+                    response.headers["user"] = "BOT"
 
-        except Exception as e:
-            # DO NOT  YET! Catch error and continue, but log the error
-            current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
-                                     str(e.__traceback__) + "\n\n Response so far was " + str(response))
-            response.status_code = 481
-            response.reason = "Error in try catch block!"
+            except Exception as e:
+                # DO NOT  YET! Catch error and continue, but log the error
+                current_app.logger.error("An exception was thrown on a POST request: \n" + str(e.__str__()) + "\n" +
+                                         str(e.__traceback__) + "\n\n Response so far was " + str(response))
+                response.status_code = 481
+                response.reason = "Error in try catch block!"
 
-        finally:
-            current_app.logger.info("cleaning up and returning response")
-            current_app.config["TESTING"] = testing
-            return response
+            finally:
+                current_app.logger.info("cleaning up and returning response")
+                current_app.config["TESTING"] = testing
+                return response
+        else:
+            response.status_code = 415
+            response.reason = "Unsupported Media Type. Only JSON Format allowed!"
     else:
-        response.status_code = 415
-        response.reason = "Unsupported Media Type. Only JSON Format allowed!"
+        # on GET requests
+        return redirect(url_for('.loc_indep_timestamp'))
+
+        # return render_template()
+
+
+@main.route('/litimestamp/', methods=['GET', 'POST'])
+def loc_indep_timestamp():
+    """
+    Get the data that was timestamped identified by the given timestamping hash.
+
+    :param timestamp: A timestamp hash.
+    :return: The Data that was timestamped.
+    """
+    form = TimestampForm()
+    if form.validate_on_submit():
+        print(type(current_user))
+        print(current_user)
+        country = form.countries.data
+        proxy = None if country is None else proxy_util.get_one_proxy(country)
+        current_app.logger.info("The selected country is: {}".format(country))
+        current_app.logger.info("Robots.txt?: {}".format(form.robot.data))
+        current_app.logger.info("The entered url is: {}".format(form.urlSite.data))
+        if proxy is None:
+            threads, orig_thread, votes = downloader.location_independent_timestamp(form.urlSite.data,
+                                                                                    robot_check=form.robot.data,
+                                                                                    user=current_user)
+        else:
+            threads, orig_thread, votes = downloader.location_independent_timestamp(form.urlSite.data,
+                                                                                    [[country, proxy]],
+                                                                                    form.robot.data, user=current_user)
+        flash("Finished location independent timestamp!")
+        current_app.logger.info("Finished location independent timestamp:{}".format(str(threads)))
+        return
+
+    domain_name = downloader.get_all_domain_names(Post)
+    domain_name_unique = set(domain_name)
+    for name in domain_name_unique:
+        if ';' not in name:
+            count = domain_name.count(name)
+            domain_name_unique.remove(name)
+            domain_name_unique.add(name + ';' + str(count))
+
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
+    posts = pagination.items
+    return render_template('timestamp.html', form=form, posts=posts, pagination=pagination,
+                           doman_name=domain_name_unique, home_page="active")
 
 
 @main.route('/timestamp/<timestamp>', methods=['GET'])
