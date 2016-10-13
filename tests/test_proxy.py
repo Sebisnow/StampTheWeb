@@ -12,7 +12,7 @@ import logging
 import os
 
 from app.main.proxy_util import ip_lookup_country
-from .post_data import proxy_list
+# from .post_data import proxy_list
 
 fr_proxy = "178.32.153.219:80"
 china_proxy = "222.161.3.163:9999"
@@ -25,7 +25,7 @@ class MyTestCase(unittest.TestCase):
         self.app_context.push()
         self.client = ipfsApi.Client()
         db.create_all()
-        p.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
+        p.static_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static")
         log_handler = logging.FileHandler('/home/sebastian/testing-stw/STW.log')
         log_handler.setLevel(logging.INFO)
         self.app.logger.setLevel(logging.INFO)
@@ -46,7 +46,7 @@ class MyTestCase(unittest.TestCase):
 
         print(str(prox_list))
         self.assertGreater(len(prox_list), 30, "Gathered no more than 10 proxies")
-        tested_proxies = p.test_proxies(prox_list)
+        tested_proxies = p.test_proxies([x[1] for x in prox_list])
         print("{} tested proxies compared to {} retrieved prxies".format(len(prox_list), len(tested_proxies)))
         print(tested_proxies)
         """except UnicodeDecodeError as e:
@@ -58,7 +58,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_get_one_proxy(self):
         print("\nTesting the retrieval of one proxy:")
-        prox = p.get_one_proxy("AT")
+        prox = p.get_one_proxy("FJ")
         self.assertIsNotNone(prox, "Retrieval of one proxy failed.")
         print(prox)
 
@@ -78,7 +78,7 @@ class MyTestCase(unittest.TestCase):
 
         proxies = list(set(from_xici_daili() + from_cyber_syndrome() + from_hide_my_ip() + from_free_proxy_list()))
         print(str(len(proxies)))
-        proxies = p.t_prox(proxies, timeout=5, single_url="http://baidu.com")
+        proxies = p.test_proxies(proxies, timeout=5)
         self.assertGreaterEqual(len(proxies), 10)
         print("{} working proxies gathered".format(str(len(proxies))))
 
@@ -94,6 +94,12 @@ class MyTestCase(unittest.TestCase):
 
     def test_get_rand_proxy(self):
         self.assertIsNotNone(p.get_rand_proxy())
+
+    def test_get_country_list(self):
+        country_list = p.get_country_list()
+        print(country_list)
+        print(len(country_list))
+        self.assertEqual(249, len(country_list))
 
 if __name__ == '__main__':
     unittest.main()
