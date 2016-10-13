@@ -313,7 +313,7 @@ class Country(db.Model):
     Representation of Database Table 'countries' that serves as a lookup table for Country names and codes.
     It also sums up how many articles were blocked in theses countries and how many articles were censored.
     The blocked articles' and the censored articles' urls are semicolon-separated stored in the text
-    fields 'blocked_urls' and 'censored_urls'.
+    fields 'block_url' and 'censored_urls'.
 
     :author: Sebastian
     """
@@ -322,6 +322,6 @@ class Country(db.Model):
     country_code = db.Column(db.String(2), index=True, unique=True)
     country_name = db.Column(db.String(44), unique=True)
     block_count = db.Column(db.Integer)
-    blocked_urls = db.Column(db.Text)
+    block_url = db.Column(db.Text)
     censor_count = db.Column(db.Integer)
     censored_urls = db.Column(db.Text)
