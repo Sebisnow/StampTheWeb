@@ -707,27 +707,23 @@ def location_independent_timestamp(url, proxies=None, robot_check=False, num_thr
     country of origin of the website.
     Votes has an integer stored for each thread, the highest is taken as the original.
     """
-    original_country = proxy_util.get_country_of_url(url)
-    proxy_list = proxy_util.get_proxy_list()
-    orig_proxy = None
-    for proxy in proxy_list:
-        if proxy[0] == original_country:
-            print("Got a country match: {}".format(proxy))
-            orig_proxy = proxy
-            break
-    if orig_proxy is None:
-        orig_proxy = proxy_util.get_one_proxy(original_country)
-    threads = list()
 
-    original = run_thread(url, 0, proxy_list=[orig_proxy], robot_check=robot_check, location=original_country)
+    proxy_list = proxy_util.get_proxy_list()
+
+    # Get a proxy from the location of the URL
+    orig_proxy, original_country = proxy_util.get_proxy_from_url(url, proxy_list)
+
+    threads = list()
+    original = _run_thread(url, 0, proxy_list=[[original_country, orig_proxy]], robot_check=robot_check,
+                           location=original_country)
     threads.append(original)
     threads = start_threads(proxies, threads, url, 1, num_threads, robot_check, proxy_list)
 
-    # join all threads and return them
-    joined_threads, votes = join_threads(threads)
+    # join all threads and return them, votes wi
+    joined_threads, votes = _join_threads(threads)
 
     _submit_threads_to_db(joined_threads, user, original_hash=original.ipfs_hash)
-    return threads
+    return threads, original, votes
 
 
 def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=False, num_threads=5, location=None):
@@ -773,13 +769,13 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
         # if an html is given the distributed timestamp was triggered by a user(extension)
         print("Triggered by extension!")
         extension_triggered = True
-        threads.append(run_thread(url, cnt, html=html, robot_check=robot_check, location=location))
+        threads.append(_run_thread(url, cnt, html=html, robot_check=robot_check, location=location))
         cnt += 1
 
     threads = start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_list)
 
     # join all threads and return the DownloadThread with the most votes
-    joined_threads, votes = join_threads(threads)
+    joined_threads, votes = _join_threads(threads)
 
     _submit_threads_to_db(joined_threads, user)
 
@@ -807,16 +803,16 @@ def start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_li
         for proxy in proxies:
             if cnt >= 5:
                 break
-            threads.append(run_thread(url, cnt, proxy_list=[proxy], robot_check=robot_check))
+            threads.append(_run_thread(url, cnt, proxy_list=[proxy], robot_check=robot_check))
             cnt += 1
 
     for n in range(cnt, num_threads):
-        threads.append(run_thread(url, n, proxy_list=proxy_list, robot_check=robot_check))
+        threads.append(_run_thread(url, n, proxy_list=proxy_list, robot_check=robot_check))
     print("Threads created: {}".format(threads))
     return threads
 
 
-def run_thread(url, num, robot_check=False, proxy_list=None, html=None, location=None):
+def _run_thread(url, num=randrange(100, 10000), robot_check=False, proxy_list=None, html=None, location=None):
     """
     Convencience method to start one new thread with a downloading job and possibly with a random proxy depending on
     the user input.
@@ -848,7 +844,7 @@ def run_thread(url, num, robot_check=False, proxy_list=None, html=None, location
     return thread
 
 
-def join_threads(threads):
+def _join_threads(threads, original_present=False):
     """
     Method that joins the threads in the list of DownloadThreads handed to it
     and returns the DownloadThread object with the highest votes after the join.
@@ -861,17 +857,19 @@ def join_threads(threads):
 
     :author Sebastian
     :param threads: A list of DownloadThreads that need to be joined.
+    :param original_present: Boolean value that states whether or not the threads should be checked for votes.
     :return: A list of DownloadThread objects with all important information about hash, html and infos about the
     download job and the index of the DownloadThread with the highest votes as second parameter.
     """
     app.logger.info("Joining Threads.")
     for thread in threads:
         thread.join()
+    if original_present:
+        return threads, None
+    return _check_threads(threads)
 
-    return check_threads(threads)
 
-
-def check_threads(threads):
+def _check_threads(threads):
     """
     Checks the threads for the one to return. If
 
@@ -888,9 +886,8 @@ def check_threads(threads):
 
         elif threads[num].error is not None or threads[num].ipfs_hash is None:
             # An error occurred in this thread, site unreachable from this location.
-            print("The url of Thread-{} ({}) is unreachable from {}.".format(threads[num].threadID, threads[num].url,
-                                                                             threads[num].prox_loc))
-            app.logger.info("The url ({}) is unreachable from {}.".format(threads[num].url, threads[num].prox_loc))
+            app.logger.info("The url of Thread-{} ({}) is unreachable from {}."
+                            .format(threads[num].threadID, threads[num].url, threads[num].prox_loc))
             continue
 
         for cnt in range(0, len(threads)):
@@ -914,19 +911,18 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
     """
     print("Add to db")
     for thread in results:
-        print("Adding thread{} to db".format(thread.threadID))
+        print("Adding Thread-{} to db".format(thread.threadID))
 
-        if thread.error is not None:
+        if thread.error is not None and thread.prox_loc is not None:
             print("Add error thread {} from {} to db".format(thread.threadID, thread.prox_loc))
             country = Country.query.filter_by(country_code=thread.prox_loc).first()
 
-            print(str(country.block_count))
             country.block_count += 1
-            country.blocked_urls = "{}{};".format(country.blocked_urls, thread.url)
+            country.block_url = "{}{};".format(country.block_url, thread.url)
             db.session.add(country)
             db.session.commit()
             print("Updated to: " + str(country.block_count))
-            print("Finished adding error thread to db")
+            print("Finished adding error Thread-{} to db".format(thread.threadID))
         elif thread.originstamp_result is None:
             # No error but originstamp result is not there -> something went really wrong
             print("No error but originstamp result is not there -> something went really wrong in Thread-{}"
@@ -941,9 +937,11 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
             db.session.commit()
 
         else:
-            print(str(thread.originstamp_result))
-            add_post_to_db(thread.url, thread.html, thread.title, thread.ipfs_hash,
-                           thread.originstamp_result["created_at"], user=user)
+            if thread.error is None:
+                print("Adding Post for Thread-{} with Originstamp result: {}".format(thread.threadID,
+                                                                                     str(thread.originstamp_result)))
+                add_post_to_db(thread.url, thread.html, thread.title, thread.ipfs_hash,
+                               thread.originstamp_result["created_at"], user=user)
     print("Adding threads to db done.")
 
 
