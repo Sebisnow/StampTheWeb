@@ -108,7 +108,7 @@ def update_proxies(prox_loc=None, logger=print):
         proxy_list = gather_proxies(country_list, logger)
     except RuntimeError as e:
         logger(str(e))
-        asyncio.new_event_loop()
+        asyncio.set_event_loop(asyncio.new_event_loop())
         proxy_list = gather_proxies(country_list)
 
         # Does not take country list into account - Fallback not needed anymore until next error in proxybroker package
