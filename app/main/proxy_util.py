@@ -13,8 +13,8 @@ import socket
 # from .. import db
 
 # For local testing please override the path to the proxy list with the actual one. eg.:
-#static_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static")
-static_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static")
+static_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static")
+#static_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static")
 proxy_path = static_path + "/proxy_list.tsv"
 country_path = static_path + "/country_codes.csv"
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
@@ -388,3 +388,7 @@ def get_proxy_from_url(url, proxy_list=None):
 
     print("Found a proxy {} from {}".format(orig_proxy, original_country))
     return orig_proxy, original_country
+
+
+if __name__ == '__main__':
+    update_proxies()
