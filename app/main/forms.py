@@ -5,11 +5,14 @@ from wtforms.validators import Length, Email, Regexp, DataRequired
 from wtforms import ValidationError, validators
 from flask_pagedown.fields import PageDownField
 from flask_wtf.file import FileField
+
+from app.main import proxy_util
 from ..models import Role, User
 from wtforms.fields.html5 import URLField, IntegerField, EmailField
 from wtforms.validators import url
 
 from wtforms.widgets.core import HTMLString, html_params, escape
+
 
 class InlineButtonWidget(object):
     def __call__(self, field, **kwargs):
@@ -23,6 +26,7 @@ class InlineButtonWidget(object):
                '<i class="class="glyphicon glyphicon-user form-control-feedback""></i>' \
                '</div>'
         return HTMLString(html % (params, escape(field.label.text)))
+
 
 class NameForm(Form):
     name = StringField('What is your name?', validators=[DataRequired()])
@@ -191,4 +195,26 @@ class PostText(Form):
 
 class Regular_Interval(Form):
     urlSite = URLField("Enter URL to create a timestamp", validators=[url()])
+    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
+
+
+class TimestampForm(Form):
+    """
+    Form for location independent timestamp. With the possibility to adhere to robots.txt.
+    """
+    country_list = [["Use only random Countries", "none"]]
+    country_list += proxy_util.get_country_list()
+    choices = [(country[1], country[0]) for country in country_list]
+
+    body = TextAreaField("Add a Title (Optional) <i class='glyphicon glyphicon-info-sign'></i>",
+                         render_kw={"title": "Titles help other users more quickly identify news articles."})
+    urlSite = URLField("Enter URL to create its timestamp <i class='glyphicon glyphicon-asterisk'></i>",
+                       validators=[url(), DataRequired()],
+                       render_kw={"placeholder": "http://www.example.com"})
+    countries = SelectField("Select country to also timestamp the URL from that location", choices=choices)
+    robot = BooleanField("Adhere to robots.txt.", default=False,
+                         render_kw={"robots.txt": "The downloader will adhere to the robots.txt used at the URL. "
+                                                  "This might change the content if data is not permitted to download. "
+                                                  "The timestamp could be different!"})
+
     submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
