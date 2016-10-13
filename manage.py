@@ -71,14 +71,16 @@ def run_every_day():
         app.logger.info("Starting the regular check for changes at {}".format(datetime.datetime.utcnow()))
 
         # update proxy list - may take up to 45 minutes depending on network latency and proxy availability
-        from app.main import download_thread
         try:
             app.logger.info("Regular task at {}: Updateing the proxy_list".format(datetime.datetime.utcnow()))
-            proxy_util.update_proxies()
-            app.logger.info("Regular task at {}: proxy_list updated!".format(datetime.datetime.utcnow()))
-        except UnicodeDecodeError:
+            proxy_util.update_proxies(logger=app.logger.info)
+            app.logger.info("Regular task at {}: Yay, proxy_list updated!".format(datetime.datetime.utcnow()))
+        except UnicodeDecodeError as e:
             app.logger.error("Regular task at {}: Encountered a UnicodeDecodeError while fetching proxies. "
-                             "Trying again later.".format(datetime.datetime.utcnow()))
+                             "Trying again later. {}".format(datetime.datetime.utcnow(), e))
+        except RuntimeError as e:
+            app.logger.error("Regular task at {}: Encountered a RuntimeError while fetching proxies. "
+                             "Trying again later. {}".format(datetime.datetime.utcnow(), e))
 
         app.logger.info("Regular task at {}: Starting the regular queries".format(datetime.datetime.utcnow()))
         # proceed with the Regular tasks stored in db
@@ -129,8 +131,8 @@ def profile(length=25, profile_dir=None):
 def deploy():
     """Run deployment tasks.
         Currently we do not require it """
-    from flask_migrate import upgrade
-    from app.models import Role, User
+    #from flask_migrate import upgrade
+    #from app.models import Role, User
 
     # migrate database to latest revision
     # upgrade()

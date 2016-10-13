@@ -897,3 +897,14 @@ def timestamp_get(timestamp):
         response.status_code = 415
         response.reason = "415 Unsupported Data Type. Timestamps are alphanumeric!"
         return response
+
+
+@main.route('/get_new_proxies', methods=['GET'])
+def get_new_proxies():
+    """
+    Initiate a proxy update.
+
+    :param timestamp: A timestamp hash.
+    :return: The Data that was timestamped.
+    """
+    return proxy_util.update_proxies(logger=current_app.logger.info)

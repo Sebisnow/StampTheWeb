@@ -84,16 +84,17 @@ def get_proxy_list(update=False, prox_loc=None):
     return proxy_list
 
 
-def update_proxies(prox_loc=None):
+def update_proxies(prox_loc=None, logger=print):
     """
     Checks the proxies stored in the proxy_list.tsv file. If there are proxies that are inactive,
     new proxies from that country are gathered and stored in the file instead.
 
     :author: Sebastian
     :param prox_loc: A new location to be added to the countries already in use. Defaults to None.
+    :param logger: The logging function to be uses. Defaults to print to std out.
     :return: A list of active proxies.
     """
-    print("Start updating the proxy list")
+    logger("Start updating the proxy list")
     country_list = []
     with open(proxy_path, "r", encoding="utf8") as tsv:
         for line in csv.reader(tsv, delimiter="\t"):
@@ -101,35 +102,36 @@ def update_proxies(prox_loc=None):
         if prox_loc:
             country_list.append(prox_loc)
         country_list = set(country_list)
-    print(country_list)
-    print("Getting the proxies now. That may take quite a while!")
+    logger(country_list)
+    logger("Getting the proxies now. That may take quite a while!")
     try:
-        proxy_list = gather_proxies(country_list)
+        proxy_list = gather_proxies(country_list, logger)
     except RuntimeError as e:
-        print(str(e))
+        logger(str(e))
         asyncio.new_event_loop()
         proxy_list = gather_proxies(country_list)
 
         # Does not take country list into account - Fallback not needed anymore until next error in proxybroker package
         #proxy_list = gather_proxies_alternative()
-    print("All proxies gathered!")
+    logger("All proxies gathered!")
 
     with open(proxy_path, "w", encoding="utf8") as tsv:
         # tsv.writelines([proxy[0] + "\t" + proxy[1] for proxy in proxy_list])
         for proxy in proxy_list:
             tsv.write("{}\t{}\n".format(proxy[0], proxy[1]))
-            print("writing proxy {} from {} to file.".format(proxy[1], proxy[0]))
-    print("All {} proxies wrote to file!".format(len(proxy_list)))
+            logger("writing proxy {} from {} to file.".format(proxy[1], proxy[0]))
+    logger("All {} proxies wrote to file!".format(len(proxy_list)))
     return proxy_list
 
 
-def gather_proxies(countries):
+def gather_proxies(countries, logger=print):
     """
     This method uses the proxybroker package to asynchronously get two new proxies per specified country
     and returns the proxies as a list of country and proxy.
 
     :author: Sebastian
     :param countries: The ISO style country codes to fetch proxies for. Countries is a list of two letter strings.
+    :param logger: The logging function to be uses. Defaults to print to std out.
     :return: A list of proxies that are themselves a list with  two paramters[Location, proxy address].
     """
     # TODO !! May take more than 45 minutes !! Run in separate thread?
@@ -139,7 +141,7 @@ def gather_proxies(countries):
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
-            print("----New event loop")
+            logger("----New event loop")
             loop = asyncio.new_event_loop()
 
         proxies = asyncio.Queue(loop=loop)
@@ -151,7 +153,7 @@ def gather_proxies(countries):
             proxy = proxies.get_nowait()
             if proxy is None:
                 break
-            print(str(proxy))
+            logger(str(proxy))
             proxy_list.append([country, "{}:{}".format(proxy.host, str(proxy.port))])
     return proxy_list
 
