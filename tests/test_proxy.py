@@ -42,7 +42,7 @@ class MyTestCase(unittest.TestCase):
         # TODO !! may take more than 45 minutes !!
         print("\nTesting and updating the proxy list - This will take over half an hour!! :")
         #try:
-        prox_list = p.update_proxies(logger=self.app.logger.info)
+        prox_list = p.update_proxies()
 
         print("Finished gathering proxies. wrote all to file: {}".format(str(prox_list)))
         self.assertGreater(len(prox_list), 30, "Gathered no more than 10 proxies")
@@ -72,7 +72,7 @@ class MyTestCase(unittest.TestCase):
         self.assertTrue(p.is_proxy_alive(fr_proxy))
 
     def test_gather_proxies_alternative(self):
-        self.assertGreaterEqual(len(p.gather_proxies_alternative()), 2)
+        self.assertGreaterEqual(len(p._gather_proxies_alternative()), 2)
 
     def test_test(self):
 

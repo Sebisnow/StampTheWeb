@@ -23,7 +23,7 @@ ip_check_url = "http://httpbin.org/ip"
 base_path = "/home/sebastian/testing-stw/"
 downloader.basePath = base_path
 down.base_path = base_path
-prox.proxy_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
+prox.static_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
 html = """
 <html>
   <head>
