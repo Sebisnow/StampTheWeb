@@ -22,14 +22,14 @@ login_manager.session_protection = 'strong'
 login_manager.login_iew = 'auth.login'
 
 
-def clever_function(str, domain):
+def clever_function(string, domain):
     # Changes the String to highlight text for html5
     insensitive_domain = re.compile(re.escape(domain), re.IGNORECASE)
-    if domain.lower() in str.lower():
-        htmlString = insensitive_domain.sub('<mark>' + domain + '</mark>', str)
-        return Markup(htmlString)
+    if domain.lower() in string.lower():
+        html_string = insensitive_domain.sub('<mark>' + domain + '</mark>', string)
+        return Markup(html_string)
     else:
-        return Markup(str)
+        return Markup(string)
 
 
 def create_app(config_name):
@@ -42,7 +42,7 @@ def create_app(config_name):
     app.config['SSLIFY_SUBDOMAINS'] = True
 
     # Setting up Logging
-    handler = RotatingFileHandler('webStamps.log', maxBytes=10000, backupCount=1)
+    handler = RotatingFileHandler('STW.log', maxBytes=1000000, backupCount=1)
     handler.setLevel(logging.INFO)
     app.logger.addHandler(handler)
 
