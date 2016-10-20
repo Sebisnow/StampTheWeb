@@ -894,27 +894,30 @@ def loc_indep_timestamp():
 
         flash("Finished location independent timestamp!")
         current_app.logger.info("Finished location independent timestamp with {} error threads:{}"
-                                .format(str(error_threads), str(threads)))
+                                .format(str(threads), str(error_threads)))
 
         country_list = p_util.get_country_list()
         error_countries = [loc[0] for loc in country_list if loc[1] in [thread.prox_loc for thread in error_threads]]
 
-        original_post = Post.query.get_or_404(orig_thread.ipfs_hash)
-        current_app.logger.info("Got the original post:{}".format(original_post))
-        threads = threads.remove(orig_thread)
-
+        original_post = Post.query.filter(Post.hashVal == orig_thread.ipfs_hash).first()
+        current_app.logger.info("Got the original post:{}, threads is {}".format(original_post, type(threads)))
+        threads.remove(orig_thread)
+        current_app.logger.info("Now threads is: {} and {}".format(type(threads), str(threads)))
         # sort all posts to their hashs
         ret_countries = dict()
         ret_countries[orig_thread.ipfs_hash] = ReturnCountries(original_post)
         for thread in threads:
-            if thread.ipfs_hash not in ret_countries:
-                ret_countries[thread.ipfs_hash] = ReturnCountries(Post.query.get_or_404(thread.ipfs_hash))
+            if thread.ipfs_hash not in ret_countries.keys() :
+                ret_countries[thread.ipfs_hash] = ReturnCountries(
+                    Post.query.filter(Post.hashVal == thread.ipfs_hash).first())
             for con in country_list:
                 if con[1] == thread.prox_loc:
                     ret_countries[thread.ipfs_hash].countries.append(con[0])
         template, form, posts, pagination, domain_name_unique = render_standard_timestamp_post('timestamp_result.html',
                                                                                                form, render=False)
-
+        current_app.logger.info("Start rendering with ret_countries {}".format(ret_countries))
+        for key, value in ret_countries:
+            current_app.logger.info("Start rendering with ret_countries {}".format(value.countries))
         return render_template(template, form=form, posts=posts, pagination=pagination, doman_name=domain_name_unique,
                                return_countries=ret_countries, home_page="active", original_post=original_post,
                                error_countries=error_countries)

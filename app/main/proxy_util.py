@@ -58,11 +58,12 @@ def get_one_proxy(location=None):
 def get_rand_proxy(proxy_list=None, level=0):
     """
     Retrieve one random proxy from the proxy list. Recursively fetches a random, working proxy to return.
+    Tries ten times before returning with no result.
 
     :author: Sebastian
     :return: One randomly chosen proxy
     """
-    if level > 16:
+    if level > 9:
         return None
     logger("Getting a random, active proxy {}.".format(level))
     proxies = proxy_list or get_proxy_list()
@@ -153,14 +154,16 @@ def update_proxies(prox_loc=None):
     logger(country_list)
     logger("Getting the proxies now. That may take quite a while!")
     try:
-        proxy_list = gather_proxies(country_list)
-    except RuntimeError as e:
-        logger(str(e))
-        asyncio.set_event_loop(asyncio.new_event_loop())
-        proxy_list = gather_proxies(country_list)
 
+        proxy_list = gather_proxies(country_list)
+        #except RuntimeError as e:
+        #   logger(str(e))
+        #  asyncio.set_event_loop(asyncio.new_event_loop())
+        # proxy_list = gather_proxies(country_list)
+    except RuntimeError as e:
+        logger("Coud not fetch new Proxies, doing it the long way!")
         # Does not take country list into account - Fallback not needed anymore until next error in proxybroker package
-        #proxy_list = gather_proxies_alternative()
+        proxy_list = _gather_proxies_alternative()
     logger("All proxies gathered!")
 
     with open(proxy_path, "w", encoding="utf8") as tsv:
@@ -257,6 +260,7 @@ def _gather_proxies_alternative():
         proxy_list.append([country, "{}:{}".format(split_proxy[0], split_proxy[1])])
     logger(str(len(countries)))
     logger(countries)
+    proxy_list.sort()
     #proxy_uri_list = freeproxy.fetch_proxies()
     #logger(proxy_uri_list)
     return proxy_list

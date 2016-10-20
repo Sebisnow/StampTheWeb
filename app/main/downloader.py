@@ -14,14 +14,13 @@ from flask import flash
 from flask import current_app as app
 from urllib.parse import urlparse
 
-from selenium.common.exceptions import WebDriverException
+from selenium.common.exceptions import WebDriverException, TimeoutException
 
 from app.main.download_thread import DownloadThread
 from app.main import proxy_util
 from app.models import Country, Post, User
 from app.main import download_thread as d_thread
 from .. import db
-
 # nullDevice = open(os.devnull, 'w')
 errorCaught = ""
 
@@ -792,7 +791,8 @@ def location_independent_timestamp(url, proxies=None, robot_check=False, num_thr
         submitted_thread_dict = _get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, user)
         return joined_threads, submitted_thread_dict
     error_threads = _submit_threads_to_db(joined_threads, user, original_hash=original.ipfs_hash)
-    return threads, original, error_threads
+    app.logger.info("LIT finished: Correct {}, Error {}".format(len(joined_threads), len(error_threads)))
+    return joined_threads, original, error_threads
 
 
 def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=False, num_threads=5, location=None):
@@ -979,27 +979,32 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
     :param user: The user that submitted the timestamp request as String of his username.
     :param original_hash: The hash to compare the results with to identify censored/modified content.
     """
-    print("Add to db with original: {}".format(original_hash))
+    print("Add {} threads to db with original: {}".format(len(results), original_hash))
     error_threads = list()
     for thread in results:
         print("Adding Thread-{} to db".format(thread.threadID))
 
         if thread.error is not None and thread.prox_loc is not None:
-            print("Add error thread {} from {} to db".format(thread.threadID, thread.prox_loc))
-            country = Country.query.filter_by(country_code=thread.prox_loc).first()
+            print("Add error thread {} from {} to db. Type of Error  was {}\n error was: {}"
+                  .format(thread.threadID, thread.prox_loc, type(thread.error), str(thread.error)))
+            if thread.error == TimeoutException:
+                country = Country.query.filter_by(country_code=thread.prox_loc).first()
 
-            country.block_count += 1
-            country.block_url = "{}{};".format(country.block_url, thread.url)
-            db.session.add(country)
-            db.session.commit()
+                country.block_count += 1
+                country.block_url = "{}{};".format(country.block_url, thread.url)
+                db.session.add(country)
+                db.session.commit()
+                print("Updated {} block count to {}".format(thread.prox_loc, str(country.block_count)))
+                print("Finished adding error Thread-{} to db".format(thread.threadID))
+
             error_threads.append(thread)
-            print("Updated to: " + str(country.block_count))
-            print("Finished adding error Thread-{} to db".format(thread.threadID))
             results.remove(thread)
         elif thread.originstamp_result is None:
             # No error but originstamp result is not there -> something went really wrong
             print("No error but originstamp result is not there -> something went really wrong in Thread-{}"
                   .format(thread.threadID))
+            error_threads.append(thread)
+            results.remove(thread)
 
         elif original_hash is not None and original_hash != thread.ipfs_hash:
             print("The content from Thread-{} from {} does not match the original!\n {}\n{}"
@@ -1009,14 +1014,17 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
             country.censored_urls = "{}{};".format(country.censored_urls, thread.url)
             db.session.add(country)
             db.session.commit()
+            add_post_to_db(thread.url, thread.url, thread.title, thread.ipfs_hash,
+                           thread.originstamp_result["created_at"], user=user)
 
         else:
             if thread.error is None:
                 print("Adding Post for Thread-{} with Originstamp result: {}".format(thread.threadID,
                                                                                      str(thread.originstamp_result)))
-                add_post_to_db(thread.url, thread.html, thread.title, thread.ipfs_hash,
+                add_post_to_db(thread.url, thread.url, thread.title, thread.ipfs_hash,
                                thread.originstamp_result["created_at"], user=user)
-    print("Adding threads to db done.")
+    print("Adding threads to db done. Error thread count is {} versus {} working threads."
+          .format(len(error_threads), len(results)))
     return error_threads
 
 
@@ -1033,18 +1041,15 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
     :param user: The user tat initiated this timestamp and to whom the post will eb attributed.
     If no user is named it will be attributed to the Stamp The Web 'Bot'.
     """
-    print("Adding one new post")
     already_exists = Post.query.filter(Post.hashVal == sha256).first()
     print("Query Adding one new post. Already exists: {}".format(already_exists))
     if already_exists is not None:
         already_exists.count += 1
-        #already_exists.update({"count": count})
         db.session.add(already_exists)
-        db.session.commit()
     else:
         print("Make new post")
         if user is None:
-            # Use bot to post with authorid 113
+            # Use bot for post, bot is authorid 113
             post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
                             origStampTime=datetime.strptime(originstamp_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
                             author_id=113)
@@ -1056,7 +1061,7 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
                             author_id=user.id)
         print("Finished adding one new post, committing")
         db.session.add(post_new)
-        db.session.commit()
+    db.session.commit()
 
 
 def check_user(user):
