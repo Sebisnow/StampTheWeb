@@ -1,8 +1,8 @@
+import asyncio
+from subprocess import run, PIPE
 from flask import abort, flash, current_app, render_template, request, redirect, url_for, Response
 from flask_login import login_required, current_user
-
-#from app.main import proxy_util
-from app.main import proxy_util
+from app.main import proxy_util as p_util
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, PostEdit, PostVerify, PostFreq, \
     SearchPost, SearchOptions, PostBlock, PostCountry, URL_Status, TimestampForm
@@ -766,8 +766,24 @@ def timestamp_api():
     :return: Whether the POST request was successful or not.
     If successful it will contain a link to the data.
     """
-    header = request.headers
-    if request.method == 'POST':
+    submitted = False
+    form = TimestampForm()
+    if form.validate_on_submit():
+        print(type(current_user))
+        print(current_user)
+        country = form.countries.data
+        proxy = None
+        if country != "none":
+            try:
+                p_util.get_one_proxy(country)
+            except RuntimeError:
+                asyncio.set_event_loop(asyncio.new_event_loop())
+                proxy = p_util.get_one_proxy(country)
+        result = downloader.distributed_timestamp(form.urlSite.data, user=current_user.username)
+        submitted = True
+
+    if request.method == 'POST' and not submitted:
+        header = request.headers
         current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
         print("received Post \n" + str(request.headers))
         # change app config to testing in order to disable flashes or messages.
@@ -830,9 +846,21 @@ def timestamp_api():
             response.reason = "Unsupported Media Type. Only JSON Format allowed!"
     else:
         # on GET requests
-        return redirect(url_for('.loc_indep_timestamp'))
 
-        # return render_template()
+        domain_name = downloader.get_all_domain_names(Post)
+        domain_name_unique = set(domain_name)
+        for name in domain_name_unique:
+            if ';' not in name:
+                count = domain_name.count(name)
+                domain_name_unique.remove(name)
+                domain_name_unique.add(name + ';' + str(count))
+
+        page = request.args.get('page', 1, type=int)
+        pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+            page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
+        posts = pagination.items
+        return render_template('timestamp.html', form=form, posts=posts, pagination=pagination,
+                               doman_name=domain_name_unique, home_page="active")
 
 
 @main.route('/litimestamp/', methods=['GET', 'POST'])
@@ -840,44 +868,75 @@ def loc_indep_timestamp():
     """
     Get the data that was timestamped identified by the given timestamping hash.
 
-    :param timestamp: A timestamp hash.
+    :author: Sebastian
     :return: The Data that was timestamped.
     """
     form = TimestampForm()
     if form.validate_on_submit():
-        print(type(current_user))
-        print(current_user)
         country = form.countries.data
-        proxy = None if country is None else proxy_util.get_one_proxy(country)
+        url = form.urlSite.data
+        robot = form.robot.data
+        link = form.link.data
         current_app.logger.info("The selected country is: {}".format(country))
-        current_app.logger.info("Robots.txt?: {}".format(form.robot.data))
-        current_app.logger.info("The entered url is: {}".format(form.urlSite.data))
-        if proxy is None:
-            threads, orig_thread, votes = downloader.location_independent_timestamp(form.urlSite.data,
-                                                                                    robot_check=form.robot.data,
-                                                                                    user=current_user)
+        current_app.logger.info("Robots.txt?: {}".format(robot))
+        current_app.logger.info("The user {} wants to timestamp the url: {}".format(current_user, url))
+        if link:
+            return timestamp_links(form, country, url, robot)
+        if country != "none":
+            current_app.logger.info("Country is set to: {}".format(country))
+            location, proxy = p_util.get_one_proxy(country)
+
+            threads, orig_thread, error_threads = downloader.\
+                location_independent_timestamp(url, [[location, proxy]], robot, user=current_user)
         else:
-            threads, orig_thread, votes = downloader.location_independent_timestamp(form.urlSite.data,
-                                                                                    [[country, proxy]],
-                                                                                    form.robot.data, user=current_user)
+            threads, orig_thread, error_threads = downloader.\
+                location_independent_timestamp(url, robot_check=robot, user=current_user)
+
         flash("Finished location independent timestamp!")
-        current_app.logger.info("Finished location independent timestamp:{}".format(str(threads)))
-        return
+        current_app.logger.info("Finished location independent timestamp with {} error threads:{}"
+                                .format(str(error_threads), str(threads)))
 
-    domain_name = downloader.get_all_domain_names(Post)
-    domain_name_unique = set(domain_name)
-    for name in domain_name_unique:
-        if ';' not in name:
-            count = domain_name.count(name)
-            domain_name_unique.remove(name)
-            domain_name_unique.add(name + ';' + str(count))
+        country_list = p_util.get_country_list()
+        error_countries = [loc[0] for loc in country_list if loc[1] in [thread.prox_loc for thread in error_threads]]
 
-    page = request.args.get('page', 1, type=int)
-    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
-        page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
-    posts = pagination.items
-    return render_template('timestamp.html', form=form, posts=posts, pagination=pagination,
-                           doman_name=domain_name_unique, home_page="active")
+        original_post = Post.query.get_or_404(orig_thread.ipfs_hash)
+        current_app.logger.info("Got the original post:{}".format(original_post))
+        threads = threads.remove(orig_thread)
+
+        # sort all posts to their hashs
+        ret_countries = dict()
+        ret_countries[orig_thread.ipfs_hash] = ReturnCountries(original_post)
+        for thread in threads:
+            if thread.ipfs_hash not in ret_countries:
+                ret_countries[thread.ipfs_hash] = ReturnCountries(Post.query.get_or_404(thread.ipfs_hash))
+            for con in country_list:
+                if con[1] == thread.prox_loc:
+                    ret_countries[thread.ipfs_hash].countries.append(con[0])
+        template, form, posts, pagination, domain_name_unique = render_standard_timestamp_post('timestamp_result.html',
+                                                                                               form, render=False)
+
+        return render_template(template, form=form, posts=posts, pagination=pagination, doman_name=domain_name_unique,
+                               return_countries=ret_countries, home_page="active", original_post=original_post,
+                               error_countries=error_countries)
+
+    return render_standard_timestamp_post('timestamp.html', form)
+
+
+def timestamp_links(form, country, url, robot):
+    if country != "none":
+        current_app.logger.info("Country is set to: {}".format(country))
+        location, proxy = p_util.get_one_proxy(country)
+
+        threads, orig_thread, error_threads = downloader. \
+            location_independent_timestamp(url, [[location, proxy]], robot, user=current_user, links=True)
+    else:
+        threads, orig_thread, error_threads = downloader. \
+            location_independent_timestamp(url, robot_check=robot, user=current_user, links=True)
+
+    flash("Finished location independent timestamp!")
+    current_app.logger.info("Finished location independent timestamp with {} error threads:{}"
+                            .format(str(error_threads), str(threads)))
+    return render_template("result_links",)
 
 
 @main.route('/timestamp/<timestamp>', methods=['GET'])
@@ -885,6 +944,7 @@ def timestamp_get(timestamp):
     """
     Get the data that was timestamped identified by the given timestamping hash.
 
+    :author: Seabstian
     :param timestamp: A timestamp hash.
     :return: The Data that was timestamped.
     """
@@ -904,7 +964,36 @@ def get_new_proxies():
     """
     Initiate a proxy update.
 
-    :param timestamp: A timestamp hash.
     :return: The Data that was timestamped.
     """
-    return proxy_util.update_proxies(logger=current_app.logger.info)
+    output = run(['python3', 'app/main/proxy_util.py'], stdout=PIPE)
+    print("This is the output: \n-----------------------------\n" + output)
+    return render_standard_timestamp_post()
+
+
+def render_standard_timestamp_post(template="timestamp.html", form=None, render=True):
+    if form is None:
+        form = TimestampForm
+    domain_name = downloader.get_all_domain_names(Post)
+    domain_name_unique = set(domain_name)
+    for name in domain_name_unique:
+        if ';' not in name:
+            count = domain_name.count(name)
+            domain_name_unique.remove(name)
+            domain_name_unique.add(name + ';' + str(count))
+
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
+    posts = pagination.items
+    if render:
+        return render_template(template, form=form, posts=posts, pagination=pagination,
+                               doman_name=domain_name_unique, home_page="active")
+    else:
+        return template, form, posts, pagination, domain_name_unique
+
+
+class ReturnCountries:
+    def __init__(self, db_post, countries=list()):
+        self.countries = countries
+        self.post = db_post
