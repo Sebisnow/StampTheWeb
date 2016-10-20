@@ -18,6 +18,7 @@ import ssl
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 migrate = Migrate(app, db)
+proxy_util.logger = app.logger.info
 
 
 def make_shell_context():
@@ -73,7 +74,8 @@ def run_every_day():
         # update proxy list - may take up to 45 minutes depending on network latency and proxy availability
         try:
             app.logger.info("Regular task at {}: Updateing the proxy_list".format(datetime.datetime.utcnow()))
-            proxy_util.update_proxies(logger=app.logger.info)
+            proxy_util.logger = app.logger.info
+            proxy_util.update_proxies()
             app.logger.info("Regular task at {}: Yay, proxy_list updated!".format(datetime.datetime.utcnow()))
         except UnicodeDecodeError as e:
             app.logger.error("Regular task at {}: Encountered a UnicodeDecodeError while fetching proxies. "
