@@ -377,7 +377,6 @@ def get_country_list(full=True):
         return countries
 
 
-
 def get_proxy_from_url(url, proxy_list=None):
     """
     Find out the country of origin of a url and then fetch a proxy from that country.
