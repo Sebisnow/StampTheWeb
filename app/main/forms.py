@@ -201,9 +201,12 @@ class Regular_Interval(Form):
 class TimestampForm(Form):
     """
     Form for location independent timestamp. With the possibility to adhere to robots.txt.
+    And the possibility to timestamp the links as well.
+
+    :author: Sebastian
     """
     country_list = [["Use only random Countries", "none"]]
-    country_list += proxy_util.get_country_list()
+    country_list += proxy_util.get_country_list(False)
     choices = [(country[1], country[0]) for country in country_list]
 
     body = TextAreaField("Add a Title (Optional) <i class='glyphicon glyphicon-info-sign'></i>",
@@ -212,9 +215,12 @@ class TimestampForm(Form):
                        validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
     countries = SelectField("Select country to also timestamp the URL from that location", choices=choices)
+    link = BooleanField("Follow links and timestamp them too!", default=False,
+                        render_kw={"Include links": "The downloader will start a new location independent timestamp "
+                                                    "for each link in the timestamped content!"})
     robot = BooleanField("Adhere to robots.txt.", default=False,
-                         render_kw={"robots.txt": "The downloader will adhere to the robots.txt used at the URL. "
-                                                  "This might change the content if data is not permitted to download. "
+                         render_kw={"robots.txt": "The downloader will adhere to the robots.txt used at the URL. This "
+                                                  "might change the content if data is not permitted to be downloaded. "
                                                   "The timestamp could be different!"})
 
     submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
