@@ -14,6 +14,7 @@ import socket
 
 # For local testing please override the path to the proxy list with the actual one. eg.:
 #static_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static")
+
 static_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static")
 proxy_path = static_path + "/proxy_list.tsv"
 country_path = static_path + "/country_codes.csv"
@@ -21,23 +22,37 @@ country_path = static_path + "/country_codes.csv"
 url_specification = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 base_path = 'app/pdf/'
 default_event_loop = None
+logger = print
 
 
-"""def get_proxy_location(ip_address):
-    ""
-    Looks up the location of an IP Address and returns the two-letter ISO country code.
+def get_one_proxy(location=None):
+    """
+    Fetches one proxy using proxybroker. Handles RuntimeError of proxybroker. If it fails twice the proxy list is used
+    to retrieve a proxy from the location.
+    If no proxies from that location are available then it fetches a random proxy.
 
     :author: Sebastian
-    :param ip_address: The IP Address to get the location for.
-    :return: The country_code as two letter string
-    ""
-    # Automatically geolocate the connecting IP
-    print("Getting the proxy location of:{}".format(str(ip_address)))
-    url = 'http://freegeoip.net/json/' + ip_address
-    with closing(urlopen(url)) as response:
-        location = json.loads(str(response.read().decode()))
-        return location['country_code']
-"""
+    :param location: Two letter iso country code to fetch a proxy from. If not present fetches a random active proxy
+     from the static proxy list.
+    :return: Returns the location of the proxy together with the proxy.
+    """
+    if location is None:
+        prox = get_rand_proxy()
+        return prox[0], prox[1]
+    else:
+        try:
+            try:
+                proxy = get_one_specific_proxy(location)
+            except RuntimeError:
+                asyncio.set_event_loop(asyncio.new_event_loop())
+                proxy = get_one_specific_proxy(location)
+        except RuntimeError:
+            proxy = _get_one_proxy_alternative(location)
+            if proxy is None:
+                logger("None active proxy found, trying a random proxy")
+                prox = get_rand_proxy()
+                location, proxy = prox[0], prox[1]
+        return location, proxy
 
 
 def get_rand_proxy(proxy_list=None, level=0):
@@ -49,14 +64,48 @@ def get_rand_proxy(proxy_list=None, level=0):
     """
     if level > 16:
         return None
-    print("Getting a random, active proxy {}.".format(level))
+    logger("Getting a random, active proxy {}.".format(level))
     proxies = proxy_list or get_proxy_list()
-    proxy = proxies[randrange(0, len(proxies))]
-    if is_proxy_alive(proxy[1], 3):
-        return proxy
+    prox = proxies[randrange(0, len(proxies))]
+    if is_proxy_alive(prox[1], 3):
+        return prox
     else:
-        proxies.remove(proxy)
+        proxies.remove(prox)
         return get_rand_proxy(proxies, level=level+1)
+
+
+def get_one_specific_proxy(country, types='HTTP'):
+    """
+    Find one new, working proxy from the specified country. Run time of this method depends heavily on the country
+    specified as for some countries it is hard to find proxies (e.g. Myanmar).
+
+    :author: Sebastian
+    :param country: Two-letter ISO formatted country code. If a lookup is needed before calling this method, please
+    consult /static/country_codes.csv.
+    :param types: The type of proxy to search for as a list of strings. Defaults to HTTP.
+    If only one type should be specified a string like "HTTPS" will also work.
+    Other possibilities are HTTPS, SOCKS4, SOCKS5. E.g. types=['HTTP, HTTPS']
+    :return: A string containing the newly found proxy from the specified country in <Proxy IP>:<Port> notation.
+    :raises RuntimeError if proxybroker has problems with its loop. Catch it and start new event_loop.
+    """
+    logger("Fetching one proxy from: {}".format(country))
+    if type(types) is not list:
+        types = [types]
+    loop = asyncio.get_event_loop()
+
+    proxies = asyncio.Queue(loop=loop)
+    broker = Broker(proxies, loop=loop)
+    loop.run_until_complete(broker.find(limit=1, countries=[country], types=types))
+
+    while True:
+        proxy = proxies.get_nowait()
+        if proxy is None:
+            break
+        fetched_proxy = "{}:{}".format(proxy.host, str(proxy.port))
+        logger("Proxy from {} is: {}".format(country, fetched_proxy))
+        _add_to_proxy_list(country, fetched_proxy)
+        return fetched_proxy
+    return None
 
 
 def get_proxy_list(update=False, prox_loc=None):
@@ -70,7 +119,7 @@ def get_proxy_list(update=False, prox_loc=None):
     This takes quite a while!
     :return: A list of lists with 3 values representing proxies [1] with their location [0].
     """
-    print("Getting the proxylist")
+    logger("Getting the proxylist")
     proxy_list = []
     if update:
         proxy_list = update_proxies(prox_loc)
@@ -80,18 +129,17 @@ def get_proxy_list(update=False, prox_loc=None):
                 if prox_loc is None or prox_loc == line[0]:
                     proxy_list.append([line[0], line[1], None])
 
-    print("Returning the proxy list")
+    logger("Returning the proxy list")
     return proxy_list
 
 
-def update_proxies(prox_loc=None, logger=print):
+def update_proxies(prox_loc=None):
     """
     Checks the proxies stored in the proxy_list.tsv file. If there are proxies that are inactive,
     new proxies from that country are gathered and stored in the file instead.
 
     :author: Sebastian
     :param prox_loc: A new location to be added to the countries already in use. Defaults to None.
-    :param logger: The logging function to be uses. Defaults to print to std out.
     :return: A list of active proxies.
     """
     logger("Start updating the proxy list")
@@ -105,7 +153,7 @@ def update_proxies(prox_loc=None, logger=print):
     logger(country_list)
     logger("Getting the proxies now. That may take quite a while!")
     try:
-        proxy_list = gather_proxies(country_list, logger)
+        proxy_list = gather_proxies(country_list)
     except RuntimeError as e:
         logger(str(e))
         asyncio.set_event_loop(asyncio.new_event_loop())
@@ -124,14 +172,13 @@ def update_proxies(prox_loc=None, logger=print):
     return proxy_list
 
 
-def gather_proxies(countries, logger=print):
+def gather_proxies(countries):
     """
     This method uses the proxybroker package to asynchronously get two new proxies per specified country
     and returns the proxies as a list of country and proxy.
 
     :author: Sebastian
     :param countries: The ISO style country codes to fetch proxies for. Countries is a list of two letter strings.
-    :param logger: The logging function to be uses. Defaults to print to std out.
     :return: A list of proxies that are themselves a list with  two paramters[Location, proxy address].
     """
     # TODO !! May take more than 45 minutes !! Run in separate thread?
@@ -158,47 +205,6 @@ def gather_proxies(countries, logger=print):
     return proxy_list
 
 
-def get_one_proxy(country, types='HTTP'):
-    """
-    Find one new, working proxy from the specified country. Run time of this method depends heavily on the country
-    specified as for some countries it is hard to find proxies (e.g. Myanmar).
-
-    :author: Sebastian
-    :param country: Two-letter ISO formatted country code. If a lookup is needed before calling this method, please
-    consult /static/country_codes.csv.
-    :param types: The type of proxy to search for as a list of strings. Defaults to HTTP.
-    If only one type should be specified a string like "HTTPS" will also work.
-    Other possibilities are HTTPS, SOCKS4, SOCKS5. E.g. types=['HTTP, HTTPS']
-    :return: A string containing the newly found proxy from the specified country in <Proxy IP>:<Port> notation.
-    """
-    print("Fetching one proxy from: {}".format(country))
-    try:
-        if type(types) is not list:
-            types = [types]
-        try:
-            loop = asyncio.get_event_loop()
-        except RuntimeError:
-            asyncio.set_event_loop(asyncio.new_event_loop())
-            loop = asyncio.get_event_loop()
-
-        proxies = asyncio.Queue(loop=loop)
-        broker = Broker(proxies, loop=loop)
-        loop.run_until_complete(broker.find(limit=1, countries=[country], types=types))
-
-        while True:
-            proxy = proxies.get_nowait()
-            if proxy is None:
-                break
-            fetched_proxy = "{}:{}".format(proxy.host, str(proxy.port))
-            print("Proxy from {} is: {}".format(country, fetched_proxy))
-            _add_to_proxy_list(country, fetched_proxy)
-            return fetched_proxy
-        return None
-    except RuntimeError as e:
-        print("Proxybroker not working properly due to {}\n, trying the static proxylist.".format(str(e)))
-        return get_one_proxy_alternative(country)
-
-
 def _add_to_proxy_list(country, proxy):
     """
     Adds one proxy with the associated country to the proxy list file.
@@ -211,12 +217,15 @@ def _add_to_proxy_list(country, proxy):
         prox_file.write("{}\t{}".format(country, proxy))
 
 
-def get_one_proxy_alternative(country):
+def _get_one_proxy_alternative(country):
     """
     Fetches one active proxy from the specified country from the proxy list.
-    :param country:
-    :return:
+
+    :author: Sebastian
+    :param country: THe location of the proxy to fetch
+    :return: The proxy from the specified location.
     """
+    logger("Getting one proxy the alternative way")
     proxies = get_proxy_list()
     for proxy in proxies:
         if country == proxy[0] and is_proxy_alive(proxy[1]):
@@ -224,7 +233,7 @@ def get_one_proxy_alternative(country):
     return None
 
 
-def gather_proxies_alternative():
+def _gather_proxies_alternative():
     """
     Alternative to gather_proxies that uses freeproxy to gather proxies from different sources.
     It usually yields more than # # proxies. It only returns active proxies with the country code added to them.
@@ -233,11 +242,11 @@ def gather_proxies_alternative():
     Index 1 is the proxy with port number and index 2 is None in the beginning.
     """
     proxies = list(set(from_xici_daili() + from_cyber_syndrome() + from_hide_my_ip() + from_free_proxy_list()))
-    print(proxies)
-    print("{} different proxies gathered".format(str(len(proxies))))
-    proxies = test_proxies(proxies)
+    logger(proxies)
+    logger("{} different proxies gathered".format(str(len(proxies))))
+    proxies = check_proxies(proxies)
     #proxies = t_prox(proxies, timeout=5, single_url="http://baidu.com")
-    print("{} working proxies gathered".format(str(len(proxies))))
+    logger("{} working proxies gathered".format(str(len(proxies))))
 
     proxy_list = list()
     countries = set()
@@ -246,14 +255,14 @@ def gather_proxies_alternative():
         country = ip_lookup_country(split_proxy[0])
         countries.add(country)
         proxy_list.append([country, "{}:{}".format(split_proxy[0], split_proxy[1])])
-    print(str(len(countries)))
-    print(countries)
+    logger(str(len(countries)))
+    logger(countries)
     #proxy_uri_list = freeproxy.fetch_proxies()
-    #print(proxy_uri_list)
+    #logger(proxy_uri_list)
     return proxy_list
 
 
-def test_proxies(proxies, timeout=4):
+def check_proxies(proxies, timeout=4):
     """
     Tests a list of proxies and returns only the alive ones.
     Timeout is set to timeout seconds so some working proxies that respond slowly will also be removed.
@@ -267,7 +276,7 @@ def test_proxies(proxies, timeout=4):
     :return: A list of proxies responding within timeout seconds.
     """
     # TODO could be implemented to use multithreading in order to increase speed for many proxies
-    print("Testing {} proxies".format(str(len(proxies))))
+    logger("Testing {} proxies".format(str(len(proxies))))
     tested_proxies = list()
     for proxy in set(proxies):
         if is_proxy_alive(proxy, timeout):
@@ -288,19 +297,19 @@ def is_proxy_alive(proxy, timeout=8):
         res = requests.head("http://google.com", timeout=timeout, proxies={"http": "http://" + proxy},
                             allow_redirects=True)
         if res.status_code <= 400:
-            print("Proxy {} is alive!".format(proxy))
+            logger("Proxy {} is alive!".format(proxy))
             return True
     except IOError:
-        print("----{} not alive".format(proxy))
+        logger("----{} not alive".format(proxy))
 
     try:
         res = requests.head("http://baidu.com/", timeout=timeout, proxies={"http": "http://" + proxy},
                             allow_redirects=True)
         if res.status_code <= 400:
-            print("Proxy {} is alive!".format(proxy))
+            logger("Proxy {} is alive!".format(proxy))
             return True
     except IOError:
-        print("----Second check failed {} definitely not alive. Returning False".format(proxy))
+        logger("----Second check failed {} definitely not alive. Returning False".format(proxy))
     return False
 
 
@@ -344,20 +353,29 @@ def _lookup_website_ip(url):
     return socket.gethostbyname_ex(domain)[2][0]
 
 
-def get_country_list():
+def get_country_list(full=True):
     """
     Gets a list for country codes decoding with full english name and two letter iso code.
+    Or just the ones where prxies are present if full is set to False.
 
     :author: Sebastian
+    :param full: Whether to return a list of all countries in the world (Default, Parameter is True)
+    or just the list of countries where we have proxies from.
     :return: A list of lists. The inner lists consist of two parameters. Parameter at index 0 is the full, english name
     of the country described in two letters by index 1.
     """
     country_list = list()
-    print(proxy_path)
+    logger(proxy_path)
     with open(country_path, "r") as tsv:
         for line in csv.reader(tsv, delimiter=";"):
             country_list.append(line)
-    return country_list
+    if full:
+        return country_list
+    else:
+        proxy_list = [proxy[0] for proxy in get_proxy_list()]
+        countries = [country for country in country_list if country[1] in proxy_list]
+        return countries
+
 
 
 def get_proxy_from_url(url, proxy_list=None):
@@ -370,7 +388,7 @@ def get_proxy_from_url(url, proxy_list=None):
     before it is not necessary to do so again.
     :return: Returns the proxy as string and the country as two letter ISO code of the same country as the URL.
     """
-    print("Getting a proxy for url {}".format(url))
+    logger("Getting a proxy for url {}".format(url))
     if proxy_list is None:
         proxy_list = get_proxy_list()
     original_country = get_country_of_url(url)
@@ -384,9 +402,11 @@ def get_proxy_from_url(url, proxy_list=None):
         orig_proxy = get_one_proxy(original_country)
         if orig_proxy is None:
             # The Fallback is to use a German proxy as the original
-            orig_proxy = get_one_proxy("DE")
+            # logger("Using Fallback to German proxy.")
+            #orig_proxy = get_one_proxy("DE")
+            return None, None
 
-    print("Found a proxy {} from {}".format(orig_proxy, original_country))
+    logger("Found a proxy {} from {}".format(orig_proxy, original_country))
     return orig_proxy, original_country
 
 

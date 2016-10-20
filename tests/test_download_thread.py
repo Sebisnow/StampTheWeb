@@ -23,6 +23,7 @@ ip_check_url = "http://httpbin.org/ip"
 base_path = "/home/sebastian/testing-stw/"
 downloader.basePath = base_path
 down.base_path = base_path
+downloader.proxy_util.base_path = base_path
 prox.static_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static/")
 html = """
 <html>
@@ -83,17 +84,47 @@ class BasicsTestCase(unittest.TestCase):
         thread.phantom.capabilities["browserName"] = "Mozilla/5.0"
         print(str(thread.phantom.capabilities))
 
-    def test_class_with_proxy(self):
+    def test_class_with_china_proxy(self):
         print("\nTesting the functionality of the DownloadThread class:")
         thread = down.DownloadThread(1, "http://www.ip-address.org/find-ip/check-my-ip.php", "122.193.14.106:80",
                                      prox_loc="CN", basepath=base_path)
+        other_thread = down.DownloadThread(10, url=ip_check_url, proxy=fr_proxy, prox_loc="FR", robot_check=False,
+                                           basepath=base_path)
+        thread.start()
+        other_thread.start()
+        print("    Waiting for thread to join.")
+        thread.join()
+        other_thread.join()
+        print("    After join:\n" + str(thread.html))
+        print("    After join:\n" + str(other_thread.html))
+        text = thread.html
+
+        print("    The originstamp_result of this thread: \n{}\n And the errors if any:\n"
+              .format(thread.originstamp_result, str(thread.error)))
+        self.assertIsNotNone(text, "None HTML was stored and processed.")
+        print("    Testing whether thread is alive")
+        thread.join()
+        self.assertFalse(thread.is_alive(), "Thread is still alive after join")
+        ipfs_hash = thread.ipfs_hash
+        self.assertIsNotNone(ipfs_hash, "The DownloadThread did not produce an ipfs_hash")
+        if ipfs_hash:
+            file_path = downloader.ipfs_get(ipfs_hash)
+            self.assertTrue(os.path.exists(file_path), "File not transmitted to ipfs, it cannot be fetched")
+        else:
+            raise self.failureException
+
+    def test_class_with_proxy(self):
+        print("\nTesting the functionality of the DownloadThread class:")
+        thread = down.DownloadThread(10, url=ip_check_url, proxy=fr_proxy, prox_loc="FR", robot_check=False,
+                                     basepath=base_path)
         thread.start()
         print("    Waiting for thread to join.")
         thread.join()
         print("    After join:\n" + str(thread.html))
         text = thread.html
 
-        print("    The originstamp_result of this thread: \n{}".format(thread.originstamp_result))
+        print("    The originstamp_result of this thread: \n{}\n And the errors if any:\n"
+              .format(thread.originstamp_result, str(thread.error)))
         self.assertIsNotNone(text, "None HTML was stored and processed.")
         print("    Testing whether thread is alive")
         thread.join()
@@ -115,7 +146,29 @@ class BasicsTestCase(unittest.TestCase):
         print("    After join:\n" + str(thread.html))
         text = thread.html
 
-        print("    The originstamp_result of this thread: \n{}".format(thread.originstamp_result.json()))
+        print("    The originstamp_result of this thread: \n{}".format(str(thread.originstamp_result)))
+        self.assertIsNotNone(text, "None HTML was stored and processed.")
+        print("    Testing whether thread is alive")
+        thread.join()
+        self.assertFalse(thread.is_alive(), "Thread is still alive after join")
+        ipfs_hash = thread.ipfs_hash
+        self.assertIsNotNone(ipfs_hash, "The DownloadThread did not produce an ipfs_hash")
+        if ipfs_hash:
+            file_path = downloader.ipfs_get(ipfs_hash)
+            self.assertTrue(os.path.exists(file_path), "File not transmitted to ipfs, it cannot be fetched")
+        else:
+            raise self.failureException
+
+    def test_class_with_country(self):
+        print("\nTesting the functionality of the DownloadThread class:")
+        thread = down.DownloadThread(1, blocked_url, basepath=base_path, prox_loc="FR")
+        thread.start()
+        print("    Waiting for thread to join.")
+        thread.join()
+        print("    After join:\n" + str(thread.html))
+        text = thread.html
+
+        print("    The originstamp_result of this thread: \n{}".format(thread.originstamp_result))
         self.assertIsNotNone(text, "None HTML was stored and processed.")
         print("    Testing whether thread is alive")
         thread.join()

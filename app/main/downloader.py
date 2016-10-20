@@ -684,7 +684,72 @@ def save_render_zip_submit(html_text, sha256, url, title):
     return originstamp_result
 
 
-def location_independent_timestamp(url, proxies=None, robot_check=False, num_threads=5, user="Bot"):
+def _get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, user):
+    """
+    This helper method starts num_threads new DownloadThreads for every link contained in all unique
+    DownloadThreads handed to it(joined_threads variable). It joins the threads and submits them to return a dictionary
+    (identified by the ipfs_hash) of dictionaries. The outer dictionary consists of one key for each unique download.
+    The inner dictionaries have their link as key and a list of threads as value:
+
+    -- thread_dict -- :
+    {
+    "ipfs_hash1":   {   "http.example.com" : [Thread-1, Thread-2, ...],
+                        "http.example.com/foobar": [Thread-1, Thread-2, ...],
+                        ...
+                    },
+    "ipfs_hash2":   {   "http.examples.com" : [Thread-1, Thread-2, ...],
+                        "http.examples.com/foobars": [Thread-1, Thread-2, ...],
+                        ...
+                    },
+    ...
+    "error_threads": [Thread-1, Thread-2, ...]
+    }
+
+    :author: Sebastian
+    :param joined_threads: The threads to download and timestamp the links from.
+    :param proxy_list: A list of proxies to use first for the DownloadThreads.
+    :param num_threads: The Number of threads to start for each timestamp request.
+    :param robot_check: Whether or not to adhere to robots.txt.
+    :param user: The user that triggered the timestamp.
+    :return: Returns the thread_dict that contains all joined and submitted links as well as all error_threads.
+    """
+    cnt = 0
+    thread_dict = dict()
+    hashs = set()
+    for thread in joined_threads:
+        if thread.error is not None:
+            continue
+
+        # New DownloadThreads only for different results(e.g. hash is a new one).
+        if thread.ipfs_hash not in hashs:
+            hashs.add(thread.ipfs_hash)
+            thread_dict[thread.ipfs_hash] = dict()
+            link_threads = list()
+            for link in thread.get_links():
+                # Get a proxy from the location of the URL and start thread manually
+                orig_proxy, original_country = proxy_util.get_proxy_from_url(link, proxy_list)
+                original = _run_thread(link, 0, proxy_list=[[original_country, orig_proxy]], robot_check=robot_check,
+                                       location=original_country)
+                link_threads.append(original)
+
+                # Start all other threads
+                link_threads.append(start_threads(None, link_threads, link, cnt*10, num_threads,
+                                                  robot_check, proxy_list))
+                thread_dict[thread.ipfs_hash][link] = link_threads
+        cnt += 1
+
+    # Join all threads and submit results to db
+    thread_dict["error_threads"] = list()
+    for key, link in thread_dict.items():
+        if key != "error_threads":
+            for second_key, thread_list in thread_dict.items():
+                joined_threads, votes = _join_threads(thread_list)
+                thread_dict["error_threads"].append(_submit_threads_to_db(joined_threads, user,
+                                                                          original_hash=joined_threads[0].ipfs_hash))
+    return thread_dict
+
+
+def location_independent_timestamp(url, proxies=None, robot_check=False, num_threads=5, user="Bot", links=False):
     """
     This way of timestamping starts several threads(usually 5). The first thread downloads what will be considered the
     original content as it uses a proxy from the country of origin of the url. Thus this method retrieves a baseline
@@ -703,27 +768,31 @@ def location_independent_timestamp(url, proxies=None, robot_check=False, num_thr
     the given website or not -- if the users view is needed do not use False.
     :param num_threads: Number of threads to be used for the timestamp. Defaults to 5.
     :param user: The username of the user that initiated the timestamp. As default the Bot user will be used.
-    :return: a list of DownloadThread objects where the first (at index 0).is the result of the timestamp from the
-    country of origin of the website.
+    :param links: States whether or not to timestamp all linked pages as well. Defaults to False.
+    :return: Triple: A list of DownloadThread objects where the first (at index 0).is the result of the timestamp from
+    the country of origin of the website.
+    The Thread that downloaded from the country of origin of the URL.
     Votes has an integer stored for each thread, the highest is taken as the original.
     """
 
     proxy_list = proxy_util.get_proxy_list()
+    threads = list()
 
     # Get a proxy from the location of the URL
     orig_proxy, original_country = proxy_util.get_proxy_from_url(url, proxy_list)
-
-    threads = list()
     original = _run_thread(url, 0, proxy_list=[[original_country, orig_proxy]], robot_check=robot_check,
                            location=original_country)
     threads.append(original)
+    # Start all other threads
     threads = start_threads(proxies, threads, url, 1, num_threads, robot_check, proxy_list)
 
     # join all threads and return them, votes wi
     joined_threads, votes = _join_threads(threads)
-
-    _submit_threads_to_db(joined_threads, user, original_hash=original.ipfs_hash)
-    return threads, original, votes
+    if links:
+        submitted_thread_dict = _get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, user)
+        return joined_threads, submitted_thread_dict
+    error_threads = _submit_threads_to_db(joined_threads, user, original_hash=original.ipfs_hash)
+    return threads, original, error_threads
 
 
 def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=False, num_threads=5, location=None):
@@ -780,7 +849,6 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     _submit_threads_to_db(joined_threads, user)
 
     max_index = votes.index(max(votes))
-    # TODO threads are joined return the result to be added to db and store the countries that censored in db as well.
     print("Distributed timestamp done, return results.")
     if extension_triggered:
         if max(votes) == votes[0]:
@@ -799,10 +867,12 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
 
 
 def start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_list):
+    print("Proxies: " + str(proxies))
     if proxies is not None:
         for proxy in proxies:
             if cnt >= 5:
                 break
+            app.logger.info("--- Start Thread-{} with proxy: {}".format(cnt, [proxy]))
             threads.append(_run_thread(url, cnt, proxy_list=[proxy], robot_check=robot_check))
             cnt += 1
 
@@ -909,7 +979,8 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
     :param user: The user that submitted the timestamp request as String of his username.
     :param original_hash: The hash to compare the results with to identify censored/modified content.
     """
-    print("Add to db")
+    print("Add to db with original: {}".format(original_hash))
+    error_threads = list()
     for thread in results:
         print("Adding Thread-{} to db".format(thread.threadID))
 
@@ -921,16 +992,19 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
             country.block_url = "{}{};".format(country.block_url, thread.url)
             db.session.add(country)
             db.session.commit()
+            error_threads.append(thread)
             print("Updated to: " + str(country.block_count))
             print("Finished adding error Thread-{} to db".format(thread.threadID))
+            results.remove(thread)
         elif thread.originstamp_result is None:
             # No error but originstamp result is not there -> something went really wrong
             print("No error but originstamp result is not there -> something went really wrong in Thread-{}"
                   .format(thread.threadID))
 
-        elif original_hash != thread.ipfs_hash:
-            print("The content from Thread-{} from {} does not match the original!"
-                  .format(thread.threadID, thread.prox_loc))
+        elif original_hash is not None and original_hash != thread.ipfs_hash:
+            print("The content from Thread-{} from {} does not match the original!\n {}\n{}"
+                  .format(thread.threadID, thread.prox_loc, thread.ipfs_hash, original_hash))
+            country = Country.query.filter_by(country_code=thread.prox_loc).first()
             country.censor_count += 1
             country.censored_urls = "{}{};".format(country.censored_urls, thread.url)
             db.session.add(country)
@@ -943,6 +1017,7 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
                 add_post_to_db(thread.url, thread.html, thread.title, thread.ipfs_hash,
                                thread.originstamp_result["created_at"], user=user)
     print("Adding threads to db done.")
+    return error_threads
 
 
 def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
@@ -969,7 +1044,7 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
     else:
         print("Make new post")
         if user is None:
-            # Use bot to post
+            # Use bot to post with authorid 113
             post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
                             origStampTime=datetime.strptime(originstamp_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
                             author_id=113)
@@ -994,7 +1069,7 @@ def check_user(user):
     :return: An object of the db class User with al the information stored for a user.
     If no user can be found None will be returned.
     """
-    db_user = User.query.filter(User.username == user).first()
+    db_user = User.query.filter(User.username == user.username).first()
     print(str(db_user))
     return db_user
 

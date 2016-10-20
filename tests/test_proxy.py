@@ -46,9 +46,9 @@ class MyTestCase(unittest.TestCase):
 
         print("Finished gathering proxies. wrote all to file: {}".format(str(prox_list)))
         self.assertGreater(len(prox_list), 30, "Gathered no more than 10 proxies")
-        tested_proxies = p.test_proxies([x[1] for x in prox_list])
-        print("{} tested proxies compared to {} retrieved prxies".format(len(prox_list), len(tested_proxies)))
-        print(tested_proxies)
+        #tested_proxies = p.check_proxies([x[1] for x in prox_list])
+        #print("{} tested proxies compared to {} retrieved prxies".format(len(prox_list), len(tested_proxies)))
+        #print(tested_proxies)
         """except UnicodeDecodeError as e:
             print("Encountered UnicodeDecodeError, nothing to be done but to try later as it is internal error of "
                   "proxybroker.")
@@ -78,7 +78,7 @@ class MyTestCase(unittest.TestCase):
 
         proxies = list(set(from_xici_daili() + from_cyber_syndrome() + from_hide_my_ip() + from_free_proxy_list()))
         print(str(len(proxies)))
-        proxies = p.test_proxies(proxies, timeout=5)
+        proxies = p.check_proxies(proxies, timeout=5)
         self.assertGreaterEqual(len(proxies), 10)
         print("{} working proxies gathered".format(str(len(proxies))))
 
@@ -100,6 +100,13 @@ class MyTestCase(unittest.TestCase):
         print(country_list)
         print(len(country_list))
         self.assertEqual(249, len(country_list))
+
+    def test_get_country_list_small(self):
+        country_list = p.get_country_list(False)
+        print(country_list)
+        print(len(country_list))
+        self.assertLess(len(country_list), 249)
+
 
 if __name__ == '__main__':
     unittest.main()
