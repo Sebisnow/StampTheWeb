@@ -9,6 +9,7 @@ webStamps.log
 webStamps.log.1
 app/pdf/*
 !*/
+!app/templates/*.html
 *.log
 .idea/*
 *.crt
