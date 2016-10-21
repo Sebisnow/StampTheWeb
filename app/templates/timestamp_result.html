@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+{% block title %}Trusted Timestamping of Web Pages - Stamp The Web{% endblock %}
+{% block page_content %}
+
+
+<script type="text/javascript">
+  function loading(){
+    url = document.getElementById('urlSite');
+    if(ValidURL(url.value)){
+        $("#loading").show();
+        $("#content").hide();
+    }
+  }
+  function loading_schedule(){
+    url = document.getElementById('url');
+    freq = document.getElementById('frequency');
+    if(ValidURL(url.value) && freq.value > 0){
+        $("#loading").show();
+        $("#content").hide();
+    }
+  }
+  function ValidURL(str) {
+  var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+  '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.?)+[a-z]{2,}|'+ // domain name
+  '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+  '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+  '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+  '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+  return pattern.test(str);;
+  }
+
+
+
+</script>
+
+<div id="loading"></div>
+<div id="content">
+    <div class="page-header">
+        <h6 class="text-right">Hello,
+            <mark>{% if current_user.is_authenticated %}{{ current_user.username }}{% else %}Stranger{% endif %}!</mark>
+        </h6>
+    </div>
+
+    {% if current_user.can(Permission.WRITE_ARTICLES) %}
+    <div class="container">
+
+        {% include '_posts_with_result.html' %}
+
+
+    </div>
+    {% endif %}
+
+    {% set alphabets ='abcdefghijklmnopqrstuvwxyz' %}
+    <div class="container">
+        <h3>Search Time-stamps by Domains <span class="glyphicon glyphicon-calendar"></span></h3>
+        <ul class="nav nav-tabs">
+            {% for c in alphabets %}
+            <li><a title="Search by clicking on the first letter of the domain of your interest!" data-toggle="tab"
+                   href=#{{c}}>{{c.upper()}}</a></li>
+            {% endfor %}
+
+            <li><a data-toggle="tab" href="#0">0-9 </a></li>
+        </ul>
+        <div class="tab-content">
+
+            {% for c in alphabets %}
+
+            <div id={{c}} class="tab-pane fade">
+                {% for name in doman_name %}
+                {% if name.startswith(c) %}
+                {% set list = name.split(';') %}
+                <a title="Click here to open its Time-line view" class="btn btn-primary"
+                   href="{{ url_for('.verify_domain', domain=list[0]) }}" target="_blank"> {{list[0]}}<span
+                        class="badge"> {{list[1]}}</span></a>
+
+                {% endif %}
+                {% endfor %}
+
+            </div>
+            {% endfor %}
+
+            <div id="0" class="tab-pane fade">
+                {% for name in doman_name %}
+                {% if name[0].isdigit() %}
+                {% set list = name.split(';') %}
+                <a class="btn btn-primary" href="{{ url_for('.verify_domain', domain=list[0]) }}" target="_blank">
+                    {{list[0]}}<span class="badge"> {{list[1]}}</span></a>
+
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% include '_posts.html' %}
+    {% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination, '.index') }}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+{{ pagedown.include_pagedown() }}
+{% endblock %}

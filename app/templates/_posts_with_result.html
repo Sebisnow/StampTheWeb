@@ -1,0 +1,273 @@
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.6";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));
+</script>
+
+<script type="text/javascript">
+  var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+</script>
+
+
+<style>
+    .twitter-share-button[style] { vertical-align: text-bottom !important; }
+
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" rel="stylesheet"/>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+<!-- bootbox.js at 4.4.0 -->
+<script src="https://rawgit.com/makeusabrew/bootbox/f3a04a57877cab071738de558581fbc91812dce9/bootbox.js"></script>
+
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/css/bootstrap-dialog.min.css"
+      rel="stylesheet" type="text/css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
+<h5>The URL was unreachable from the following countries
+    (This usually means these countries block the website!):</h5>
+{%for country in error_countries%}
+<ul>
+    <li>{{country}}</li>
+</ul>
+{%endfor%}
+<ul class="posts">
+    {% if original_post %}
+    <li class="post original">
+        <h5>The original timestamp</h5>
+        <hr>
+        <div class="post-thumbnail">
+            <a href="{{ url_for('.user', username=original_post.author.username) }}">
+                <img class="img-rounded profile-thumbnail" src="{{ original_post.author.gravatar(size=40) }}">
+            </a>
+        </div>
+        <div class="post-content" id="{{original_post.id}}">
+            <div class="post-date">{{ moment(original_post.timestamp).fromNow() }}</div>
+            <div class="post-author"><a href="{{ url_for('.user', username=original_post.author.username) }}">{{
+                original_post.author.username }}</a></div>
+            <div class="post-body">
+                {% if original_post.body_html %}
+                {{ original_post.body_html | safe }}
+                {% else %}
+                {{ original_post.body }}
+                {% endif %}
+            </div>
+            <div class="post-url">
+                {% if original_post.hashVal %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Title</th>
+                            <th>Timestamp / Download</th>
+                            <th>Date (UTC)</th>
+                            <th>URL</th>
+                        </tr>
+
+                        <tr>
+
+                            <td><p align="left" class="glyphicon glyphicon-file"></p>{{original_post.webTitl | safe}}</td>
+
+                            <td>{{original_post.hashVal}}<br/>
+                                {% if original_post.fileName %}
+                                <a class="label label-primary" href=/pdf/{{original_post.fileName}} target="_blank"
+                                   style="margin-right: 5px;">Download File </a>
+                                {% else %}
+                                <a class="label label-primary" href=/pdf/{{original_post.hashVal}}.pdf target="_blank"
+                                   style="margin-right: 5px;">PDF </a>
+                                <a class="label label-primary" href=/pdf/{{original_post.hashVal}}.png target="_blank"
+                                   style="margin-right: 5px;">Screenshot </a>
+                                <a class="label label-primary" onclick="myFunction({{original_post.id}})"> Compare</a>
+                                <a class="label label-primary" href="http://www.originstamp.org/s/{{original_post.hashVal}}"
+                                   target="_blank"> Verify Time-stamp</a>
+
+                                {% endif %}
+                            </td>
+                            <td>{{original_post.origStampTime}}</td>
+                            <td><br/>
+                                <a class="label label-primary" href="{{original_post.urlSite}}" target="_blank"
+                                   style="margin-right: 5px;">Open </a></td>
+                        </tr>
+
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+            <div class="post-footer">
+                {% if current_user == original_post.author %}
+                <a href="{{ url_for('.edit', id=original_post.id) }}">
+                    <span class="label label-primary">Edit</span>
+                </a>
+
+                {% if single %}
+                <a class="fb-share-button" data-href="{{ url_for('.post', id=original_post.id) }}" data-layout="button"
+                   data-mobile-iframe="false"></a>
+                <a href="https://twitter.com/share" class="twitter-share-button"
+                   data-url="{{ url_for('.post', id=original_post.id) }}" data-layout="button">Tweet</a>
+                <script>
+                    !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+
+                </script>
+                {% else %}
+                <a href="{{ url_for('.post', id=original_post.id) }}" target="_blank">
+                    <span class="label label-default">Share</span>
+                </a>
+                {% endif %}
+
+                {% elif current_user.is_administrator() %}
+                <a href="{{ url_for('.edit', id=original_post.id) }}">
+                    <span class="label label-danger">Edit [Admin]</span>
+                </a>
+                {% endif %}
+                <!--<span class="label label-default">Permalink</span>-->
+
+            </div>
+
+        </div>
+    </li>
+
+    {% endif %}
+    <li><h5>Censored articles and their countries split by Timestamp</h5></li>
+    {% for hash in return_countries %}
+
+    <li class="post">
+        <h5>All countries with {{hash}} as timestamp are:
+        </h5>
+            <ul>
+            {% for country in return_countries[hash].countries %}
+                <li>{{country}}</li>
+            {% endfor %}
+            </ul>
+        <div class="post-content" id="{{return_countries[hash].post.id}}">
+            <div class="post-body">
+                {% if return_countries[hash].post.body_html %}
+                {{ return_countries[hash].post.body_html | safe }}
+                {% else %}
+                {{ return_countries[hash].post.body }}
+                {% endif %}
+            </div>
+            <div class="post-url">
+                {% if return_countries[hash].post.hashVal %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Title</th>
+                            <th>Timestamp / Download</th>
+                            <th>Date (UTC)</th>
+                            <th>URL</th>
+                        </tr>
+                        <tr>
+                            <td><p align="left" class="glyphicon glyphicon-file"></p>{{return_countries[hash].post.webTitl | safe}}</td>
+
+                            <td>{{return_countries[hash].post.hashVal}}<br/>
+                                {% if return_countries[hash].post.fileName %}
+                                <a class="label label-primary" href=/pdf/{{return_countries[hash].post.fileName}} target="_blank"
+                                   style="margin-right: 5px;">Download File </a>
+                                {% else %}
+                                <a class="label label-primary" href=/pdf/{{return_countries[hash].post.hashVal}}.pdf target="_blank"
+                                   style="margin-right: 5px;">PDF </a>
+                                <a class="label label-primary" href=/pdf/{{return_countries[hash].post.hashVal}}.png target="_blank"
+                                   style="margin-right: 5px;">Screenshot </a>
+                                <a class="label label-primary" onclick="myFunction({{return_countries[hash].post.id}})"> Compare</a>
+                                <a class="label label-primary" href="http://www.originstamp.org/s/{{return_countries[hash].post.hashVal}}"
+                                   target="_blank"> Verify Time-stamp</a>
+
+                                {% endif %}
+                            </td>
+                            <td>{{return_countries[hash].post.origStampTime}}</td>
+                            <td><br/>
+                                <a class="label label-primary" href="{{return_countries[hash].post.urlSite}}" target="_blank"
+                                   style="margin-right: 5px;">Open </a></td>
+                        </tr>
+                    </table>
+                </div>
+                {% endif %}
+            </div>
+            <div class="post-footer">
+                {% if current_user == return_countries[hash].post.author %}
+                <a href="{{ url_for('.edit', id=return_countries[hash].post.id) }}">
+                    <span class="label label-primary">Edit</span>
+                </a>
+                {% if single %}
+                <a class="fb-share-button" data-href="{{ url_for('.post', id=return_countries[hash].post.id) }}" data-layout="button"
+                   data-mobile-iframe="false"></a>
+                <a href="https://twitter.com/share" class="twitter-share-button"
+                   data-url="{{ url_for('.post', id=return_countries[hash].post.id) }}" data-layout="button">Tweet</a>
+                <script>
+                !function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+
+                </script>
+                {% else %}
+                <a href="{{ url_for('.post', id=return_countries[hash].post.id) }}" target="_blank">
+                    <span class="label label-default">Share</span>
+                </a>
+                {% endif %}
+                {% elif current_user.is_administrator() %}
+                <a href="{{ url_for('.edit', id=return_countries[hash].post.id) }}">
+                    <span class="label label-danger">Edit [Admin]</span>
+                </a>
+                {% endif %}
+                <!--<span class="label label-default">Permalink</span>-->
+            </div>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+<script type="text/javascript">
+    function myFunction(x) {
+        $.getJSON($SCRIPT_ROOT + '/check_selected', {
+        post: x
+        }, function(data) {
+            var response = data.result;
+            //console.log(response);
+            if(response.indexOf(":") > -1){
+                url = "/verify_two/"+response.toString();
+                window.open(url,'_blank');
+                selected="";
+            }
+            else{
+                var selected = x.toString();
+                var div = document.getElementById(selected);
+                div.style.backgroundColor = '#f0f0f0';
+                var txt;
+                BootstrapDialog.show({
+                    title: 'Compare',
+                    message: 'Compare selected Time-stamp with?',
+                    buttons: [{
+                        label: 'Current Version',
+                        action: function(dialog) {
+                            url = "/verifyID/"+x.toString();
+                            window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }, {
+                        label: 'With another post',
+                        action: function(dialog) {
+                            BootstrapDialog.alert('Please select another post!');
+                            firstPost=x.toString();
+                            //url = "/compare_options/"+firstPost+":"+'{{domain}}';
+                            //window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }, {
+                        label: 'Compare for another country',
+                        action: function(dialog) {
+                            BootstrapDialog.alert('Please select a country to compare!');
+                            firstPost=x.toString();
+                            url = "/compare_options/"+firstPost+":"+'{{domain}}';
+                            window.open(url,'_blank');
+                            dialog.close();
+                        }
+                    }]
+                });
+            }
+        });
+
+    }
+
+</script>
