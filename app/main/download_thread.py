@@ -514,14 +514,15 @@ class DownloadThread(threading.Thread):
     def handle_submission(self):
         """
         Handles the submission of the hash to originstamp to create the actual timestamp and the resulting consequences.
-        Handles PNG creation and storage.
+        Handles PNG creation and storage. Sets location to Germany if no proxy was used.
 
         :author: Sebastian
         """
         logger("Thread-{} submit hash to originstamp.".format(self.threadID))
         self.originstamp_result = submit(self.ipfs_hash, title="Distributed timestamp of {} from location {}"
                                          .format(self.url, self.prox_loc))
-
+        if self.prox_loc is None:
+            self.prox_loc = "DE"
         logger("Thread-{}: Originstamp result: {}".format(self.threadID, str(self.originstamp_result.text)))
         if self.originstamp_result.status_code != 200:
             msg = "Originstamp submission returned {} and failed for some reason: {}"\
