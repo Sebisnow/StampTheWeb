@@ -3,6 +3,8 @@ import csv
 import asyncio
 import os
 import re
+
+import shutil
 from freeproxy import from_hide_my_ip, from_cyber_syndrome, from_free_proxy_list, from_xici_daili
 import requests
 from proxybroker import Broker
@@ -49,8 +51,11 @@ def get_one_proxy(location=None):
         except RuntimeError:
             proxy = _get_one_proxy_alternative(location)
             if proxy is None:
-                logger("None active proxy found, trying a random proxy")
+                logger("No active proxy found, trying a random proxy")
                 prox = get_rand_proxy()
+                if prox is None:
+                    logger("Found no proxy at all, trying without")
+                    return None, None
                 location, proxy = prox[0], prox[1]
         return location, proxy
 
@@ -160,8 +165,8 @@ def update_proxies(prox_loc=None):
         #   logger(str(e))
         #  asyncio.set_event_loop(asyncio.new_event_loop())
         # proxy_list = gather_proxies(country_list)
-    except RuntimeError as e:
-        logger("Coud not fetch new Proxies, doing it the long way!")
+    except RuntimeError:
+        logger("Could not fetch new Proxies, doing it the long way!")
         # Does not take country list into account - Fallback not needed anymore until next error in proxybroker package
         proxy_list = _gather_proxies_alternative()
     logger("All proxies gathered!")
@@ -198,12 +203,16 @@ def gather_proxies(countries):
         broker = Broker(proxies, loop=loop)
 
         loop.run_until_complete(broker.find(limit=2, countries=country, types=types))
+        with open("{}/temp.csv".format(static_path), "w"):
+            pass  # if file is present overwrite it
 
         while True:
             proxy = proxies.get_nowait()
             if proxy is None:
                 break
             logger(str(proxy))
+            with open("{}/temp.csv".format(static_path), "a") as temp:
+                temp.write("{}\t{}".format(country, "{}:{}".format(proxy.host, str(proxy.port))))
             proxy_list.append([country, "{}:{}".format(proxy.host, str(proxy.port))])
     return proxy_list
 
@@ -244,25 +253,43 @@ def _gather_proxies_alternative():
     :return: A List of Lists. Each inner list has three values: Index 0 is the two-letter ISO country code of the proxy,
     Index 1 is the proxy with port number and index 2 is None in the beginning.
     """
-    proxies = list(set(from_xici_daili() + from_cyber_syndrome() + from_hide_my_ip() + from_free_proxy_list()))
-    logger(proxies)
+    proxies = from_xici_daili() + from_cyber_syndrome() + from_hide_my_ip() + from_free_proxy_list()
     logger("{} different proxies gathered".format(str(len(proxies))))
-    proxies = check_proxies(proxies)
-    #proxies = t_prox(proxies, timeout=5, single_url="http://baidu.com")
-    logger("{} working proxies gathered".format(str(len(proxies))))
 
+    # add temporary stored proxies
+    temp_path = "{}/temp.csv".format(static_path)
+    if os.path.exists(temp_path):
+        with open(temp_path, "rt", encoding="utf8") as tsv:
+            for line in csv.reader(tsv, delimiter="\t"):
+                logger("Add temporary proxy from: {}".format(line[0]))
+                proxies.append(line[1])
+        shutil.rmtree(temp_path)
+
+    proxies = check_proxies(list(set(proxies)), 3)
+
+    logger("{} working proxies gathered".format(str(len(proxies))))
     proxy_list = list()
-    countries = set()
+    countries_dict = dict()
+
+    # Store proxies in a list in a dictionary identified by their countrycode {"DE":[<proxy>, <proxy>], "AT":[<proxy>]}
     for proxy in proxies:
-        split_proxy = proxy.split(":")
-        country = ip_lookup_country(split_proxy[0])
-        countries.add(country)
-        proxy_list.append([country, "{}:{}".format(split_proxy[0], split_proxy[1])])
-    logger(str(len(countries)))
-    logger(countries)
+        country = ip_lookup_country(proxy.split(":")[0])
+        if country not in countries_dict:
+            countries_dict[country] = list()
+        countries_dict[country].append(proxy)
+
+    # Store max two proxies per country and append to proxy list to return
+    for country in countries_dict:
+        cnt = 0
+        for proxy in countries_dict[country]:
+            if cnt > 1:
+                break
+            proxy_list.append([country, proxy])
+            cnt += 1
+
     proxy_list.sort()
-    #proxy_uri_list = freeproxy.fetch_proxies()
-    #logger(proxy_uri_list)
+    logger(str(len(countries_dict)))
+    logger(proxy_list)
     return proxy_list
 
 
