@@ -768,10 +768,31 @@ def location_independent_timestamp(url, proxies=None, robot_check=False, num_thr
     :param num_threads: Number of threads to be used for the timestamp. Defaults to 5.
     :param user: The username of the user that initiated the timestamp. As default the Bot user will be used.
     :param links: States whether or not to timestamp all linked pages as well. Defaults to False.
-    :return: Triple: A list of DownloadThread objects where the first (at index 0).is the result of the timestamp from
-    the country of origin of the website.
-    The Thread that downloaded from the country of origin of the URL.
-    Votes has an integer stored for each thread, the highest is taken as the original.
+    :return:
+    If link is False:
+        Triple:
+        -A list of DownloadThread objects where the first (at index 0).is the result of the timestamp from
+        the country of origin of the website. Only threads without error.
+        -The DownloadThread of the original (Same object present in list).
+        -The list of DownloadThreads that caused an error.
+
+    If link is set to True:
+        Tuple:
+        -The DownloadThread objects of the specified URL
+        -Dict containing the links of each of the downloads if the downloads produced an individual hash:
+                -- thread_dict -- :
+            {
+            "ipfs_hash1":   {   "http.example.com" : [Thread-1, Thread-2, ...],
+                                "http.example.com/foobar": [Thread-1, Thread-2, ...],
+                                ...
+                            },
+            "ipfs_hash2":   {   "http.examples.com" : [Thread-1, Thread-2, ...],
+                                "http.examples.com/foobars": [Thread-1, Thread-2, ...],
+                                ...
+                            },
+            ...
+            "error_threads": [Thread-1, Thread-2, ...]
+            }
     """
 
     proxy_list = proxy_util.get_proxy_list()
@@ -1017,12 +1038,17 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
             add_post_to_db(thread.url, thread.url, thread.title, thread.ipfs_hash,
                            thread.originstamp_result["created_at"], user=user)
 
+        elif thread.ipfs_hash is not None:
+            print("Adding Post for Thread-{} from country {} with Originstamp result: {}"
+                  .format(thread.threadID, thread.prox_loc, str(thread.originstamp_result)))
+            add_post_to_db(thread.url, thread.url, thread.title, thread.ipfs_hash,
+                           thread.originstamp_result["created_at"], user=user)
         else:
-            if thread.error is None:
-                print("Adding Post for Thread-{} with Originstamp result: {}".format(thread.threadID,
-                                                                                     str(thread.originstamp_result)))
-                add_post_to_db(thread.url, thread.url, thread.title, thread.ipfs_hash,
-                               thread.originstamp_result["created_at"], user=user)
+            print("None Error and no hash in Thread-{} from {} proxy {} hash {}"
+                  .format(thread.threadID, thread.prox_loc, thread.proxy, thread.ipfs_hash))
+            error_threads.append(thread)
+            results.remove(thread)
+
     print("Adding threads to db done. Error thread count is {} versus {} working threads."
           .format(len(error_threads), len(results)))
     return error_threads
