@@ -368,6 +368,8 @@ def ip_lookup_country(ip):
     :return: The location of the IP address as two letter ISO-code.
     """
     database = geoip.open_database("{}/GeoLite2-Country.mmdb".format(static_path))
+    if ip is None:
+        return "DE"
     return database.lookup(ip).country
 
 
@@ -380,8 +382,11 @@ def _lookup_website_ip(url):
     :return: Returns the IP address of the website.
     """
     domain = urlparse(url).netloc
-
-    return socket.gethostbyname_ex(domain)[2][0]
+    try:
+        return socket.gethostbyname_ex(domain)[2][0]
+    except socket.gaierror as e:
+        logger("Website cannot be looked up {}. Reverting to Default (Germany)".format(str(e)))
+        return None
 
 
 def get_country_list(full=True):
