@@ -30,17 +30,20 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/css/bootstrap-dialog.min.css"
       rel="stylesheet" type="text/css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap3-dialog/1.34.9/js/bootstrap-dialog.min.js"></script>
-<h5>The URL was unreachable from the following countries
-    (This usually means these countries block the website!):</h5>
-{%for country in error_countries%}
-<ul>
-    <li>{{country}}</li>
-</ul>
-{%endfor%}
+{% if error_countries %}
+    <h4>The URL was unreachable from the following countries
+        (This usually means these countries block the website!):</h4>
+
+    <ul>
+        {%for country in error_countries%}
+        <li>{{country}}</li>
+        {%endfor%}
+    </ul>
+{% endif %}
 <ul class="posts">
     {% if original_post %}
     <li class="post original">
-        <h5>The original timestamp</h5>
+        <h4>The original timestamp</h4>
         <hr>
         <div class="post-thumbnail">
             <a href="{{ url_for('.user', username=original_post.author.username) }}">
@@ -50,7 +53,8 @@
         <div class="post-content" id="{{original_post.id}}">
             <div class="post-date">{{ moment(original_post.timestamp).fromNow() }}</div>
             <div class="post-author"><a href="{{ url_for('.user', username=original_post.author.username) }}">{{
-                original_post.author.username }}</a></div>
+                original_post.author.username }}</a>
+            </div>
             <div class="post-body">
                 {% if original_post.body_html %}
                 {{ original_post.body_html | safe }}
@@ -132,17 +136,22 @@
     </li>
 
     {% endif %}
-    <li><h5>Censored articles and their countries split by Timestamp</h5></li>
+    <li style="text-align: center"><h3>Censored articles and their countries split by Timestamp</h3></li>
     {% for hash in return_countries %}
 
     <li class="post">
-        <h5>All countries with {{hash}} as timestamp are:
-        </h5>
+        <h4>Countries with {{hash}} as timestamp are:
+        </h4>
             <ul>
             {% for country in return_countries[hash].countries %}
                 <li>{{country}}</li>
             {% endfor %}
             </ul>
+        <div class="post-thumbnail">
+            <a href="{{ url_for('.user', username=return_countries[hash].post.author.username) }}">
+                <img class="img-rounded profile-thumbnail" src="{{ return_countries[hash].post.author.gravatar(size=40) }}">
+            </a>
+        </div>
         <div class="post-content" id="{{return_countries[hash].post.id}}">
             <div class="post-body">
                 {% if return_countries[hash].post.body_html %}

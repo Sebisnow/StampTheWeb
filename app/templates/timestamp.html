@@ -42,26 +42,33 @@
         </h6>
     </div>
     <h2>Trusted Timestamping of Web Pages</h2>
-    <div style="width: 50%">
+    <div style="width: 90%">
         <p lingdex="0">
             Stamp The Web is a trusted timestamping service for web-based content that can be used free of charge. The
             service enables users to automatically create trusted timestamps to preserve the existence of online content
             at a particular point in time, such as news paper articles, blog posts, etc. <br> This enables users to
             prove that certain information online existed in a particular state at the time it was 'trusted timestamped'
             using Stamp The Web. </p>
+        <p>
+            The Location Independent Timestamp (LIT) is a special form of timestamp. For LIT Stamp The Web views the
+            website from different countries to find out the original website and to compare the website from different
+            country perspectives. Some countries enforce censorship by either blocking a website entirely or by
+            manipulating the content of the website.
+            <br>LIT identifies these changes and produces a timestamp for the different content for everyone to view.
+        </p>
     </div>
     {% if current_user.can(Permission.WRITE_ARTICLES) %}
     <div class="container">
 
         <ul class="nav nav-tabs">
             <li class="active">
-                <a data-toggle="tab" href="#home">Location independent Timestamp <span class="glyphicon glyphicon-time"
+                <a data-toggle="tab" href="#home">Location Independent Timestamp <span class="glyphicon glyphicon-time"
                                                                    id="linkIcon"></span></a></li>
         </ul>
 
         <div class="tab-content">
             <div id="home" class="tab-pane fade in active" style="width: 50%">
-                <h3>Submit URL for a location independent timestamp</h3>
+                <h3>Submit URL for a Location Independent Timestamp</h3>
 
                 {{ wtf.quick_form(form, button_map={'submit':'primary'}) }}
             </div>
