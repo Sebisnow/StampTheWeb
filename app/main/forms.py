@@ -215,7 +215,7 @@ class TimestampForm(Form):
                        validators=[url(), DataRequired()],
                        render_kw={"placeholder": "http://www.example.com"})
     countries = SelectField("Select country to also timestamp the URL from that location", choices=choices)
-    link = BooleanField("Follow links and timestamp them too!", default=False,
+    link = BooleanField("Follow links and timestamp them too! -- Please be aware that this may take minutes to finish!", default=False,
                         render_kw={"Include links": "The downloader will start a new location independent timestamp "
                                                     "for each link in the timestamped content!"})
     robot = BooleanField("Adhere to robots.txt.", default=False,

@@ -1,4 +1,3 @@
-import asyncio
 from subprocess import run, PIPE
 from flask import abort, flash, current_app, render_template, request, redirect, url_for, Response
 from flask_login import login_required, current_user
@@ -11,6 +10,7 @@ from ..models import Permission, Role, User, Post, Regular, Location, Block
 from ..decorators import admin_required
 from app.main import downloader, verification
 from datetime import datetime
+import datetime as date
 from lxml.html.diff import htmldiff
 from markupsafe import Markup
 import validators
@@ -22,6 +22,7 @@ import json
 from random import randint
 
 global selected
+log = print
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -56,7 +57,7 @@ def index():
                             origStampTime=orig_stamp_time, author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
-            current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
+            log(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
             flash('A new time-stamp has been created. Scroll down to view it.')
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
@@ -85,13 +86,13 @@ def index():
                             origStampTime=orig_stamp_time, author=current_user._get_current_object())
             db.session.add(post_new)
             db.session.commit()
-            current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
+            log(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Post added")
         # = Post.query.filter(and_(Post.url_site.like(url_site),
         # Post.hashVal.like(sha256))).first()
         regular_new = Regular(frequency=freq, postID=post_new, email=email)
         db.session.add(regular_new)
         db.session.commit()
-        current_app.logger.info(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Regular task added")
+        log(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Regular task added")
         flash('A new regular has been added task added. '
               'In case of change in the provided URL a new time-stamp would be created.')
         page = request.args.get('page', 1, type=int)
@@ -769,40 +770,39 @@ def timestamp_api():
     submitted = False
     form = TimestampForm()
     if form.validate_on_submit():
-        print(type(current_user))
-        print(current_user)
+        log(type(current_user))
+        log(current_user)
         country = form.countries.data
         proxy = None
         if country != "none":
-            try:
-                p_util.get_one_proxy(country)
-            except RuntimeError:
-                asyncio.set_event_loop(asyncio.new_event_loop())
-                proxy = p_util.get_one_proxy(country)
-        result = downloader.distributed_timestamp(form.urlSite.data, user=current_user.username)
+            proxy = p_util.get_one_proxy(country)
+        else:
+            country = None
+        downloader.distributed_timestamp(form.urlSite.data, user=current_user.username,
+                                         proxies=[[country, proxy]])
         submitted = True
 
     if request.method == 'POST' and not submitted:
         header = request.headers
-        current_app.logger.info("Received a POST request with following Header: \n" + str(request.headers))
-        print("received Post \n" + str(request.headers))
+        log("Received a POST request with following Header: \n" + str(request.headers))
+        log("received Post \n" + str(request.headers))
         # change app config to testing in order to disable flashes or messages.
         testing = current_app.config["TESTING"]
         current_app.config["TESTING"] = True
         response = Response()
         response.content_type = 'application/json'
         if header['content-type'] == 'application/json':
-            print("The data is of json format")
+            log("The data is of json format")
             try:
                 submitting_user = None
                 post_data = request.get_json()
                 if "user" in post_data:
                     submitting_user = post_data["user"]
-                current_app.logger.info("The data that was posted: \n" + str(post_data.keys()))
+                log("The data that was posted: \n" + str(post_data.keys()))
                 url = post_data["URL"]
-                current_app.logger.info("Starting distributed timestamp by extension call")
-                print("starting dist timestamp with the following data:URL: {}\nHTML:\n{}".format(url,
-                                                                                                  type(post_data["body"])))
+                log("Starting distributed timestamp by extension call")
+                log("starting dist timestamp with the following data:URL: {}\nHTML:\n{}"
+                    .format(url, type(post_data["body"])))
 
                 result = downloader.distributed_timestamp(url, post_data["body"], user=submitting_user)
                 # TODO do not store new POST
@@ -820,7 +820,7 @@ def timestamp_api():
                     resp_data["Your_Submitted_data"] = result.user_input.originstamp_result
                     response.response = resp_data
                     response.headers["UserHashValue"] = result.user_input.ipfs_hash
-                current_app.logger.info("Result of distributed_timestamp:\n" + str(result.originStampResult))
+                log("Result of distributed_timestamp:\n" + str(result.originStampResult))
 
                 response.status_code = 200
                 response.headers["URL"] = "http://stamptheweb.org/timestamp/{}".format(result.hashValue)
@@ -838,7 +838,7 @@ def timestamp_api():
                 response.reason = "Error in try catch block!"
 
             finally:
-                current_app.logger.info("cleaning up and returning response")
+                log("cleaning up and returning response")
                 current_app.config["TESTING"] = testing
                 return response
         else:
@@ -864,6 +864,7 @@ def timestamp_api():
 
 
 @main.route('/litimestamp/', methods=['GET', 'POST'])
+@login_required
 def loc_indep_timestamp():
     """
     Get the data that was timestamped identified by the given timestamping hash.
@@ -873,17 +874,19 @@ def loc_indep_timestamp():
     """
     form = TimestampForm()
     if form.validate_on_submit():
+        start_time = datetime.now()
         country = form.countries.data
         url = form.urlSite.data
         robot = form.robot.data
         link = form.link.data
-        current_app.logger.info("The selected country is: {}".format(country))
-        current_app.logger.info("Robots.txt?: {}".format(robot))
-        current_app.logger.info("The user {} wants to timestamp the url: {}".format(current_user, url))
+
+        log("The user {} wants to timestamp the url: {}".format(current_user, url))
         if link:
-            return timestamp_links(form, country, url, robot)
+            template = _timestamp_links(form, country, url, robot)
+            log("Execution time was: {}".format(datetime.now() - start_time))
+            return template
         if country != "none":
-            current_app.logger.info("Country is set to: {}".format(country))
+            log("The selected country is: {}".format(country))
             location, proxy = p_util.get_one_proxy(country)
 
             threads, orig_thread, error_threads = downloader.\
@@ -893,61 +896,79 @@ def loc_indep_timestamp():
                 location_independent_timestamp(url, robot_check=robot, user=current_user)
 
         flash("Finished location independent timestamp!")
-        current_app.logger.info("Finished location independent timestamp with {} error threads:{}"
-                                .format(str(threads), str(error_threads)))
-
+        log("Finished location independent timestamp with {} error threads:{}".format(str(threads), str(error_threads)))
         country_list = p_util.get_country_list()
+
+        # Store all countries that were unretrievable, if all were retrievable set error_countries to None
         error_countries = [loc[0] for loc in country_list if loc[1] in [thread.prox_loc for thread in error_threads]]
+        if len(error_countries) == 0:
+            error_countries = None
 
         original_post = Post.query.filter(Post.hashVal == orig_thread.ipfs_hash).first()
-        current_app.logger.info("Got the original post:{}, threads is {}".format(original_post, type(threads)))
-        threads.remove(orig_thread)
-        current_app.logger.info("Now threads is: {} and {}".format(type(threads), str(threads)))
-        # sort all posts to their hashs
+        log("Got the original post:{}, threads is {}".format(original_post.hashVal, type(threads)))
+        if orig_thread in threads:
+            threads.remove(orig_thread)
+
         ret_countries = dict()
         ret_countries[orig_thread.ipfs_hash] = ReturnCountries(original_post)
-        for thread in threads:
-            if thread.ipfs_hash not in ret_countries.keys() :
-                ret_countries[thread.ipfs_hash] = ReturnCountries(
-                    Post.query.filter(Post.hashVal == thread.ipfs_hash).first())
-            for con in country_list:
-                if con[1] == thread.prox_loc:
-                    ret_countries[thread.ipfs_hash].countries.append(con[0])
-        template, form, posts, pagination, domain_name_unique = render_standard_timestamp_post('timestamp_result.html',
-                                                                                               form, render=False)
-        current_app.logger.info("Start rendering with ret_countries {}".format(ret_countries))
-        for key, value in ret_countries:
-            current_app.logger.info("Start rendering with ret_countries {}".format(value.countries))
+        # sort all posts to their hashs
+        _prepare_return_country_dict(threads, country_list, ret_countries)
+
+        template, form, posts, pagination, domain_name_unique = _render_standard_timestamp_post('timestamp_result.html',
+                                                                                                form, render=False)
+        log("Start rendering with ret_countries {}".format(ret_countries))
+        for key in ret_countries:
+            log("Start rendering with ret_countries hash{} and countries {}"
+                .format(key, ret_countries[key]))
+        log("Execution time was: {}".format(datetime.now() - start_time))
         return render_template(template, form=form, posts=posts, pagination=pagination, doman_name=domain_name_unique,
                                return_countries=ret_countries, home_page="active", original_post=original_post,
                                error_countries=error_countries)
 
-    return render_standard_timestamp_post('timestamp.html', form)
+    return _render_standard_timestamp_post('timestamp.html', form)
 
 
-def timestamp_links(form, country, url, robot):
+def _timestamp_links(form, country, url, robot):
+    """
+    Called if the user chooses to include all links in the location independent timestamp(LIT).
+
+    :author: Sebastian
+    :param form: The form submitted by the user.
+    :param country: The country the user wishes to produce a timestamp for.
+    :param url: The URL to timestamp.
+    :param robot: Whether or not to adhere to robots.txt.
+    :return: Renders a special template to present the results of the LIT with links.
+    """
     if country != "none":
-        current_app.logger.info("Country is set to: {}".format(country))
+        log("Country is set to: {}".format(country))
         location, proxy = p_util.get_one_proxy(country)
 
-        threads, orig_thread, error_threads = downloader. \
+        joined_threads, submit_thread_dict = downloader.\
             location_independent_timestamp(url, [[location, proxy]], robot, user=current_user, links=True)
     else:
-        threads, orig_thread, error_threads = downloader. \
+        joined_threads, submit_thread_dict = downloader. \
             location_independent_timestamp(url, robot_check=robot, user=current_user, links=True)
 
-    flash("Finished location independent timestamp!")
-    current_app.logger.info("Finished location independent timestamp with {} error threads:{}"
-                            .format(str(error_threads), str(threads)))
-    return render_template("result_links",)
+    log("Finished location independent timestamp with:\n   Base threads {}\n   thread_dict: {}\n   error threads:{}"
+        .format(str(joined_threads), str(submit_thread_dict), str(submit_thread_dict["error_threads"])))
+    template, form, posts, pagination, domain_name_unique = _render_standard_timestamp_post('result_links.html',
+                                                                                            form, render=False)
+    log("Before rewrite the Thread dict looks like {}".format(submit_thread_dict))
+    # rewrite the submit_thread_dict to consist of posts instead od threads
+    _rewrite_thread_dict(submit_thread_dict)
+
+    log("After rewrite the Thread dict looks like {}".format(submit_thread_dict))
+
+    return render_template(template, form=form, posts=posts, pagination=pagination, doman_name=domain_name_unique,
+                           thread_dict=submit_thread_dict, home_page="active")
 
 
 @main.route('/timestamp/<timestamp>', methods=['GET'])
 def timestamp_get(timestamp):
     """
-    Get the data that was timestamped identified by the given timestamping hash.
+    Get the data that was timestamped, identified by the given timestamping hash.
 
-    :author: Seabstian
+    :author: Sebastian
     :param timestamp: A timestamp hash.
     :return: The Data that was timestamped.
     """
@@ -963,18 +984,31 @@ def timestamp_get(timestamp):
 
 
 @main.route('/get_new_proxies', methods=['GET'])
+@login_required
 def get_new_proxies():
     """
-    Initiate a proxy update.
+    Initiate a manual proxy update.
 
+    :author: Sebastian
     :return: The Data that was timestamped.
     """
     output = run(['python3', 'app/main/proxy_util.py'], stdout=PIPE)
-    print("This is the output: \n-----------------------------\n" + output)
-    return render_standard_timestamp_post()
+    log("This is the output: \n-----------------------------\n" + output)
+    return _render_standard_timestamp_post()
 
 
-def render_standard_timestamp_post(template="timestamp.html", form=None, render=True):
+def _render_standard_timestamp_post(template="timestamp.html", form=None, render=True):
+    """
+    Convenience method to render timestamp posts.
+
+    :author: Sebastian
+    :param template: The template to use as basis, given as string.
+    :param form: The form to include in the template. Defaults to None and a TimestampForm is used within the method.
+    :param render: Whether to render the template directly or to hand back the instantiated variables
+    necessary for rendering. Defaults to True.
+    :return: Either the rendered template if variable render is set to True (default), or the variables necessary for
+    rendering a timestamp template (template, form, posts, pagination and domain_name_unique)
+    """
     if form is None:
         form = TimestampForm
     domain_name = downloader.get_all_domain_names(Post)
@@ -994,6 +1028,72 @@ def render_standard_timestamp_post(template="timestamp.html", form=None, render=
                                doman_name=domain_name_unique, home_page="active")
     else:
         return template, form, posts, pagination, domain_name_unique
+
+
+def _rewrite_thread_dict(submit_thread_dict):
+    """
+    Convenience method specifically used to rewrite the thread dictionary returned by location independent timestamp
+    with links.
+
+    :author: Sebastian
+    :param submit_thread_dict: The thread dictionary returned by downloader.location_independent_timestamp.
+
+    -Dict containing the links of each of the downloads if the downloads produced an individual hash:
+                -- thread_dict -- :
+            {
+            "ipfs_hash1":   {   "http.example.com" : [Thread-1, Thread-2, ...],
+                                "http.example.com/foobar": [Thread-1, Thread-2, ...],
+                                ...
+                            },
+            "ipfs_hash2":   {   "http.examples.com" : [Thread-1, Thread-2, ...],
+                                "http.examples.com/foobars": [Thread-1, Thread-2, ...],
+                                ...
+                            },
+            ...
+            "error_threads": [Thread-1, Thread-2, ...]
+            }
+    """
+    for hash_val in submit_thread_dict:
+        for link in submit_thread_dict[hash_val]:
+            for thread in submit_thread_dict[hash_val][link]:
+                if thread.error is None and thread.ipfs_hash is not None:
+                    submit_thread_dict[hash_val][link][submit_thread_dict[hash_val][link].index(thread)] = \
+                        Post.query.filter(Post.hashVal == thread.ipfs_hash).first()
+
+
+def _prepare_return_country_dict(threads, country_list, ret_countries):
+    """
+    Modifies the dict of ReturnCountries and sorts all countries to the hashes.
+
+    # TODO  Implementation improvements possible: Iterate through country_list only once,
+            remove superfluous  resources (hash_country)
+
+    :author: Sebastian
+    :param threads: The threads that the timestamp returned.
+    :param country_list: The list of country names and their iso abbreviations.
+    :param ret_countries: The dict of ReturnCountries to modify.
+    """
+    hash_country = dict()
+    for thread in threads:
+        if thread.ipfs_hash is not None:
+            if thread.ipfs_hash not in hash_country:
+                hash_country[thread.ipfs_hash] = list()
+            log(thread.prox_loc)
+            if thread.ipfs_hash not in ret_countries.keys():
+                ret_countries[thread.ipfs_hash] = \
+                    ReturnCountries(Post.query.filter(Post.hashVal == thread.ipfs_hash).first())
+                for con in country_list:
+                    if con[1] == thread.prox_loc:
+                        # ret_countries[thread.ipfs_hash].countries.append(con[0])
+                        hash_country[thread.ipfs_hash].append(con[0])
+                        log(hash_country)
+
+    for con in country_list:
+        for hash_val in hash_country:
+            ret_countries[hash_val].countries = hash_country[hash_val]
+            log("Adding country {} \n  to hash {} \n  in list {},\n  countries so far are {}"
+                .format(con, hash_val, id(ret_countries[hash_val]),
+                        ret_countries[hash_val].countries))
 
 
 class ReturnCountries:
