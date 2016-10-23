@@ -591,13 +591,14 @@ class DownloadThread(threading.Thread):
         Checks the html for valid links and returns them as a list.
         :return: A list of links. If there is no html yet or if there are no links to be found the list is empty.
         """
+        logger("Thread-{} Getting Links:".format(self.threadID))
         links = list()
         if self.html is not None:
             soup = BeautifulSoup(self.html, "lxml")
             for tag in soup.find_all("a"):
                 link = tag.get("href")
-                print(link)
-                if re.match(proxy_util.url_specification, link):
+                if re.match(proxy_util.url_specification, str(link)):
+                    logger("Thread-{} has link: {}".format(self.threadID, link))
                     links.append(link)
         return links
 

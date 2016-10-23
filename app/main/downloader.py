@@ -683,8 +683,9 @@ def save_render_zip_submit(html_text, sha256, url, title):
     return originstamp_result
 
 
-def _get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, user):
+def get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, user):
     """
+    Use this method to scrape the links of the downloaded website and for each start a new download thread.
     This helper method starts num_threads new DownloadThreads for every link contained in all unique
     DownloadThreads handed to it(joined_threads variable). It joins the threads and submits them to return a dictionary
     (identified by the ipfs_hash) of dictionaries. The outer dictionary consists of one key for each unique download.
@@ -705,7 +706,7 @@ def _get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check,
     }
 
     :author: Sebastian
-    :param joined_threads: The threads to download and timestamp the links from.
+    :param joined_threads: The threads to download and timestamp the links from as a list.
     :param proxy_list: A list of proxies to use first for the DownloadThreads.
     :param num_threads: The Number of threads to start for each timestamp request.
     :param robot_check: Whether or not to adhere to robots.txt.
@@ -714,37 +715,44 @@ def _get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check,
     """
     cnt = 0
     thread_dict = dict()
-    hashs = set()
     for thread in joined_threads:
         if thread.error is not None:
             continue
 
         # New DownloadThreads only for different results(e.g. hash is a new one).
-        if thread.ipfs_hash not in hashs:
-            hashs.add(thread.ipfs_hash)
+        if thread.ipfs_hash not in thread_dict:
             thread_dict[thread.ipfs_hash] = dict()
+
+            # for every link do a country independent timestamp
             link_threads = list()
             for link in thread.get_links():
                 # Get a proxy from the location of the URL and start thread manually
                 orig_proxy, original_country = proxy_util.get_proxy_from_url(link, proxy_list)
-                original = _run_thread(link, 0, proxy_list=[[original_country, orig_proxy]], robot_check=robot_check,
-                                       location=original_country)
+                original = _run_thread(link, cnt*10, proxy_list=[[original_country, orig_proxy]],
+                                       robot_check=robot_check, location=original_country)
                 link_threads.append(original)
+                cnt += 1
 
                 # Start all other threads
                 link_threads.append(start_threads(None, link_threads, link, cnt*10, num_threads,
                                                   robot_check, proxy_list))
-                thread_dict[thread.ipfs_hash][link] = link_threads
-        cnt += 1
+
+            thread_dict[thread.ipfs_hash][link] = link_threads
+            print("Added {} to  {}".format(link_threads, link))
+            cnt += 1
 
     # Join all threads and submit results to db
     thread_dict["error_threads"] = list()
     for key, link in thread_dict.items():
         if key != "error_threads":
-            for second_key, thread_list in thread_dict.items():
-                joined_threads, votes = _join_threads(thread_list)
-                thread_dict["error_threads"].append(_submit_threads_to_db(joined_threads, user,
-                                                                          original_hash=joined_threads[0].ipfs_hash))
+            for second_key, link_dict in thread_dict.items():
+                for url in link_dict:
+                    print("Going for the join of threads: {}".format(link_dict[url]))
+                    joined_threads, votes = _join_threads(link_dict[url])
+                    if len(joined_threads) > 0:
+                        # submit threads and add error threads returned to error part of dict.
+                        thread_dict["error_threads"].append(
+                            _submit_threads_to_db(joined_threads, user, original_hash=joined_threads[0].ipfs_hash))
     return thread_dict
 
 
@@ -809,7 +817,8 @@ def location_independent_timestamp(url, proxies=None, robot_check=False, num_thr
     # join all threads and return them, votes wi
     joined_threads, votes = _join_threads(threads)
     if links:
-        submitted_thread_dict = _get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, user)
+        app.logger.info("Finished LIT going for the links.")
+        submitted_thread_dict = get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, user)
         return joined_threads, submitted_thread_dict
     error_threads = _submit_threads_to_db(joined_threads, user, original_hash=original.ipfs_hash)
     app.logger.info("LIT finished: Correct {}, Error {}".format(len(joined_threads), len(error_threads)))
@@ -952,8 +961,14 @@ def _join_threads(threads, original_present=False):
     :return: A list of DownloadThread objects with all important information about hash, html and infos about the
     download job and the index of the DownloadThread with the highest votes as second parameter.
     """
-    app.logger.info("Joining Threads.")
+    app.logger.info("Joining Threads {}.".format(threads))
     for thread in threads:
+        if type(thread) == list:
+            print("having subthreads {}".format(thread))
+            for subthread in thread:
+                print("joining subthread {}".format(subthread))
+                subthread.join()
+        print("thread to join {}".format(thread))
         thread.join()
     if original_present:
         return threads, None
@@ -962,10 +977,12 @@ def _join_threads(threads, original_present=False):
 
 def _check_threads(threads):
     """
-    Checks the threads for the one to return. If
+    Checks the threads for the one to return. Votes are cast for the agreement of the hashes, the one with the highest
+    agreement has the highest probability of being the original.
+    This is ony the fall back to getting the original by country of origin of the website.
 
     :author: Sebastian
-    :param threads: The joined thread objects from the distributed timestamp .
+    :param threads: The joined thread objects from the distributed timestamp.
     :return: All threads and as second parameter the index of the thread that should be taken as the timestamp and
     returned to the user.
     """
@@ -1100,7 +1117,10 @@ def check_user(user):
     :return: An object of the db class User with al the information stored for a user.
     If no user can be found None will be returned.
     """
-    db_user = User.query.filter(User.username == user.username).first()
+    if user == "Bot":
+        db_user = User.query.filter(User.id == 113).first()
+    else:
+        db_user = User.query.filter(User.username == user.username).first()
     print(str(db_user))
     return db_user
 
