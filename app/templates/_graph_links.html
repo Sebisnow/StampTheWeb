@@ -1,8 +1,8 @@
 <ul>
     {% for hash in thread_dict %}
-    <li><a title="The Timestamp from country"
-           href=/timestamp/{{hash}}>{{hash}}</a>
-        <h5>All timestamps created for the links</h5>
+    <li>
+        <h5>All timestamps created for the links of timestamp <a title="The Timestamp from country"
+                                                                 href=/timestamp/{{hash}}>{{hash}}</a></h5>
         <ul>
         {% for link in thread_dict[hash] %}
             <li>

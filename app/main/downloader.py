@@ -713,7 +713,7 @@ def get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, 
     :param user: The user that triggered the timestamp.
     :return: Returns the thread_dict that contains all joined and submitted links as well as all error_threads.
     """
-    cnt = 0
+    cnt = 1
     thread_dict = dict()
     for thread in joined_threads:
         if thread.error is not None:
@@ -724,35 +724,49 @@ def get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, 
             thread_dict[thread.ipfs_hash] = dict()
 
             # for every link do a country independent timestamp
-            link_threads = list()
-            for link in thread.get_links():
+            links = thread.get_links()
+            for link in links:
+                print("All links of thread-{}:\n{}".format(thread.threadID, links))
+                link_threads = list()
+                cnt *= 10
                 # Get a proxy from the location of the URL and start thread manually
                 orig_proxy, original_country = proxy_util.get_proxy_from_url(link, proxy_list)
-                original = _run_thread(link, cnt*10, proxy_list=[[original_country, orig_proxy]],
+                original = _run_thread(link, cnt, proxy_list=[[original_country, orig_proxy]],
                                        robot_check=robot_check, location=original_country)
                 link_threads.append(original)
+
                 cnt += 1
+                # Start all other threads and add to list for link
+                started_threads = start_threads(None, link_threads, link, cnt, num_threads, robot_check,
+                                                proxy_list)
+                print("Started Threads: {}".format(started_threads))
 
-                # Start all other threads
-                link_threads.append(start_threads(None, link_threads, link, cnt*10, num_threads,
-                                                  robot_check, proxy_list))
-
-            thread_dict[thread.ipfs_hash][link] = link_threads
-            print("Added {} to  {}".format(link_threads, link))
-            cnt += 1
+                # For every link create an entry in the thread_dict containing a list of started threads
+                thread_dict[thread.ipfs_hash][link] = link_threads + started_threads
+                #TODO List gets too deep
+                print("Added {} to thread dict for link {}".format(link_threads, link))
+                cnt += 1
 
     # Join all threads and submit results to db
     thread_dict["error_threads"] = list()
-    for key, link in thread_dict.items():
-        if key != "error_threads":
-            for second_key, link_dict in thread_dict.items():
-                for url in link_dict:
-                    print("Going for the join of threads: {}".format(link_dict[url]))
+    for hash_value, link_dict in thread_dict.items():
+        if hash_value != "error_threads":
+            for link, thread_list in link_dict.items():
+                print("Going for the join of threads from {}: {}".format(link, thread_list))
+                joined_threads, votes = _join_threads(thread_list)
+                if len(joined_threads) > 0:
+                    # submit threads and add error threads returned to error part of dict.
+                    thread_dict["error_threads"].append(
+                        _submit_threads_to_db(joined_threads, user, original_hash=joined_threads[0].ipfs_hash))
+
+                """for url in link_dict:
+                    print("Going for the join of threads: {}".format(url))
                     joined_threads, votes = _join_threads(link_dict[url])
                     if len(joined_threads) > 0:
                         # submit threads and add error threads returned to error part of dict.
                         thread_dict["error_threads"].append(
                             _submit_threads_to_db(joined_threads, user, original_hash=joined_threads[0].ipfs_hash))
+    """
     return thread_dict
 
 
@@ -897,6 +911,7 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
 
 
 def start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_list):
+    num_threads += cnt
     print("Proxies: " + str(proxies))
     if proxies is not None:
         for proxy in proxies:
@@ -1010,14 +1025,14 @@ def _check_threads(threads):
 def _submit_threads_to_db(results, user=None, original_hash=None):
     """
     Submits the results to db and judges the results as blocked or censored. According to judgement the result is
-    either submitted or  the countries table is updated to reflect the results.
+    either submitted or the countries table is updated to reflect the results.
 
     :author: Sebastian
     :param results: The results of the timestamping in list form with DownloadThread objects as items.
     :param user: The user that submitted the timestamp request as String of his username.
     :param original_hash: The hash to compare the results with to identify censored/modified content.
     """
-    print("Add {} threads to db with original: {}".format(len(results), original_hash))
+    print("Add {} threads to db with original: {}. THe rest: {}".format(len(results), original_hash, results))
     error_threads = list()
     for thread in results:
         print("Adding Thread-{} to db".format(thread.threadID))
@@ -1087,6 +1102,7 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
     already_exists = Post.query.filter(Post.hashVal == sha256).first()
     print("Query Adding one new post. Already exists: {}".format(already_exists))
     if already_exists is not None:
+        print("Increasing  count for: ".format(already_exists.hashVal))
         already_exists.count += 1
         db.session.add(already_exists)
     else:
