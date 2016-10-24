@@ -10,7 +10,6 @@ from ..models import Permission, Role, User, Post, Regular, Location, Block
 from ..decorators import admin_required
 from app.main import downloader, verification
 from datetime import datetime
-import datetime as date
 from lxml.html.diff import htmldiff
 from markupsafe import Markup
 import validators
@@ -904,13 +903,15 @@ def loc_indep_timestamp():
         if len(error_countries) == 0:
             error_countries = None
 
-        original_post = Post.query.filter(Post.hashVal == orig_thread.ipfs_hash).first()
-        log("Got the original post:{}, threads is {}".format(original_post.hashVal, type(threads)))
-        if orig_thread in threads:
+        ret_countries = dict()
+        # DO we have an original or not
+        if orig_thread in error_threads:
+            original_post = None
+        else:
+            original_post = Post.query.filter(Post.hashVal == orig_thread.ipfs_hash).first()
+            log("Got the original post:{}, threads is {}.".format(original_post.hashVal, type(threads)))
             threads.remove(orig_thread)
 
-        ret_countries = dict()
-        ret_countries[orig_thread.ipfs_hash] = ReturnCountries(original_post)
         # sort all posts to their hashs
         _prepare_return_country_dict(threads, country_list, ret_countries)
 
@@ -974,7 +975,10 @@ def timestamp_get(timestamp):
     """
     if timestamp.isalnum():
         # downloader.get_hash_history(timestamp)
-        post_old = Post.query.get_or_404(timestamp)
+        post_old = Post.query.filter_by(hashVal=timestamp).first()
+        print("Trying to get {}: {}".format(timestamp, str(post_old)))
+        if post_old is None:
+            return render_template('404.html')
         return render_template('post.html', posts=[post_old], single=True)
     else:
         response = requests.Response()
@@ -1033,7 +1037,7 @@ def _render_standard_timestamp_post(template="timestamp.html", form=None, render
 def _rewrite_thread_dict(submit_thread_dict):
     """
     Convenience method specifically used to rewrite the thread dictionary returned by location independent timestamp
-    with links.
+    with links. The error_threads part are deleted as error threads are not shown on link timestamp.
 
     :author: Sebastian
     :param submit_thread_dict: The thread dictionary returned by downloader.location_independent_timestamp.
@@ -1053,12 +1057,19 @@ def _rewrite_thread_dict(submit_thread_dict):
             "error_threads": [Thread-1, Thread-2, ...]
             }
     """
-    for hash_val in submit_thread_dict:
-        for link in submit_thread_dict[hash_val]:
-            for thread in submit_thread_dict[hash_val][link]:
-                if thread.error is None and thread.ipfs_hash is not None:
-                    submit_thread_dict[hash_val][link][submit_thread_dict[hash_val][link].index(thread)] = \
-                        Post.query.filter(Post.hashVal == thread.ipfs_hash).first()
+    for hash_value, link_dict in submit_thread_dict.items():
+        if hash_value != "error_threads":
+            for link, thread_list in link_dict.items():
+                post_list = list()
+                for thread in thread_list:
+                    post_list.append(Post.query.filter_by(hashVal=thread.ipfs_hash).first())
+                link_dict[link] = post_list
+    submit_thread_dict.pop("error_threads")
+    """for link in submit_thread_dict[hash_val]:
+        for thread in submit_thread_dict[hash_val][link]:
+            if thread.error is None and thread.ipfs_hash is not None:
+                submit_thread_dict[hash_val][link][submit_thread_dict[hash_val][link].index(thread)] = \
+                    Post.query.filter(Post.hashVal == thread.ipfs_hash).first()"""
 
 
 def _prepare_return_country_dict(threads, country_list, ret_countries):
@@ -1090,10 +1101,10 @@ def _prepare_return_country_dict(threads, country_list, ret_countries):
 
     for con in country_list:
         for hash_val in hash_country:
-            ret_countries[hash_val].countries = hash_country[hash_val]
-            log("Adding country {} \n  to hash {} \n  in list {},\n  countries so far are {}"
-                .format(con, hash_val, id(ret_countries[hash_val]),
-                        ret_countries[hash_val].countries))
+            if hash_country[hash_val] in ret_countries[hash_val].countries:
+                ret_countries[hash_val].countries = hash_country[hash_val]
+                log("Adding country {} \n  to hash {} \n  in list {},\n  countries so far are {}"
+                    .format(con, hash_val, id(ret_countries[hash_val]), ret_countries[hash_val].countries))
 
 
 class ReturnCountries:
