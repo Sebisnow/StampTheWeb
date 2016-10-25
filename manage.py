@@ -87,6 +87,9 @@ def run_every_day():
         app.logger.info("Regular task at {}: Starting the regular queries".format(datetime.datetime.utcnow()))
         # proceed with the Regular tasks stored in db
         tasks = Regular.query.all()
+        app.logger.info("Regular task at {}: Start getting pages and sending mails. Task count is:"
+                        .format(datetime.datetime.utcnow(), str(len(tasks))))
+
         for task in tasks:
             seconds_passed = datetime.timedelta.total_seconds(datetime.datetime.utcnow() - task.timestamp)
             frequency = task.frequency
@@ -101,6 +104,7 @@ def run_every_day():
                     # print('Something happened') # for Debugging
 
                     # print("Elapsed time: " + str(time.time() - start_time))  # for Debuggin
+        # TODO this statement is never reached in the live version. There must be a bug somewhere
         app.logger.info("Regular task at {}: Finished the regular check for changes".format(datetime.datetime.utcnow()))
 
 
