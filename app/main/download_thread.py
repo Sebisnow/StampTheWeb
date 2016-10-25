@@ -558,13 +558,14 @@ class DownloadThread(threading.Thread):
         """
 
         screenshot_path = "{}{}.png".format(self.storage_path, self.ipfs_hash)
-        logger("Screenshot present at {}: {}".format(screenshot_path, os.path.exists(screenshot_path)))
+        self.phantom.get_screenshot_as_file(screenshot_path)
+        """logger("Screenshot present at {}: {}".format(screenshot_path, os.path.exists(screenshot_path)))
         if not os.path.exists(screenshot_path):
             logger("Thread-{}: No Screenshot available yet. Writing png to: {}"
                    .format(self.threadID, screenshot_path))
             self.phantom.get_screenshot_as_file(screenshot_path)
         else:
-            logger("Thread-{}: Screenshot present at: {}".format(self.threadID, screenshot_path))
+            logger("Thread-{}: Screenshot present at: {}".format(self.threadID, screenshot_path))"""
         self.screenshot["ipfs_hash"] = add_to_ipfs(screenshot_path)
         self.screenshot["path"] = screenshot_path
 

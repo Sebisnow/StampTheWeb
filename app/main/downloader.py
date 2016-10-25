@@ -564,6 +564,30 @@ def ipfs_get(timestamp):
     return path
 
 
+def get_url_hist(url, user=None, robot_check=False, location=None):
+    """
+    Alternative to get_url_history that uses the DownloadThread class for timestamping.
+
+    :author: Sebastian
+    :param url: The URL of the website to timestamp.
+    :param user: The username of the user that started the distributed timestamp. If the call came from the extension
+     and no user was sent the user will be set to Bot.
+    :param robot_check: Boolean value that indicates whether the downloader should honour the robots.txt of
+    the given website or not.
+    :param location: Defaults to None. Specifies the location the html comes from or should come from.
+
+    :return:
+    """
+    thread = _run_thread(url, randrange(20, 40), robot_check=robot_check, location=location)
+    thread.join()
+    error = _submit_threads_to_db([thread], user)
+    if len(error) != 0:
+        app.logger.error('An error was returned trying to retrieve {}:\n {}'.format(url, str(error[0].error)))
+        return ReturnResults(None, None, None, error[0].error)
+
+    return ReturnResults(thread.originstamp_result, thread.ipfs_hash, thread.title)
+
+
 def get_url_history(url):
     """
     Entry point for the downloader
@@ -929,7 +953,7 @@ def start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_li
 
 def _run_thread(url, num=randrange(100, 10000), robot_check=False, proxy_list=None, html=None, location=None):
     """
-    Convencience method to start one new thread with a downloading job and possibly with a random proxy depending on
+    Convenience method to start one new thread with a downloading job and possibly with a random proxy depending on
     the user input.
 
     :author: sebastian
@@ -947,9 +971,11 @@ def _run_thread(url, num=randrange(100, 10000), robot_check=False, proxy_list=No
         thread.start()
 
     elif proxy_list is None:
-        thread = DownloadThread(num, url=url, robot_check=robot_check)
+        if location is not None:
+            thread = DownloadThread(num, url=url, robot_check=robot_check, prox_loc=location)
+        else:
+            thread = DownloadThread(num, url=url, robot_check=robot_check)
         thread.start()
-        print("Proxy list is empty starting without proxy")
     else:
         # if  only one proxy is given that is taken otherwise randomly choose one.
         proxy_num = randrange(0, len(proxy_list))
@@ -1037,18 +1063,18 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
     for thread in results:
         print("Adding Thread-{} to db".format(thread.threadID))
 
-        if thread.error is not None and thread.prox_loc is not None:
+        if thread.error is not None:
             print("Add error thread {} from {} to db. Type of Error  was {}\n error was: {}"
                   .format(thread.threadID, thread.prox_loc, type(thread.error), str(thread.error)))
-            if thread.error == TimeoutException:
-                country = Country.query.filter_by(country_code=thread.prox_loc).first()
+            if thread.prox_loc is not None and thread.error == TimeoutException:
+                    country = Country.query.filter_by(country_code=thread.prox_loc).first()
 
-                country.block_count += 1
-                country.block_url = "{}{};".format(country.block_url, thread.url)
-                db.session.add(country)
-                db.session.commit()
-                print("Updated {} block count to {}".format(thread.prox_loc, str(country.block_count)))
-                print("Finished adding error Thread-{} to db".format(thread.threadID))
+                    country.block_count += 1
+                    country.block_url = "{}{};".format(country.block_url, thread.url)
+                    db.session.add(country)
+                    db.session.commit()
+                    print("Updated {} block count to {}".format(thread.prox_loc, str(country.block_count)))
+                    print("Finished adding error Thread-{} to db".format(thread.threadID))
 
             error_threads.append(thread)
             results.remove(thread)
@@ -1102,7 +1128,7 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
     already_exists = Post.query.filter(Post.hashVal == sha256).first()
     print("Query Adding one new post. Already exists: {}".format(already_exists))
     if already_exists is not None:
-        print("Increasing  count for: ".format(already_exists.hashVal))
+        print("Increasing  count for: {}".format(already_exists.hashVal))
         already_exists.count += 1
         db.session.add(already_exists)
     else:

@@ -24,18 +24,17 @@ global selected
 log = print
 
 
-@main.route('/', methods=['GET', 'POST'])
+"""@main.route('/', methods=['GET', 'POST'])
 def index():
     form = PostForm()
     form_freq = PostFreq()
     global selected
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
-        sha256 = None
-        date_time_gmt = None
 
         url_site = form.urlSite.data
         results = downloader.get_url_history(url_site)
+
         origin_stamp_result = results.originStampResult
         sha256 = results.hashValue
         title = results.webTitle
@@ -61,8 +60,6 @@ def index():
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_freq.validate_on_submit() and form_freq.frequency.data > 0:
-        sha256 = None
-        date_time_gmt = None
         url_site = form_freq.url.data
         freq = form_freq.frequency.data
         email = form_freq.email.data
@@ -118,6 +115,51 @@ def index():
             if selected is not None:
                 selected = None
         return render_template('index.html', form=form, posts=posts, pagination=pagination,
+                               doman_name=domain_name_unique, formFreq=form_freq, home_page="active")"""
+
+
+@main.route('/', methods=['GET', 'POST'])
+def index():
+    """
+    Refactored version of the website entry point using DownloadThread class for processing. Handles posts to regular
+    form and posts to standard form.
+
+    :return: Renders template to present to the user.
+    """
+    form = PostForm()
+    form_freq = PostFreq()
+    global selected
+    if current_user.can(Permission.WRITE_ARTICLES) and \
+            form.validate_on_submit():
+
+        url_site = form.urlSite.data
+        results = downloader.get_url_hist(url_site, user=current_user)
+        flash('At {} new time-stamp has been created. Scroll down to view it.'
+              .format(results.originStampResult["created_at"]))
+        return redirect(url_for('.index'))
+    elif current_user.can(Permission.WRITE_ARTICLES) and \
+            form_freq.validate_on_submit() and form_freq.frequency.data > 0:
+        url_site = form_freq.url.data
+        freq = form_freq.frequency.data
+        email = form_freq.email.data
+        results = downloader.get_url_hist(url_site)
+        post_new = Post.query.filter(and_(Post.urlSite.like(url_site),
+                                          Post.hashVal.like(results.hashValue))).first()
+        regular_new = Regular(frequency=freq, postID=post_new, email=email)
+        db.session.add(regular_new)
+        db.session.commit()
+        log(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " New Regular task added")
+        flash('A new regular task added. In case of changes in the provided URL a new time-stamp will be created.')
+        page = request.args.get('page', 1, type=int)
+        pagination = Regular.query.order_by(Regular.timestamp.desc()).paginate(
+            page, per_page=current_app.config['STW_POSTS_PER_PAGE'], error_out=False)
+        posts = pagination.items
+        return render_template('regular.html', form=form_freq, posts=posts, pagination=pagination)
+
+    else:
+        template, form, posts, pagination, domain_name_unique = _render_standard_timestamp_post('index.html', form,
+                                                                                                False)
+        return render_template(template, form=form, posts=posts, pagination=pagination,
                                doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
 
 
