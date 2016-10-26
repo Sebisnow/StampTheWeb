@@ -846,7 +846,6 @@ def timestamp_api():
                     .format(url, type(post_data["body"])))
 
                 result = downloader.distributed_timestamp(url, post_data["body"], user=submitting_user)
-                # TODO do not store new POST
                 originstamp_result = result.originStampResult
                 if result is None:
                     response.status_code = 404

@@ -2,6 +2,7 @@ import threading
 import re
 import os
 import urllib.error
+from datetime import datetime
 from urllib.robotparser import RobotFileParser
 from urllib.parse import urlparse
 import asyncio
@@ -413,25 +414,25 @@ class DownloadThread(threading.Thread):
         Creates a pdf file from the preprocessed html with the images embedded in it.
 
         """
-        # TODO preserver links
+        # TODO preserve links
         html_path = "{}pdf_source.html".format(self.path)
         pdf_path = "{}{}.pdf".format(self.storage_path, self.ipfs_hash)
-        if not os.path.exists(pdf_path):
-            soup = BeautifulSoup(self.html, "lxml")
-            for img in soup.find_all(['amp-img', 'img']):
-                if "ipfs-src" in img.attrs:
-                    for key in self.images:
-                        if img["ipfs-src"] == self.images[key]["hash"]:
-                            img["src"] = self.images[key]["filename"]
+        #if not os.path.exists(pdf_path):  # Always create pdf even if overwrite is necessary
+        soup = BeautifulSoup(self.html, "lxml")
+        for img in soup.find_all(['amp-img', 'img']):
+            if "ipfs-src" in img.attrs:
+                for key in self.images:
+                    if img["ipfs-src"] == self.images[key]["hash"]:
+                        img["src"] = self.images[key]["filename"]
 
-            with open(html_path, "w") as html_file:
-                html_file.write(str(soup.find("html")).replace("noscript", "div"))
-            # PDF is written to the basepath of the application (usually app/pdf/)
-            pdfkit.from_file(html_path, pdf_path)
-            logger("Thread-{}: Created PDF file from Preprocessed and img source changed html file: {}"
-                   .format(self.threadID, pdf_path))
-        else:
-            logger("Thread-{}: PDF exists already in {}!".format(self.threadID, pdf_path))
+        with open(html_path, "w") as html_file:
+            html_file.write(str(soup.find("html")).replace("noscript", "div"))
+        # PDF is written to the basepath of the application (usually app/pdf/)
+        pdfkit.from_file(html_path, pdf_path)
+        logger("Thread-{}: Created PDF file from Preprocessed and img source changed html file: {}"
+               .format(self.threadID, pdf_path))
+        #else:
+        #   logger("Thread-{}: PDF exists already in {}!".format(self.threadID, pdf_path))
 
     def _get_one_proxy(self, location=None):
         """
@@ -513,16 +514,18 @@ class DownloadThread(threading.Thread):
 
     def handle_submission(self):
         """
-        Handles the submission of the hash to originstamp to create the actual timestamp and the resulting consequences.
-        Handles PNG creation and storage. Sets location to Germany if no proxy was used.
+        Handles the submission of the hash to OriginStamp to create the actual timestamp.
+        The title that is submitted to OriginStamp contains the URL in Memento format.
+            (For reference see: http://timetravel.mementoweb.org/about/)
+        Handles PNG and PDF creation and storage. Sets location to Germany if no proxy was used.
 
         :author: Sebastian
         """
         logger("Thread-{} submit hash to originstamp.".format(self.threadID))
-        self.originstamp_result = submit(self.ipfs_hash, title="Distributed timestamp of {} from location {}"
-                                         .format(self.url, self.prox_loc))
         if self.prox_loc is None:
             self.prox_loc = "DE"
+        self.originstamp_result = submit(self.ipfs_hash, title="Distributed timestamp of /{}/{} from location {}"
+                                         .format(datetime.now().strftime("%Y%m%d%H%M"), self.url, self.prox_loc))
         logger("Thread-{}: Originstamp result: {}".format(self.threadID, str(self.originstamp_result.text)))
         if self.originstamp_result.status_code != 200:
             msg = "Originstamp submission returned {} and failed for some reason: {}"\
