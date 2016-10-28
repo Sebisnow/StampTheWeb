@@ -13,10 +13,9 @@
         $("#content").hide();
     }
   }
-  function loading_schedule(){
-    url = document.getElementById('url');
-    freq = document.getElementById('frequency');
-    if(ValidURL(url.value) && freq.value > 0){
+  function loading_lit(){
+    url = document.getElementById('urlSiteT');
+    if(ValidURL(url.value)){
         $("#loading").show();
         $("#content").hide();
     }

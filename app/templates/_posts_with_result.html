@@ -43,7 +43,7 @@
 <ul class="posts">
     {% if original_post %}
     <li class="post original">
-        <h4>The original timestamp</h4>
+        <h4>The original timestamp from {{original_country}}</h4>
         <hr>
         <div class="post-thumbnail">
             <a href="{{ url_for('.user', username=original_post.author.username) }}">
@@ -146,7 +146,8 @@
             {% for country in return_countries[hash].countries %}
                 <li>{{country}}</li>
             {% endfor %}
-            </ul>
+            </ul><br>
+        <hr>
         <div class="post-thumbnail">
             <a href="{{ url_for('.user', username=return_countries[hash].post.author.username) }}">
                 <img class="img-rounded profile-thumbnail" src="{{ return_countries[hash].post.author.gravatar(size=40) }}">
