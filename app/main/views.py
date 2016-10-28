@@ -128,6 +128,7 @@ def index():
     """
     form = PostForm()
     form_freq = PostFreq()
+    ts_form = TimestampForm()
     global selected
     if current_user.can(Permission.WRITE_ARTICLES) and \
             form.validate_on_submit():
@@ -156,11 +157,16 @@ def index():
         posts = pagination.items
         return render_template('regular.html', form=form_freq, posts=posts, pagination=pagination)
 
+    elif current_user.can(Permission.WRITE_ARTICLES) and \
+            ts_form.validate_on_submit():
+
+        # Location Independent Timestamp was triggered hand over to form to the outsourced handling mathod
+        return lit(ts_form)
     else:
         template, form, posts, pagination, domain_name_unique = _render_standard_timestamp_post('index.html', form,
                                                                                                 False)
         return render_template(template, form=form, posts=posts, pagination=pagination,
-                               doman_name=domain_name_unique, formFreq=form_freq, home_page="active")
+                               doman_name=domain_name_unique, formFreq=form_freq, tsForm=ts_form, home_page="active")
 
 
 @main.route('/compare', methods=['GET', 'POST'])
@@ -819,7 +825,7 @@ def timestamp_api():
             proxy = p_util.get_one_proxy(country)
         else:
             country = None
-        downloader.distributed_timestamp(form.urlSite.data, user=current_user.username,
+        downloader.distributed_timestamp(form.urlSiteT.data, user=current_user.username,
                                          proxies=[[country, proxy]])
         submitted = True
 
@@ -916,7 +922,7 @@ def loc_indep_timestamp():
     if form.validate_on_submit():
         start_time = datetime.now()
         country = form.countries.data
-        url = form.urlSite.data
+        url = form.urlSiteT.data
         robot = form.robot.data
         link = form.link.data
 
@@ -943,14 +949,15 @@ def loc_indep_timestamp():
         error_countries = [loc[0] for loc in country_list if loc[1] in [thread.prox_loc for thread in error_threads]]
         if len(error_countries) == 0:
             error_countries = None
-
         ret_countries = dict()
         # DO we have an original or not
         if orig_thread in error_threads:
             original_post = None
+            orig_country = None
         else:
             original_post = Post.query.filter(Post.hashVal == orig_thread.ipfs_hash).first()
             log("Got the original post:{}, threads is {}.".format(original_post.hashVal, type(threads)))
+            orig_country = [co[0] for co in country_list if co[1] == orig_thread.prox_loc][0]
             threads.remove(orig_thread)
 
         # sort all posts to their hashs
@@ -960,14 +967,77 @@ def loc_indep_timestamp():
                                                                                                 form, render=False)
         log("Start rendering with ret_countries {}".format(ret_countries))
         for key in ret_countries:
-            log("Start rendering with ret_countries hash{} and countries {}"
-                .format(key, ret_countries[key]))
+            log("Start rendering with ret_countries hash {} and countries {}"
+                .format(key, ret_countries[key].countries))
         log("Execution time was: {}".format(datetime.now() - start_time))
         return render_template(template, form=form, posts=posts, pagination=pagination, doman_name=domain_name_unique,
                                return_countries=ret_countries, home_page="active", original_post=original_post,
-                               error_countries=error_countries)
+                               error_countries=error_countries, original_country=orig_country)
 
     return _render_standard_timestamp_post('timestamp.html', form)
+
+
+def lit(form):
+    """
+    Outsourced method called by the index function if a Location Independent Timestamp was triggered.
+
+    :author: Sebastian
+    :param form: Timestamp form with all the user input data.
+    :return: Render the results of the Location Independent Timestamp.
+    """
+    start_time = datetime.now()
+    country = form.countries.data
+    url = form.urlSiteT.data
+    robot = form.robot.data
+    link = form.link.data
+
+    log("The user {} wants to timestamp the url: {}".format(current_user, url))
+    if link:
+        template = _timestamp_links(form, country, url, robot)
+        log("Execution time was: {}".format(datetime.now() - start_time))
+        return template
+    if country != "none":
+        log("The selected country is: {}".format(country))
+        location, proxy = p_util.get_one_proxy(country)
+
+        threads, orig_thread, error_threads = downloader. \
+            location_independent_timestamp(url, [[location, proxy]], robot, user=current_user)
+    else:
+        threads, orig_thread, error_threads = downloader. \
+            location_independent_timestamp(url, robot_check=robot, user=current_user)
+
+    flash("Finished location independent timestamp!")
+    log("Finished location independent timestamp with {} error threads:{}".format(str(threads), str(error_threads)))
+    country_list = p_util.get_country_list()
+
+    # Store all countries that were unretrievable, if all were retrievable set error_countries to None
+    error_countries = [loc[0] for loc in country_list if loc[1] in [thread.prox_loc for thread in error_threads]]
+    if len(error_countries) == 0:
+        error_countries = None
+    ret_countries = dict()
+    # DO we have an original or not
+    if orig_thread in error_threads:
+        original_post = None
+        orig_country = None
+    else:
+        original_post = Post.query.filter(Post.hashVal == orig_thread.ipfs_hash).first()
+        log("Got the original post:{}, threads is {}.".format(original_post.hashVal, type(threads)))
+        orig_country = [co[0] for co in country_list if co[1] == orig_thread.prox_loc][0]
+        threads.remove(orig_thread)
+
+    # sort all posts to their hashs
+    _prepare_return_country_dict(threads, country_list, ret_countries)
+
+    template, form, posts, pagination, domain_name_unique = _render_standard_timestamp_post('timestamp_result.html',
+                                                                                            form, render=False)
+    log("Start rendering with ret_countries {}".format(ret_countries))
+    for key in ret_countries:
+        log("Start rendering with ret_countries hash {} and countries {}"
+            .format(key, ret_countries[key].countries))
+    log("Execution time was: {}".format(datetime.now() - start_time))
+    return render_template(template, form=form, posts=posts, pagination=pagination, doman_name=domain_name_unique,
+                           return_countries=ret_countries, home_page="active", original_post=original_post,
+                           error_countries=error_countries, original_country=orig_country)
 
 
 def _timestamp_links(form, country, url, robot):
@@ -1037,7 +1107,7 @@ def get_new_proxies():
     :author: Sebastian
     :return: The Data that was timestamped.
     """
-    output = run(['python3', 'app/main/proxy_util.py'], stdout=PIPE)
+    output = run(['python3.5', 'app/main/proxy_util.py'], stdout=PIPE)
     log("This is the output: \n-----------------------------\n" + output)
     return _render_standard_timestamp_post()
 
@@ -1118,7 +1188,7 @@ def _prepare_return_country_dict(threads, country_list, ret_countries):
     Modifies the dict of ReturnCountries and sorts all countries to the hashes.
 
     # TODO  Implementation improvements possible: Iterate through country_list only once,
-            remove superfluous  resources (hash_country)
+            remove superfluous  resources (hash_country) # done!
 
     :author: Sebastian
     :param threads: The threads that the timestamp returned.
@@ -1132,20 +1202,29 @@ def _prepare_return_country_dict(threads, country_list, ret_countries):
                 hash_country[thread.ipfs_hash] = list()
             log(thread.prox_loc)
             if thread.ipfs_hash not in ret_countries.keys():
-                ret_countries[thread.ipfs_hash] = \
-                    ReturnCountries(Post.query.filter(Post.hashVal == thread.ipfs_hash).first())
+                db_post = Post.query.filter(Post.hashVal == thread.ipfs_hash).first()
+                if db_post is not None:
+                    ret_countries[thread.ipfs_hash] = ReturnCountries(db_post)
+                    log("Retrieved a post for Thread-{}  for {} to add to return_country"
+                        .format(thread.threadID, thread.ipfs_hash))
+                else:
+                    log("Couldn't retrieve a post for {} for Thread-{} to add to return_country"
+                        .format(thread.ipfs_hash, thread.threadID))
+
                 for con in country_list:
                     if con[1] == thread.prox_loc:
                         # ret_countries[thread.ipfs_hash].countries.append(con[0])
-                        hash_country[thread.ipfs_hash].append(con[0])
-                        log(hash_country)
+                        #hash_country[thread.ipfs_hash].append(con[0])
+                        ret_countries[thread.ipfs_hash].countries.append(con[0])
+                        log("Preparing return_country for {}: Appending {}\n countries are now:{} "
+                            .format(thread.ipfs_hash, con[0], ret_countries[thread.ipfs_hash].countries))
 
-    for con in country_list:
+    """for con in country_list:
         for hash_val in hash_country:
             if hash_country[hash_val] in ret_countries[hash_val].countries:
                 ret_countries[hash_val].countries = hash_country[hash_val]
                 log("Adding country {} \n  to hash {} \n  in list {},\n  countries so far are {}"
-                    .format(con, hash_val, id(ret_countries[hash_val]), ret_countries[hash_val].countries))
+                    .format(con, hash_val, id(ret_countries[hash_val]), ret_countries[hash_val].countries))"""
 
 
 class ReturnCountries:
