@@ -3,8 +3,7 @@ import csv
 import asyncio
 import os
 import re
-
-import shutil
+from aiohttp import ClientError
 from freeproxy import from_hide_my_ip, from_cyber_syndrome, from_free_proxy_list, from_xici_daili
 import requests
 from proxybroker import Broker
@@ -165,9 +164,10 @@ def update_proxies(prox_loc=None):
         #   logger(str(e))
         #  asyncio.set_event_loop(asyncio.new_event_loop())
         # proxy_list = gather_proxies(country_list)
-    except RuntimeError:
-        logger("Could not fetch new Proxies, doing it the long way!")
-        # Does not take country list into account - Fallback not needed anymore until next error in proxybroker package
+    except RuntimeError or ClientError or OSError as e:
+        logger("Could not fetch new Proxies due to {}, doing it the long way!".format(e))
+        # TODO Does not take country list into account - Fallback not needed anymore until next error in proxybroker
+        # package
         proxy_list = _gather_proxies_alternative()
     logger("All proxies gathered!")
 
@@ -212,7 +212,7 @@ def gather_proxies(countries):
                 break
             logger(str(proxy))
             with open("{}/temp.csv".format(static_path), "a") as temp:
-                temp.write("{}\t{}".format(country, "{}:{}".format(proxy.host, str(proxy.port))))
+                temp.write("{}\t{}\n".format(country, "{}:{}".format(proxy.host, str(proxy.port))))
             proxy_list.append([country, "{}:{}".format(proxy.host, str(proxy.port))])
     return proxy_list
 
@@ -226,7 +226,7 @@ def _add_to_proxy_list(country, proxy):
     :param proxy: The working proxy to add to the proxy file.
     """
     with open(proxy_path, "a") as prox_file:
-        prox_file.write("{}\t{}".format(country, proxy))
+        prox_file.write("{}\t{}\n".format(country, proxy))
 
 
 def _get_one_proxy_alternative(country):
@@ -261,9 +261,9 @@ def _gather_proxies_alternative():
     if os.path.exists(temp_path):
         with open(temp_path, "rt", encoding="utf8") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
-                logger("Add temporary proxy from: {}".format(line[0]))
+                logger("Add temporary proxy {} from: {}".format(line[1], line[0]))
                 proxies.append(line[1])
-        shutil.rmtree(temp_path)
+        os.remove(temp_path)
 
     proxies = check_proxies(list(set(proxies)), 3)
 
