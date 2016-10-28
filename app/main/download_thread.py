@@ -33,12 +33,13 @@ js_path = os.path.abspath(os.path.expanduser("~/") + '/bin/phantomjs/lib/phantom
 
 api_key = '7be3aa0c7f9c2ae0061c9ad4ac680f5c'
 api_post_url = 'http://www.originstamp.org/api/stamps'
+header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0'}
 
-negative_tag_classes = ["ad", "advertisement", "gads", "iqad", "anzeige", "dfp_ad"]
-# :param negative_tags: if any HTML tags are definitely just advertisement and definitely not describe the content
+negative_tags = ["ad", "advertisement", "gads", "iqad", "anzeige", "dfp_ad"]
+# :param negative_classes: if any HTML tags are definitely just advertisement and definitely not describe the content
 # the tag can be added using a pipe. E.g "aside|ad".
-negative_tags = re.compile("aside", re.I)
-positive_tags = re.compile("article|article-title|headline|breitwandaufmacher|article-section", re.I)
+negative_classes = re.compile("aside", re.I)
+positive_classes = re.compile("article|article-title|headline|breitwandaufmacher|article-section|article.*", re.I)
 
 
 class DownloadThread(threading.Thread):
@@ -198,7 +199,7 @@ class DownloadThread(threading.Thread):
         :author: Sebastian
         :raises URLError: Is raised if HTML retrieval is forbidden by robots.txt.
         """
-        logger("Started Thread-" + str(self.threadID))
+        logger("Started Thread-: {}".format(self.threadID, self))
         if self.robot_check and not self.bot_parser.can_fetch(self.url):
             self.error = urllib.error.URLError("Not allowed to fetch root html file specified by url:{} because of "
                                                "robots.txt".format(self.url))
@@ -246,20 +247,18 @@ class DownloadThread(threading.Thread):
                     self.initialize(self.proxy, self.prox_loc, self.threadID)
 
                 # try again, if False is returned site was unreachable again -> propagate upwards by raising error
-                if not self._download_html():
-                    logger("Thread-{}: Again, couldn't reach website through two proxies, unreachable from loc {}"
-                           .format(self.threadID, self.prox_loc))
+                if not self._download_html() and not self._download_html_backup():
+                    logger("Thread-{}: Again, couldn't reach website through two proxies and without phantomJS, "
+                           "unreachable from loc {}".format(self.threadID, self.prox_loc))
                     self.error = TimeoutException("Thread-{}: Couldn't reach website through two proxies, unreachable "
                                                   "from loc {}".format(self.threadID, self.prox_loc))
                     raise self.error
 
-        # check that HTML was really downloaded by checking the size
-        if len(self.html) < 50:
-            self.error = TimeoutException("Thread-{}: Website does not suffice the min length criteria -> no website "
-                                          "fetched. Unreachable from loc {} with {}"
-                                          .format(self.threadID, self.prox_loc, self.proxy))
-            logger("Thread-{}: Could not retrieve website. Reason: {}\n   -----\nHTML\n{}"
-                   .format(self.threadID, str(self.error), self.html))
+        # check that HTML was really downloaded by checking simple heuristics
+        if not is_correct_html(self.html):
+            self.error = TimeoutException("Thread-{}: Website did not pass the heuristics check. Unreachable from "
+                                          "loc {} with {}".format(self.threadID, self.prox_loc, self.proxy))
+            logger(self.error.msg)
             raise self.error
 
         self.html, self.title = preprocess_doc(self.html)
@@ -306,6 +305,34 @@ class DownloadThread(threading.Thread):
         self.html = str(self.phantom.page_source)
         logger("Thread-{}: Downloaded website successfully".format(self.threadID))
         return True
+
+    def _download_html_backup(self):
+
+        logger("Thread-{}Trying the backup without phantomJS".format(self.threadID))
+        try:
+            """
+            First we try to get the image with a proxy. If that fails we try it without proxy.
+            """
+            if self.proxy is not None:
+                res = requests.get(self.url, stream=True, proxies={"http": "http://" + self.proxy}, headers=header)
+                return res
+
+            res = requests.get(self.url, stream=True, headers=header)
+        except ConnectionRefusedError or MaxRetryError as con:
+            logger("Thread-{} Could not request page due to: {}\ntrying without proxy.".format(
+                self.threadID, con.strerror))
+            try:
+                res = requests.get(self.url, stream=True, headers=header)
+            except OSError:
+                return False
+        except OSError:
+            return False
+        if res.status_code == 200:
+            logger("Thread-{} successfully requested page without phantomJS and html:\n {}".format(
+                self.threadID, res.status_code, res.text))
+            self.html = res.text
+            return True
+        return False
 
     def _load_images(self, soup, proxy=None):
         """
@@ -369,7 +396,6 @@ class DownloadThread(threading.Thread):
         :param proxy: The proxy that is to be used to download the image. Defaults to None, to download it directly.
         :return: A Response object with the response status and the image to store.
         """
-        header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0'}
 
         if 'src' in img.attrs and proxy_util.url_specification.match(img['src']):
             tag = img['src']
@@ -525,12 +551,13 @@ class DownloadThread(threading.Thread):
         if self.prox_loc is None:
             self.prox_loc = "DE"
         self.originstamp_result = submit(self.ipfs_hash, title="Distributed timestamp of /{}/{} from location {}"
-                                         .format(datetime.now().strftime("%Y%m%d%H%M"), self.url, self.prox_loc))
+                                         .format(datetime.utcnow().strftime("%Y%m%d%H%M"), self.url, self.prox_loc))
         logger("Thread-{}: Originstamp result: {}".format(self.threadID, str(self.originstamp_result.text)))
         if self.originstamp_result.status_code != 200:
-            msg = "Originstamp submission returned {} and failed for some reason: {}"\
-                .format(str(self.originstamp_result.status_code), self.originstamp_result.text)
+            msg = "Thread-{} Originstamp submission returned {} and failed for some reason: {}"\
+                .format(self.threadID, str(self.originstamp_result.status_code), self.originstamp_result.text)
             self.error = HTTPError(msg)
+            self.originstamp_result = self.originstamp_result.json()
             logger(msg)
             raise self.error
         else:
@@ -711,16 +738,16 @@ def preprocess_doc(html_text):
     """
     # remove some common advertisement tags beforehand
     bs = BeautifulSoup(html_text, "lxml")
-    for tag_desc in negative_tag_classes:
+    for tag_desc in negative_tags:
         for tag in bs.findAll(attrs={'class': re.compile(r".*\b{}\b.*".format(tag_desc))}):
             tag.extract()
-    doc = Document(str(bs.html), negative_keywords=negative_tags, positive_keywords=positive_tags)
+    doc = Document(str(bs.html), negative_keywords=negative_classes, positive_keywords=positive_classes)
     try:
         # Detect the encoding of the html, if not detectable use utf-8 as default.
         encoding = chardet.detect(doc.content().encode()).get('encoding')
         title = doc.title()
-    except TypeError:
-        logger("Encountered TypeError setting encoding to utf-8.")
+    except TypeError or IndexError as e:
+        logger("Encountered {} setting encoding to utf-8.".format(str(e)))
         encoding = "utf-8"
         title = bs.title.getText()
     if not encoding:
@@ -778,3 +805,27 @@ def get_originstamp_history(sha256):
     headers = {'Content-Type': 'application/json', 'Authorization': 'Token token={}'.format(api_key)}
 
     return requests.get("{}/{}".format(api_post_url, sha256), headers=headers)
+
+
+def is_correct_html(html, t_id=None):
+    """
+    Applies heuristics to filter "incorrect" HTML. Checks the character length of the HTML as proxies sometimes send
+    back empty HTMLs. In short HTMLs it checks for keywords like Error or Denied as heuristics.
+
+    :author: Sebastian
+    :param html: The HTML as String.
+    :param t_id: Optional parameter used only for logging in case this method is called by a DownloadThread to
+    associate the text in the log with the thread.
+    :return: True if the heuristics conclude it is a real HTML without errors, otherwise False.
+    """
+    if html is None:
+        logger("Thread-{} Failed the HTML correctness check on 1. condition".format(t_id))
+        return False
+    if len(html) < 300:
+        logger("Thread-{} Failed the HTML correctness check on 2. condition".format(t_id))
+        return False
+    if len(html) < 1000 and ("Error" in html or "Denied" in html or "Authentication Required" in html):
+        logger("Thread-{} Failed the HTML correctness check on 3. condition".format(t_id))
+        return False
+    logger("Thread-{} HTML correctness check succeeded. HTML seems valid!".format(t_id))
+    return True
