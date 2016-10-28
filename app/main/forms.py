@@ -211,9 +211,9 @@ class TimestampForm(Form):
 
     body = TextAreaField("Add a Title (Optional) <i class='glyphicon glyphicon-info-sign'></i>",
                          render_kw={"title": "Titles help other users more quickly identify news articles."})
-    urlSite = URLField("Enter URL to create its timestamp <i class='glyphicon glyphicon-asterisk'></i>",
-                       validators=[url(), DataRequired()],
-                       render_kw={"placeholder": "http://www.example.com"})
+    urlSiteT = URLField("Enter URL to create its timestamp <i class='glyphicon glyphicon-asterisk'></i>",
+                        validators=[url(), DataRequired()],
+                        render_kw={"placeholder": "http://www.example.com"})
     countries = SelectField("Select country to also timestamp the URL from that location", choices=choices)
     link = BooleanField("Follow links and timestamp them too! -- Please be aware that this may take minutes to finish!", default=False,
                         render_kw={"Include links": "The downloader will start a new location independent timestamp "
@@ -223,4 +223,4 @@ class TimestampForm(Form):
                                                   "might change the content if data is not permitted to be downloaded. "
                                                   "The timestamp could be different!"})
 
-    submit = SubmitField('Submit', render_kw={"onclick": "loading()"})
+    submit = SubmitField('Submit', render_kw={"onclick": "loading_lit()"})
