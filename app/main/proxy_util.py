@@ -24,9 +24,10 @@ url_specification = re.compile('^(https?|ftp)://[^\s/$.?#].[^\s]*$')
 base_path = 'app/pdf/'
 default_event_loop = None
 logger = print
+ip_check_url = "http://httpbin.org/ip"
 
 
-def get_one_proxy(location=None):
+def get_one_proxy(location=None, level=0):
     """
     Fetches one proxy using proxybroker. Handles RuntimeError of proxybroker. If it fails twice the proxy list is used
     to retrieve a proxy from the location.
@@ -35,28 +36,33 @@ def get_one_proxy(location=None):
     :author: Sebastian
     :param location: Two letter iso country code to fetch a proxy from. If not present fetches a random active proxy
      from the static proxy list.
+    :param level: for internal use if this is called recursively
     :return: Returns the location of the proxy together with the proxy.
     """
-    if location is None:
-        prox = get_rand_proxy()
-        return prox[0], prox[1]
-    else:
-        try:
+    try:
+        if location is None:
+            prox = get_one_random_proxy()
+            return prox[0], prox[1]
+        else:
             try:
                 proxy = get_one_specific_proxy(location)
-            except RuntimeError:
+            except RuntimeError as e:
                 asyncio.set_event_loop(asyncio.new_event_loop())
+                logger("Error {}, trying again.".format(e))
                 proxy = get_one_specific_proxy(location)
-        except RuntimeError:
-            proxy = _get_one_proxy_alternative(location)
-            if proxy is None:
-                logger("No active proxy found, trying a random proxy")
-                prox = get_rand_proxy()
-                if prox is None:
-                    logger("Found no proxy at all, trying without")
-                    return None, None
-                location, proxy = prox[0], prox[1]
-        return location, proxy
+    except RuntimeError as run:
+        logger("Error on second try {}, trying again with alternative.".format(run))
+        proxy = _get_one_proxy_alternative(location)
+        if proxy is None:
+            logger("No active proxy found, trying a random proxy")
+            if level > 0:
+                return None, None
+            loc, prox = get_one_proxy(None, 1)
+            if prox is None:
+                logger("Found no proxy at all, trying without")
+                return None, None
+            location, proxy = prox[0], prox[1]
+    return location, proxy
 
 
 def get_rand_proxy(proxy_list=None, level=0):
@@ -113,6 +119,42 @@ def get_one_specific_proxy(country, types='HTTP'):
     return None
 
 
+def get_one_random_proxy(types='HTTP'):
+    """
+    Find one new, working proxy from any country.
+
+    :author: Sebastian
+    :param types: The type of proxy to search for as a list of strings. Defaults to HTTP.
+    If only one type should be specified a string like "HTTPS" will also work.
+    Other possibilities are HTTPS, SOCKS4, SOCKS5. E.g. types=['HTTP, HTTPS']
+    :return:The newly found proxys location (two-letter-iso country code) as well as the
+    proxy (in <Proxy IP>:<Port> notation).
+    """
+    logger("Fetching one random proxy")
+    if type(types) is not list:
+        types = [types]
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        logger("----New event loop")
+        loop = asyncio.new_event_loop()
+
+    proxies = asyncio.Queue(loop=loop)
+    broker = Broker(proxies, loop=loop)
+    loop.run_until_complete(broker.find(limit=1, types=types))
+
+    while True:
+        proxy = proxies.get_nowait()
+        if proxy is None:
+            break
+        fetched_proxy = "{}:{}".format(proxy.host, str(proxy.port))
+        country = proxy.geo["code"]
+        logger("Proxy from {} is: {}".format(country, fetched_proxy))
+        _add_to_proxy_list(country, fetched_proxy)
+        return country, fetched_proxy
+    return None, None
+
+
 def get_proxy_list(update=False, prox_loc=None):
     """
     Get a list of available proxies to use from the proxy list.
@@ -127,7 +169,7 @@ def get_proxy_list(update=False, prox_loc=None):
     logger("Getting the proxylist")
     proxy_list = []
     if update:
-        proxy_list = update_proxies(prox_loc)
+        proxy_list = update_proxies()
     else:
         with open(proxy_path, "rt", encoding="utf8") as tsv:
             for line in csv.reader(tsv, delimiter="\t"):
@@ -138,7 +180,32 @@ def get_proxy_list(update=False, prox_loc=None):
     return proxy_list
 
 
-def update_proxies(prox_loc=None):
+def update_proxies():
+    """
+    Gather new proxies to be stored in the static proxy file.
+
+    :author: Sebastian
+    :return: A list of active proxies.
+    """
+    logger("Start updating the proxy list")
+    logger("Getting the proxies now. That may take quite a while!")
+    try:
+        try:
+            proxy_list = gather_proxies()
+        except RuntimeError as e:
+            logger(str(e))
+            asyncio.set_event_loop(asyncio.new_event_loop())
+            proxy_list = gather_proxies()
+    except RuntimeError or ClientError or OSError or UnicodeDecodeError as e:
+        logger("Could not fetch new Proxies due to {}, doing it the long way!".format(e))
+        # TODO Does not take country list into account - Fallback not needed anymore until next error in proxybroker
+        # package
+        proxy_list = _gather_proxies_alternative()
+    logger("All proxies gathered!")
+    return _write_proxies(proxy_list)
+
+
+def update_proxies_with_country(prox_loc=None):
     """
     Checks the proxies stored in the proxy_list.tsv file. If there are proxies that are inactive,
     new proxies from that country are gathered and stored in the file instead.
@@ -158,19 +225,30 @@ def update_proxies(prox_loc=None):
     logger(country_list)
     logger("Getting the proxies now. That may take quite a while!")
     try:
-
-        proxy_list = gather_proxies(country_list)
-        #except RuntimeError as e:
-        #   logger(str(e))
-        #  asyncio.set_event_loop(asyncio.new_event_loop())
-        # proxy_list = gather_proxies(country_list)
-    except RuntimeError or ClientError or OSError as e:
+        try:
+            proxy_list = gather_proxies_by_country(country_list)
+        except RuntimeError as e:
+            logger(str(e))
+            asyncio.set_event_loop(asyncio.new_event_loop())
+            proxy_list = gather_proxies_by_country(country_list)
+    except RuntimeError or ClientError or OSError or UnicodeDecodeError as e:
         logger("Could not fetch new Proxies due to {}, doing it the long way!".format(e))
         # TODO Does not take country list into account - Fallback not needed anymore until next error in proxybroker
         # package
         proxy_list = _gather_proxies_alternative()
     logger("All proxies gathered!")
+    return _write_proxies(proxy_list)
 
+
+def _write_proxies(proxy_list):
+    """
+    Write proxies to the static file in the proxy_path.
+
+    :author: Sebastian
+    :param proxy_list: The list of two-itemed-lists of proxies with their country as first item in the list
+    and the proxy itself as second item in the list.
+    :return: THe proxy_list that was the input.
+    """
     with open(proxy_path, "w", encoding="utf8") as tsv:
         # tsv.writelines([proxy[0] + "\t" + proxy[1] for proxy in proxy_list])
         for proxy in proxy_list:
@@ -180,7 +258,34 @@ def update_proxies(prox_loc=None):
     return proxy_list
 
 
-def gather_proxies(countries):
+def gather_proxies():
+    proxy_list = list()
+    types = ['HTTP']
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        logger("----New event loop")
+        loop = asyncio.new_event_loop()
+
+    proxies = asyncio.Queue(loop=loop)
+    broker = Broker(proxies, loop=loop)
+    loop.run_until_complete(broker.find(limit=100, types=types))
+    with open("{}/temp.csv".format(static_path), "w"):
+        pass  # if file is present overwrite it
+
+    while True:
+        proxy = proxies.get_nowait()
+        if proxy is None:
+            break
+        logger(str(proxy))
+        with open("{}/temp.csv".format(static_path), "a") as temp:
+            temp.write("{}\t{}\n".format(proxy.geo["code"], "{}:{}".format(proxy.host, str(proxy.port))))
+        proxy_list.append([proxy.geo["code"], "{}:{}".format(proxy.host, str(proxy.port))])
+
+    return proxy_list
+
+
+def gather_proxies_by_country(countries):
     """
     This method uses the proxybroker package to asynchronously get two new proxies per specified country
     and returns the proxies as a list of country and proxy.
@@ -201,7 +306,6 @@ def gather_proxies(countries):
 
         proxies = asyncio.Queue(loop=loop)
         broker = Broker(proxies, loop=loop)
-
         loop.run_until_complete(broker.find(limit=2, countries=country, types=types))
         with open("{}/temp.csv".format(static_path), "w"):
             pass  # if file is present overwrite it
@@ -227,6 +331,20 @@ def _add_to_proxy_list(country, proxy):
     """
     with open(proxy_path, "a") as prox_file:
         prox_file.write("{}\t{}\n".format(country, proxy))
+
+
+def remove_proxy(proxy):
+    """
+    Removes a proxy. This method should be used if a proxy on the list is broken or returns advertisement.
+
+    :author: Sebastian
+    :param proxy: The not properly working proxy to remove from the proxy file.
+    """
+    proxy_list = get_proxy_list()
+    for prox in proxy_list:
+        if prox[1] == proxy:
+            proxy_list.remove(prox)
+    _write_proxies(proxy_list)
 
 
 def _get_one_proxy_alternative(country):

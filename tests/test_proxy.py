@@ -1,9 +1,11 @@
 import unittest
 
-from freeproxy import from_cyber_syndrome
-from freeproxy import from_free_proxy_list
-from freeproxy import from_hide_my_ip
-from freeproxy import from_xici_daili
+#from freeproxy import from_cyber_syndrome
+#from freeproxy import from_free_proxy_list
+#from freeproxy import from_hide_my_ip
+#from freeproxy import from_xici_daili
+#from app.main.proxy_util import ip_lookup_country
+#from .post_data import proxy_list
 
 from app.main import proxy_util as p
 from app import create_app, db
@@ -11,8 +13,6 @@ import ipfsApi
 import logging
 import os
 
-from app.main.proxy_util import ip_lookup_country
-# from .post_data import proxy_list
 
 fr_proxy = "178.32.153.219:80"
 china_proxy = "222.161.3.163:9999"
@@ -39,13 +39,14 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual("FR", p.ip_lookup_country("5.135.176.41"))
 
     def test_check_proxies(self):
-        # TODO !! may take more than 45 minutes !!
+        # TODO !! may take a few minutes !!
         print("\nTesting and updating the proxy list - This will take over half an hour!! :")
         #try:
         prox_list = p.update_proxies()
-
-        print("Finished gathering proxies. wrote all to file: {}".format(str(prox_list)))
-        self.assertGreater(len(prox_list), 30, "Gathered no more than 10 proxies")
+        countries = p.get_country_list(False)
+        print("Length of country list {}\n The countries: {}".format(len(countries), countries))
+        print("Finished gathering proxies. wrote all {} to file: {}".format(len(prox_list), str(prox_list)))
+        self.assertGreater(len(prox_list), 30, "Gathered no more than 30 proxies")
         #tested_proxies = p.check_proxies([x[1] for x in prox_list])
         #print("{} tested proxies compared to {} retrieved prxies".format(len(prox_list), len(tested_proxies)))
         #print(tested_proxies)
@@ -58,7 +59,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_get_one_proxy(self):
         print("\nTesting the retrieval of one proxy:")
-        prox = p.get_one_proxy("FJ")
+        prox = p.get_one_proxy("DE")
         self.assertIsNotNone(prox, "Retrieval of one proxy failed.")
         print(prox)
 
@@ -68,6 +69,7 @@ class MyTestCase(unittest.TestCase):
         print(p_list)
         self.assertGreater(len(p_list), 10, "Did not gather more than 10 proxies. Proxy list generation failed!")
 
+    """ # Only necessary if proxybroker does not handle a new error
     def test_proxy_check(self):
         self.assertTrue(p.is_proxy_alive(fr_proxy))
 
@@ -90,10 +92,17 @@ class MyTestCase(unittest.TestCase):
             countries.add(country)
             proxies_list.append([country, "{}:{}".format(split_proxy[0], split_proxy[1])])
         print(str(len(countries)))
-        print(countries)
+        print(countries)"""
 
     def test_get_rand_proxy(self):
-        self.assertIsNotNone(p.get_rand_proxy())
+        proxy = p.get_rand_proxy()
+        print(str(proxy))
+        self.assertIsNotNone(proxy)
+
+    def test_get_one_random_proxy(self):
+        proxy = p.get_one_random_proxy()
+        print(str(proxy))
+        self.assertIsNotNone(proxy)
 
     def test_get_country_list(self):
         country_list = p.get_country_list()

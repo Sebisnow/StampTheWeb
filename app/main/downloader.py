@@ -1171,10 +1171,14 @@ def check_user(user):
     :return: An object of the db class User with al the information stored for a user.
     If no user can be found None will be returned.
     """
-    if user == "Bot":
-        db_user = User.query.filter(User.id == 113).first()
+
+    print("retrieving user {}".format(user))
+    if user is None or type(user) is str:
+        db_user = User.query.filter(User.username == user).first()
     else:
         db_user = User.query.filter(User.username == user.username).first()
+        if db_user is None:
+            db_user = User.query.filter(User.id == 113).first()
     print(str(db_user))
     return db_user
 

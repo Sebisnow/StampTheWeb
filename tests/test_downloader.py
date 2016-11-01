@@ -8,7 +8,8 @@ import os
 import logging
 from subprocess import check_output, DEVNULL
 
-from app.models import Post
+# from app.models import Post
+from app.models import User
 
 url = "http://www.theverge.com/2016/8/12/12444920/no-mans-sky-travel-journal-day-four-ps4-pc"
 sz_url = "http://www.sueddeutsche.de/wirtschaft/oelpreis-saudischer-oelminister-die-oelflut-ist-zu-ende-1.3047480"
@@ -32,7 +33,7 @@ class BasicsTestCase(unittest.TestCase):
         db.create_all()
         down.basePath = "/home/sebastian/testing-stw/"
         download_thread.base_path = "/home/sebastian/testing-stw/"
-        proxy_util.proxy_path = "/home/sebastian/PycharmProjects/STW/static/"
+        proxy_util.static_path = "/home/sebastian/PycharmProjects/STW/static/"
         log_handler = logging.FileHandler('/home/sebastian/testing-stw/STW.log')
         log_handler.setLevel(logging.INFO)
         self.app.logger.setLevel(logging.INFO)
@@ -53,7 +54,7 @@ class BasicsTestCase(unittest.TestCase):
     def test_get_originstamp_history(self):
         sha256 = "QmXiSkFRT7agFChpLa5BhJkvDAVHEefrekAf7DWjZKnmE8"
         print("Test getting history from Originstamp")
-        response = down.get_originstamp_history(sha256)
+        response = download_thread.get_originstamp_history(sha256)
         body = response.json()
         print("    Creation Time: " + body["created_at"])
         print(response.json())
@@ -108,11 +109,11 @@ class BasicsTestCase(unittest.TestCase):
 
         hash_val = result.hashValue
         print("    Check for HTML")
-        self.assertTrue(os.path.exists(down.basePath + hash_val + ".html"), "HTML was not created")
+        self.assertTrue(os.path.exists(proxy_util.base_path + hash_val + ".html"), "HTML was not created")
         print("    Check for PNG")
-        self.assertTrue(os.path.exists(down.basePath + hash_val + ".png"), "PNG was not created")
+        self.assertTrue(os.path.exists(proxy_util.base_path + hash_val + ".png"), "PNG was not created")
         print("    Check for PDF")
-        self.assertTrue(os.path.exists(down.basePath + hash_val + ".pdf"), "PDF was not created")
+        self.assertTrue(os.path.exists(proxy_util.base_path + hash_val + ".pdf"), "PDF was not created")
 
     def test_hash_consistency(self):
         print("Testing the Hash Values")
@@ -135,7 +136,7 @@ class BasicsTestCase(unittest.TestCase):
         test_sha = "QmREyeWxAGtuQ5UiiTs13zp5ZamjkVBYpnDCF1bTgn7Atc"
         # :param test_sha: this is the IPFS hash of the example.html content
         print("Testing the save_file_ipfs with test hash and example input file to verify the IPFS saving steps")
-        with open(down.basePath + "example.html", "r") as f:
+        with open(proxy_util.base_path + "example.html", "r") as f:
             ex_text = f.read()
         sha256 = down.save_file_ipfs(ex_text)
         print("    The example hash: " + test_sha)
@@ -143,21 +144,22 @@ class BasicsTestCase(unittest.TestCase):
         self.assertEqual(sha256, test_sha)
 
     def test_create_html_from_url(self):
+        # TODO update
         test_sha = "QmREyeWxAGtuQ5UiiTs13zp5ZamjkVBYpnDCF1bTgn7Atc"
         print("Testing the create_html_from_url method to verify IPFS gets the file and it is renamed to have a .html "
               "ending.")
-        if os.path.exists(down.basePath + test_sha + ".html"):
-            os.remove(down.basePath + test_sha + ".html")
+        if os.path.exists(proxy_util.base_path + test_sha + ".html"):
+            os.remove(proxy_util.base_path + test_sha + ".html")
         print("    There is a file called " + test_sha + ".html (should be False): " + str(os.path.exists(
-            down.basePath + test_sha + '.html')))
+            proxy_util.base_path + test_sha + '.html')))
         # :param test_sha: this is the IPFS hash of the example.html content
 
-        with open(down.basePath + "example.html", "r") as f:
+        with open(proxy_util.base_path + "example.html", "r") as f:
             ex_text = f.read()
         down.create_html_from_url(ex_text, test_sha, "test-URL")
         print("    There is a file called " + test_sha + ".html: " + str(os.path.exists(
-            down.basePath + test_sha + '.html')))
-        self.assertTrue(os.path.exists(down.basePath + test_sha + '.html'))
+            proxy_util.base_path + test_sha + '.html')))
+        self.assertTrue(os.path.exists(proxy_util.base_path + test_sha + '.html'))
 
     def test_distributed_timestamp_not_none(self):
         result = down.distributed_timestamp(url)
@@ -172,29 +174,29 @@ class BasicsTestCase(unittest.TestCase):
         threads = list()
         for i in range(5):
             threads.append(ThreadSubstitute(threadID=i, ipfs_hash=33, url=str(i), prox_loc="any"))
-        result_threads, votes = down.check_threads(threads)
-        self.assertEqual(4, max(votes))
+        result_threads, votes = down._check_threads(threads)
+        self.assertEqual(5, max(votes))
 
     def test_check_threads_twice_same_result(self):
         threads = list()
         for i in range(2):
             threads.append(ThreadSubstitute(threadID=i, ipfs_hash=33, url=str(i), prox_loc="any"))
-        for i in range(3):
+        for i in range(2):
             threads.append(ThreadSubstitute(threadID=i, ipfs_hash=35, url=str(i), prox_loc="other"))
-        result_threads, votes = down.check_threads(threads)
+        result_threads, votes = down._check_threads(threads)
         self.assertEqual(2, max(votes))
 
     def test_check_threads_no_same_result(self):
         threads = list()
         for i in range(5):
             threads.append(ThreadSubstitute(threadID=i, ipfs_hash=i, url=str(i), prox_loc="any"))
-        result_threads, votes = down.check_threads(threads)
-        self.assertEqual(0, max(votes))
+        result_threads, votes = down._check_threads(threads)
+        self.assertEqual(1, max(votes))
 
     def test_check_user(self):
-        user = "Bot"
-        sha256 = "Qmb833LJQKVSzdUJadMmjNyQRzarD2cmYx1LJFBX589zkK"
-        db_user = down.check_user(user)
+        users = User.query.filter(User.id >= 0).all()
+        print(users)
+        db_user = down.check_user("Bot")
         print("The user: {}".format(str(db_user)))
         self.assertEqual(113, db_user.id)
 

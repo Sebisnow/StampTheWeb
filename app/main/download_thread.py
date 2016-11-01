@@ -161,7 +161,6 @@ class DownloadThread(threading.Thread):
             logger("Thread-{}: Neither proxy nor location are set, doing things locally".format(thread_id))
         dcap["acceptSslCerts"] = True
         phantom = webdriver.PhantomJS(js_path, desired_capabilities=dcap, service_args=service_args)
-
         max_wait = 35
 
         phantom.set_window_size(1024, 768)
@@ -199,7 +198,7 @@ class DownloadThread(threading.Thread):
         :author: Sebastian
         :raises URLError: Is raised if HTML retrieval is forbidden by robots.txt.
         """
-        logger("Started Thread-: {}".format(self.threadID, self))
+        logger("Started Thread-{}: {}".format(self.threadID, self))
         if self.robot_check and not self.bot_parser.can_fetch(self.url):
             self.error = urllib.error.URLError("Not allowed to fetch root html file specified by url:{} because of "
                                                "robots.txt".format(self.url))
@@ -255,11 +254,12 @@ class DownloadThread(threading.Thread):
                     raise self.error
 
         # check that HTML was really downloaded and is not an error page using the proxy by checking simple heuristics
-        if self.proxy is not None and not is_correct_html(self.html):
-            self.error = TimeoutException("Thread-{}: Website did not pass the heuristics check. Unreachable from "
-                                          "loc {} with {}".format(self.threadID, self.prox_loc, self.proxy))
-            logger(self.error.msg)
-            raise self.error
+        if self.proxy is not None and not is_correct_html(self.html, self.threadID, self.url):
+
+                self.error = TimeoutException("Thread-{}: Website did not pass the heuristics check. Unreachable from "
+                                              "loc {} with {}".format(self.threadID, self.prox_loc, self.proxy))
+                logger(self.error.msg)
+                raise self.error
 
         self.html, self.title = preprocess_doc(self.html)
         soup = BeautifulSoup(self.html, "lxml")
@@ -807,7 +807,7 @@ def get_originstamp_history(sha256):
     return requests.get("{}/{}".format(api_post_url, sha256), headers=headers)
 
 
-def is_correct_html(html, t_id=None):
+def is_correct_html(html, t_id=None, url=None):
     """
     Applies heuristics to filter "incorrect" HTML. Checks the character length of the HTML as proxies sometimes send
     back empty HTMLs. In short HTMLs it checks for keywords like Error or Denied as heuristics.
@@ -816,16 +816,25 @@ def is_correct_html(html, t_id=None):
     :param html: The HTML as String.
     :param t_id: Optional parameter used only for logging in case this method is called by a DownloadThread to
     associate the text in the log with the thread.
+    :param url: THe url that the html was retrieved from. Used as an exception to the length rule if url is
+    proxy_util.ip_check_url = "http://httpbin.org/ip"
     :return: True if the heuristics conclude it is a real HTML without errors, otherwise False.
     """
+
+    keywords = ["Error", "Denied", "Authentication Required", "Authenticate"]
     if html is None:
-        logger("Thread-{} Failed the HTML correctness check on 1. condition".format(t_id))
+        logger("Thread-{} Failed the HTML correctness check on 1. condition it is None".format(t_id))
         return False
+    if url is not None and url.find("httpbin.org") != -1:
+        logger("Thread-{} HTML correctness check succeeded, because URL is {}!".format(t_id, url))
+        return True
     if len(html) < 300:
-        logger("Thread-{} Failed the HTML correctness check on 2. condition".format(t_id))
+        logger("Thread-{} Failed the HTML correctness check on 2. condition it is too small".format(t_id))
         return False
-    if len(html) < 1000 and ("Error" in html or "Denied" in html or "Authentication Required" in html):
-        logger("Thread-{} Failed the HTML correctness check on 3. condition".format(t_id))
-        return False
+    if len(html) < 1000:
+        for key in keywords:
+            if key in html:
+                logger("Thread-{} Failed the HTML correctness check on 3. condition for Keyword '{}'".format(t_id, key))
+                return False
     logger("Thread-{} HTML correctness check succeeded. HTML seems valid!".format(t_id))
     return True
