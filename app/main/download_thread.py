@@ -197,6 +197,7 @@ class DownloadThread(threading.Thread):
 
         :author: Sebastian
         :raises URLError: Is raised if HTML retrieval is forbidden by robots.txt.
+                ValueError: Is raised if URL was unreachable due to heuristics failure.
         """
         logger("Started Thread-{}: {}".format(self.threadID, self))
         if self.robot_check and not self.bot_parser.can_fetch(self.url):
@@ -206,20 +207,21 @@ class DownloadThread(threading.Thread):
             raise self.error
         try:
             self.download()
-        except RuntimeError as e:
-            # store error and reraise to stop thread.
+        except ValueError as e:
             self.error = e
             logger("Thread-{}: {}".format(self.threadID, self.error))
             raise e
-        except ConnectionResetError as e:
-            # store error and reraise to stop thread.
-            self.error = e
-            logger("Thread-{}: {}".format(self.threadID, self.error))
-            raise e
-        except TimeoutException as timeout:
-            self.error = timeout
-            logger("Thread-{}: {}".format(self.threadID, self.error))
-            raise timeout
+        except (RuntimeError, ConnectionResetError, TimeoutException, HTTPError):
+            try:
+                if proxy_util.is_proxy_alive(self.proxy, 3):
+                    self._get_one_proxy()
+                    self.download()
+                else:
+                    raise ValueError("Thread-{} Proxy checked after failed retrieval, but proxy is alive"
+                                     .format(self.threadID))
+            except (RuntimeError, ConnectionResetError, TimeoutException, HTTPError, ValueError) as e:
+                self.error = e
+                raise e
         # submit the hash to originstamp to create a lasting timestamp.
         if self.error is None:
             logger("Thread-{}: Encountered no errors, going for submission".format(self.threadID))
@@ -255,11 +257,10 @@ class DownloadThread(threading.Thread):
 
         # check that HTML was really downloaded and is not an error page using the proxy by checking simple heuristics
         if self.proxy is not None and not is_correct_html(self.html, self.threadID, self.url):
-
-                self.error = TimeoutException("Thread-{}: Website did not pass the heuristics check. Unreachable from "
-                                              "loc {} with {}".format(self.threadID, self.prox_loc, self.proxy))
-                logger(self.error.msg)
-                raise self.error
+            self.error = ValueError("Thread-{}: Website did not pass the heuristics check. Unreachable from "
+                                    "loc {} with {}".format(self.threadID, self.prox_loc, self.proxy))
+            logger(str(self.error))
+            raise self.error
 
         self.html, self.title = preprocess_doc(self.html)
         soup = BeautifulSoup(self.html, "lxml")
@@ -821,7 +822,7 @@ def is_correct_html(html, t_id=None, url=None):
     :return: True if the heuristics conclude it is a real HTML without errors, otherwise False.
     """
 
-    keywords = ["Error", "Denied", "Authentication Required", "Authenticate"]
+    keywords = ["Error", "ERROR", "Denied", "Authentication Required", "Authenticate"]
     if html is None:
         logger("Thread-{} Failed the HTML correctness check on 1. condition it is None".format(t_id))
         return False

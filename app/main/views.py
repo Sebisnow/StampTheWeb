@@ -964,7 +964,7 @@ def loc_indep_timestamp():
             threads.remove(orig_thread)
 
         # sort all posts to their hashs
-        _prepare_return_country_dict(threads, country_list, ret_countries)
+        ret_countries = _prepare_return_country_dict(threads, country_list, ret_countries)
 
         template, form, posts, pagination, domain_name_unique = _render_standard_timestamp_post('timestamp_result.html',
                                                                                                 form, render=False)
@@ -1026,10 +1026,11 @@ def lit(form):
         original_post = Post.query.filter(Post.hashVal == orig_thread.ipfs_hash).first()
         log("Got the original post:{}, threads is {}.".format(original_post.hashVal, type(threads)))
         orig_country = [co[0] for co in country_list if co[1] == orig_thread.prox_loc][0]
-        threads.remove(orig_thread)
+        if orig_thread in threads:
+            threads.remove(orig_thread)
 
     # sort all posts to their hashs
-    _prepare_return_country_dict(threads, country_list, ret_countries)
+    ret_countries = _prepare_return_country_dict(threads, country_list, ret_countries)
 
     template, form, posts, pagination, domain_name_unique = _render_standard_timestamp_post('timestamp_result.html',
                                                                                             form, render=False)
@@ -1111,7 +1112,7 @@ def get_new_proxies():
     :return: The Data that was timestamped.
     """
     output = run(['python3.5', 'app/main/proxy_util.py'], stdout=PIPE)
-    log("This is the output: \n-----------------------------\n" + output)
+    log("This is the output: \n-----------------------------\n".format(output))
     return _render_standard_timestamp_post()
 
 
@@ -1198,39 +1199,28 @@ def _prepare_return_country_dict(threads, country_list, ret_countries):
     :param country_list: The list of country names and their iso abbreviations.
     :param ret_countries: The dict of ReturnCountries to modify.
     """
-    hash_country = dict()
     for thread in threads:
         if thread.ipfs_hash is not None:
-            if thread.ipfs_hash not in hash_country:
-                hash_country[thread.ipfs_hash] = list()
             log(thread.prox_loc)
             if thread.ipfs_hash not in ret_countries.keys():
                 db_post = Post.query.filter(Post.hashVal == thread.ipfs_hash).first()
                 if db_post is not None:
-                    ret_countries[thread.ipfs_hash] = ReturnCountries(db_post)
-                    log("Retrieved a post for Thread-{}  for {} to add to return_country"
-                        .format(thread.threadID, thread.ipfs_hash))
+                    ret_countries[thread.ipfs_hash] = ReturnCountries(db_post, [])
+                    log("Retrieved a post for Thread-{}  for {} to add to return_country as {}"
+                        .format(thread.threadID, thread.ipfs_hash, ret_countries[thread.ipfs_hash]))
                 else:
                     log("Couldn't retrieve a post for {} for Thread-{} to add to return_country"
                         .format(thread.ipfs_hash, thread.threadID))
-
-                for con in country_list:
-                    if con[1] == thread.prox_loc:
-                        # ret_countries[thread.ipfs_hash].countries.append(con[0])
-                        #hash_country[thread.ipfs_hash].append(con[0])
-                        ret_countries[thread.ipfs_hash].countries.append(con[0])
-                        log("Preparing return_country for {}: Appending {}\n countries are now:{} "
-                            .format(thread.ipfs_hash, con[0], ret_countries[thread.ipfs_hash].countries))
-
-    """for con in country_list:
-        for hash_val in hash_country:
-            if hash_country[hash_val] in ret_countries[hash_val].countries:
-                ret_countries[hash_val].countries = hash_country[hash_val]
-                log("Adding country {} \n  to hash {} \n  in list {},\n  countries so far are {}"
-                    .format(con, hash_val, id(ret_countries[hash_val]), ret_countries[hash_val].countries))"""
+            ret_countries[thread.ipfs_hash].countries += [con[0] for con in country_list if con[1] == thread.prox_loc]
+            log("Added to return_countries at {}: {}".format(thread.ipfs_hash, ret_countries))
+    log("Finished preparing the return_countries: {}".format(ret_countries))
+    return ret_countries
 
 
 class ReturnCountries:
-    def __init__(self, db_post, countries=list()):
+    def __init__(self, db_post, countries):
         self.countries = countries
         self.post = db_post
+
+    def __repr__(self):
+        return "ReturnCountries ID: {} Countries: {} The post: {}".format(id(self), self.countries, self.post)
