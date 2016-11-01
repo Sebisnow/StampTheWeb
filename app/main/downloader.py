@@ -584,6 +584,9 @@ def get_url_hist(url, user=None, robot_check=False, location=None):
     if len(error) != 0:
         app.logger.error('An error was returned trying to retrieve {}:\n {}'.format(url, str(error[0].error)))
         return ReturnResults(None, None, None, error[0].error)
+    elif thread is None or thread.originstamp_result is None:
+        app.logger.error('An error was returned trying to retrieve {}:\n {}'.format(url, str(thread)))
+        return ReturnResults(None, None, None, "Unknown error please try again")
 
     return ReturnResults(thread.originstamp_result, thread.ipfs_hash, thread.title)
 

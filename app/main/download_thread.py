@@ -254,8 +254,8 @@ class DownloadThread(threading.Thread):
                                                   "from loc {}".format(self.threadID, self.prox_loc))
                     raise self.error
 
-        # check that HTML was really downloaded by checking simple heuristics
-        if not is_correct_html(self.html):
+        # check that HTML was really downloaded and is not an error page using the proxy by checking simple heuristics
+        if self.proxy is not None and not is_correct_html(self.html):
             self.error = TimeoutException("Thread-{}: Website did not pass the heuristics check. Unreachable from "
                                           "loc {} with {}".format(self.threadID, self.prox_loc, self.proxy))
             logger(self.error.msg)

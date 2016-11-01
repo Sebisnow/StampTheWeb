@@ -135,8 +135,11 @@ def index():
 
         url_site = form.urlSite.data
         results = downloader.get_url_hist(url_site, user=current_user)
-        flash('At {} new time-stamp has been created. Scroll down to view it.'
-              .format(results.originStampResult["created_at"]))
+        if results.originStampResult is not None:
+            flash('At {} new time-stamp has been created. Scroll down to view it.'
+                  .format(results.originStampResult["created_at"]))
+        else:
+            flash('An error occurred. please try once more')
         return redirect(url_for('.index'))
     elif current_user.can(Permission.WRITE_ARTICLES) and \
             form_freq.validate_on_submit() and form_freq.frequency.data > 0:
