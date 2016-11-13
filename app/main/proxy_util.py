@@ -1,3 +1,4 @@
+from datetime import datetime
 from urllib.parse import urlparse
 import csv
 import asyncio
@@ -565,3 +566,4 @@ def get_proxy_from_url(url, proxy_list=None):
 
 if __name__ == '__main__':
     update_proxies()
+    logger("Finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
