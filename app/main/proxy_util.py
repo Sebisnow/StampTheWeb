@@ -18,6 +18,8 @@ import socket
 #static_path = os.path.abspath(os.path.expanduser("~/") + "PycharmProjects/STW/static")
 
 static_path = os.path.abspath(os.path.expanduser("~/") + "StampTheWeb/static")
+if not os.path.exists(static_path):
+    static_path = "/hom/ubuntu/StampTheWeb/static"
 proxy_path = static_path + "/proxy_list.tsv"
 country_path = static_path + "/country_codes.csv"
 # regular expression to check URL, see https://mathiasbynens.be/demo/url-regex
