@@ -212,6 +212,7 @@ class DownloadThread(threading.Thread):
             logger("Thread-{}: {}".format(self.threadID, self.error))
             raise e
         except (RuntimeError, ConnectionResetError, TimeoutException, HTTPError):
+            # Give it another try
             try:
                 if proxy_util.is_proxy_alive(self.proxy, 3):
                     self._get_one_proxy()
@@ -268,17 +269,6 @@ class DownloadThread(threading.Thread):
         self.images = self._load_images(soup, self.proxy)
         with open(self.path + "page_source.html", "w") as f:
             f.write(self.html)
-
-        """archive = zipfile.ZipFile(self.path + 'STW.zip', "w", zipfile.ZIP_DEFLATED)
-        archive.write(self.path + "page_source.html")
-        for img in self.images:
-            logger("Thread{} Path to image: {}".format(self.threadID, str(self.images.get(img).get("filename"))))
-            archive.write(self.path + self.images.get(img).get("filename"))
-        archive.close()
-        # Add folder to ipfs # TODO best place to zip files if necessary
-        # would not be necessary to add folder to ipfs since the html has the ipfs_hash
-        # of the images stored within the img tags and thus is unique itself.
-        self.ipfs_hash = add_to_ipfs(self.path + 'STW.zip')"""
 
         self.ipfs_hash = add_to_ipfs(self.path + 'page_source.html')
         logger("Thread-{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
@@ -398,6 +388,7 @@ class DownloadThread(threading.Thread):
         :return: A Response object with the response status and the image to store.
         """
 
+        # TODO rewrite into for loop through a list declared in the head of the file for easier addition of new tags
         if 'src' in img.attrs and proxy_util.url_specification.match(img['src']):
             tag = img['src']
         elif 'data-full-size' in img.attrs and proxy_util.url_specification.match(img['data-full-size']):
