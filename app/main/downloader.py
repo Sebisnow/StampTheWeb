@@ -26,6 +26,7 @@ errorCaught = ""
 
 blockSize = 65536
 options = {'quiet': ''}
+log = app.logger.info()
 
 
 class ReturnResults(object):
@@ -513,7 +514,7 @@ def save_file_ipfs(text):
 
     app.logger.info("    There is a file called " + path + ": " + str(os.path.exists(path)))
     ipfs_hash = d_thread.ipfs_Client.add(path)
-    print(ipfs_hash[0]['Hash'])
+    log(ipfs_hash[0]['Hash'])
     return ipfs_hash[0]['Hash']
 
 
@@ -753,7 +754,7 @@ def get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, 
             # for every link do a country independent timestamp
             links = thread.get_links()
             for link in links:
-                print("All links of thread-{}:\n{}".format(thread.threadID, links))
+                log("All links of thread-{}:\n{}".format(thread.threadID, links))
                 link_threads = list()
                 cnt *= 10
                 # Get a proxy from the location of the URL and start thread manually
@@ -766,12 +767,12 @@ def get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, 
                 # Start all other threads and add to list for link
                 started_threads = start_threads(None, link_threads, link, cnt, num_threads-1, robot_check,
                                                 proxy_list)
-                print("Started Threads: {}".format(started_threads))
+                log("Started Threads: {}".format(started_threads))
 
                 # For every link create an entry in the thread_dict containing a list of started threads
                 thread_dict[thread.ipfs_hash][link] = link_threads + started_threads
                 #TODO List gets too deep
-                print("Added {} to thread dict for link {}".format(link_threads, link))
+                log("Added {} to thread dict for link {}".format(link_threads, link))
                 cnt += 1
 
     # Join all threads and submit results to db
@@ -779,7 +780,7 @@ def get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, 
     for hash_value, link_dict in thread_dict.items():
         if hash_value != "error_threads":
             for link, thread_list in link_dict.items():
-                print("Going for the join of threads from {}: {}".format(link, thread_list))
+                log("Going for the join of threads from {}: {}".format(link, thread_list))
                 joined_threads, votes = _join_threads(thread_list)
                 if len(joined_threads) > 0:
                     # submit threads and add error threads returned to error part of dict.
@@ -896,7 +897,7 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     If not extension triggered this method returns a list of DownloadThread objects and the votes list.
     Votes has an integer stored for each thread, the highest is taken as the original.
     """
-    print("Distributed timestamping")
+    log("Distributed timestamping")
     extension_triggered = False
     if not re.match(proxy_util.url_specification, url):
         return ReturnResults(None, None, None, OriginstampError("The entered URL does not correspond "
@@ -920,7 +921,7 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
     _submit_threads_to_db(joined_threads, user)
 
     max_index = votes.index(max(votes))
-    print("Distributed timestamp done, return results.")
+    log("Distributed timestamp done, return results.")
     if extension_triggered:
         if max(votes) == votes[0]:
             # The input of the user is the same result as the one with the highest votes.
@@ -939,18 +940,18 @@ def distributed_timestamp(url, html=None, proxies=None, user="Bot", robot_check=
 
 def start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_list):
     num_threads += cnt
-    print("Proxies: " + str(proxies))
+    log("Proxies: " + str(proxies))
     if proxies is not None:
         for proxy in proxies:
             if cnt >= num_threads:
                 break
-            app.logger.info("--- Start Thread-{} with proxy: {}".format(cnt, [proxy]))
+            log("--- Start Thread-{} with proxy: {}".format(cnt, [proxy]))
             threads.append(_run_thread(url, cnt, proxy_list=[proxy], robot_check=robot_check))
             cnt += 1
 
     for n in range(cnt, num_threads):
         threads.append(_run_thread(url, n, proxy_list=proxy_list, robot_check=robot_check))
-    print("Threads created: {}".format(threads))
+    log("Threads created: {}".format(threads))
     return threads
 
 
@@ -1005,14 +1006,14 @@ def _join_threads(threads, original_present=False):
     :return: A list of DownloadThread objects with all important information about hash, html and infos about the
     download job and the index of the DownloadThread with the highest votes as second parameter.
     """
-    app.logger.info("Joining Threads {}.".format(threads))
+    log("Joining Threads {}.".format(threads))
     for thread in threads:
         if type(thread) == list:
-            print("having subthreads {}".format(thread))
+            log("having subthreads {}".format(thread))
             for subthread in thread:
-                print("joining subthread {}".format(subthread))
+                log("joining subthread {}".format(subthread))
                 subthread.join()
-        print("thread to join {}".format(thread))
+        log("thread to join {}".format(thread))
         thread.join()
     if original_present:
         return threads, None
@@ -1034,8 +1035,8 @@ def _check_threads(threads):
     num = 0
     for thread in threads:
         if thread.ipfs_hash is not None:
-            app.logger.info("We have an ipfs_hash from {} in Thread-{}: {}".format(thread.prox_loc, thread.threadID,
-                                                                                   thread.ipfs_hash))
+            log("We have an ipfs_hash from {} in Thread-{}: {}".format(thread.prox_loc, thread.threadID,
+                                                                       thread.ipfs_hash))
             for cnt in range(0, len(threads)):
                 if thread.ipfs_hash == threads[cnt].ipfs_hash:
                     # increment even if it is the same thread to separate if no other was successful
@@ -1044,12 +1045,12 @@ def _check_threads(threads):
         elif thread.error is not None or thread.ipfs_hash is None:
             num += 1
             # An error occurred in this thread, site unreachable from this location.
-            app.logger.info("The url of Thread-{} ({}) is unreachable from {} due to {}\n with hash {}."
-                            .format(thread.threadID, thread.url, thread.prox_loc, thread.error, thread.ipfs_hash))
+            log("The url of Thread-{} ({}) is unreachable from {} due to {}\n with hash {}."
+                .format(thread.threadID, thread.url, thread.prox_loc, thread.error, thread.ipfs_hash))
             continue
 
-    app.logger.info(votes)
-    print("Joined Threads: {}".format(votes))
+    log(votes)
+    log("Joined Threads: {}".format(votes))
     return threads, votes
 
 
@@ -1063,19 +1064,19 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
     :param user: The user that submitted the timestamp request as String of his username.
     :param original_hash: The hash to compare the results with to identify censored/modified content.
     """
-    print("Add {} threads to db with original: {}. THe rest: {}".format(len(results), original_hash,
-                                                                        [res.threadID for res in results]))
+    log("Add {} threads to db with original: {}. THe rest: {}".format(len(results), original_hash,
+                                                                      [res.threadID for res in results]))
     error_threads = list()
     countries = set()
     for th in results:
         if th.ipfs_hash is not None:
             countries.add(th.prox_loc)
     for thread in results:
-        print("Adding Thread-{} to db".format(thread.threadID))
+        log("Adding Thread-{} to db".format(thread.threadID))
 
         if thread.error is not None:
-            print("Add error thread {} from {} to db. Type of Error  was {}\n error was: {}"
-                  .format(thread.threadID, thread.prox_loc, type(thread.error), str(thread.error)))
+            log("Add error thread {} from {} to db. Type of Error  was {}\n error was: {}"
+                .format(thread.threadID, thread.prox_loc, type(thread.error), str(thread.error)))
             if thread.prox_loc is not None and thread.error == TimeoutException:
                     country = Country.query.filter_by(country_code=thread.prox_loc).first()
 
@@ -1083,22 +1084,22 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
                     country.block_url = "{}{};".format(country.block_url, thread.url)
                     db.session.add(country)
                     db.session.commit()
-                    print("Updated {} block count to {}".format(thread.prox_loc, str(country.block_count)))
-                    print("Finished adding error Thread-{} to db".format(thread.threadID))
+                    log("Updated {} block count to {}".format(thread.prox_loc, str(country.block_count)))
+                    app.logger.info("Finished adding error Thread-{} to db".format(thread.threadID))
             if thread.prox_loc not in countries:
                 error_threads.append(thread)
             results.remove(thread)
         elif thread.originstamp_result is None:
             # No error but originstamp result is not there -> something went really wrong
-            print("No error but originstamp result is not there -> something went really wrong in Thread-{}"
-                  .format(thread.threadID))
+            log("No error but originstamp result is not there -> something went really wrong in Thread-{}"
+                .format(thread.threadID))
             if thread.prox_loc not in countries:
                 error_threads.append(thread)
             results.remove(thread)
 
         elif original_hash is not None and original_hash != thread.ipfs_hash:
-            print("The content from Thread-{} from {} does not match the original!\n {}\n{}"
-                  .format(thread.threadID, thread.prox_loc, thread.ipfs_hash, original_hash))
+            log("The content from Thread-{} from {} does not match the original!\n {}\n{}"
+                .format(thread.threadID, thread.prox_loc, thread.ipfs_hash, original_hash))
             country = Country.query.filter_by(country_code=thread.prox_loc).first()
             country.censor_count += 1
             country.censored_urls = "{}{};".format(country.censored_urls, thread.url)
@@ -1108,19 +1109,19 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
                            thread.originstamp_result["created_at"], user=user)
 
         elif thread.ipfs_hash is not None:
-            print("Adding Post for Thread-{} from country {} with Originstamp result: {}"
-                  .format(thread.threadID, thread.prox_loc, str(thread.originstamp_result)))
+            log("Adding Post for Thread-{} from country {} with Originstamp result: {}"
+                .format(thread.threadID, thread.prox_loc, str(thread.originstamp_result)))
             add_post_to_db(thread.url, thread.url, thread.title, thread.ipfs_hash,
                            thread.originstamp_result["created_at"], user=user)
         else:
-            print("None Error and no hash in Thread-{} from {} proxy {} hash {}"
-                  .format(thread.threadID, thread.prox_loc, thread.proxy, thread.ipfs_hash))
+            log("None Error and no hash in Thread-{} from {} proxy {} hash {}"
+                .format(thread.threadID, thread.prox_loc, thread.proxy, thread.ipfs_hash))
             if thread.prox_loc not in countries:
                 error_threads.append(thread)
             results.remove(thread)
 
-    print("Adding threads to db done. Error thread count is {} versus {} working threads."
-          .format(len(error_threads), len(results)))
+            log("Adding threads to db done. Error thread count is {} versus {} working threads."
+                .format(len(error_threads), len(results)))
     return error_threads
 
 
@@ -1138,13 +1139,13 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
     If no user is named it will be attributed to the Stamp The Web 'Bot'.
     """
     already_exists = Post.query.filter(Post.hashVal == sha256).first()
-    print("Query Adding one new post. Already exists: {}".format(already_exists))
+    log("Query Adding one new post. Already exists: {}".format(already_exists))
     if already_exists is not None:
-        print("Increasing  count for: {}".format(already_exists.hashVal))
+        log("Increasing  count for: {}".format(already_exists.hashVal))
         already_exists.count += 1
         db.session.add(already_exists)
     else:
-        print("Make new post")
+        log("Make new post")
         if user is None:
             # Use bot for post, bot is authorid 113
             post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
@@ -1152,11 +1153,11 @@ def add_post_to_db(url, body, title, sha256, originstamp_time, user=None):
                             author_id=113)
         else:
             user = check_user(user)
-            print("We have a user:{}".format(user))
+            log("We have a user:{}".format(user))
             post_new = Post(body=body, urlSite=url, hashVal=sha256, webTitl=title,
                             origStampTime=datetime.strptime(originstamp_time, "%Y-%m-%dT%H:%M:%S.%fZ"),
                             author_id=user.id)
-        print("Finished adding one new post, committing")
+            log("Finished adding one new post, committing")
         db.session.add(post_new)
     db.session.commit()
 
@@ -1172,14 +1173,14 @@ def check_user(user):
     If no user can be found None will be returned.
     """
 
-    print("retrieving user {}".format(user))
+    log("retrieving user {}".format(user))
     if user is None or type(user) is str:
         db_user = User.query.filter(User.username == user).first()
     else:
         db_user = User.query.filter(User.username == user.username).first()
         if db_user is None:
             db_user = User.query.filter(User.id == 113).first()
-    print(str(db_user))
+    log(str(db_user))
     return db_user
 
 
