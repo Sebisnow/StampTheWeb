@@ -388,20 +388,17 @@ class DownloadThread(threading.Thread):
         :return: A Response object with the response status and the image to store.
         """
 
-        # TODO rewrite into for loop through a list declared in the head of the file for easier addition of new tags
-        if 'src' in img.attrs and proxy_util.url_specification.match(img['src']):
-            tag = img['src']
-        elif 'data-full-size' in img.attrs and proxy_util.url_specification.match(img['data-full-size']):
-            tag = img['data-full-size']
-        elif 'data-original' in img.attrs and proxy_util.url_specification.match(img['data-original']):
-            tag = img['data-original']
-        elif 'data' in img.attrs and proxy_util.url_specification.match(img['data']):
-            tag = img['data']
-        else:
-            msg = "Thread-{}: An image did not have a html specification url: {}".format(self.threadID, img)
+        attributes = ['src', 'data-full-size', 'data-original', 'data']
+        tag = None
+        for attr in attributes:
+            if attr in img.attrs and proxy_util.url_specification.match(img[attr]):
+                tag = img[attr]
+            elif attr in img.attrs and _starts_with_slashes(img[attr]):
+                tag = "http:{}".format(img[attr])
+        if tag is None:
+            msg = "Thread-{}: An image did not have an html specification url: {}".format(self.threadID, img)
             logger(msg)
             raise NameError(msg)
-
         logger("Thread-{}: Trying to download image: {}".format(self.threadID, tag))
         if self.robot_check and not self.bot_parser.can_fetch(self.url):
             text = "Thread-{}: Not allowed to fetch image file specified by url:{} because of robots.txt"\
@@ -830,3 +827,10 @@ def is_correct_html(html, t_id=None, url=None):
                 return False
     logger("Thread-{} HTML correctness check succeeded. HTML seems valid!".format(t_id))
     return True
+
+
+def _starts_with_slashes(img_attr):
+    if str(img_attr).startswith("//"):
+        return True
+    else:
+        return False

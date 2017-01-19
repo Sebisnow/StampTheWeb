@@ -209,7 +209,8 @@ class BasicsTestCase(unittest.TestCase):
         country = proxy_util.ip_lookup_country(this_proxy.split(":")[0])
 
         print(this_proxy.split(":")[0])
-        thread = down.DownloadThread(101, proxy_util.ip_check_url, proxy=this_proxy,  prox_loc=country, basepath=base_path)
+        thread = down.DownloadThread(101, proxy_util.ip_check_url, proxy=this_proxy,  prox_loc=country,
+                                     basepath=base_path)
         thread.start()
         thread.join()
 
