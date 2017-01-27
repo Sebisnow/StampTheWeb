@@ -285,6 +285,9 @@ class DownloadThread(threading.Thread):
         except TimeoutException as e:
             logger("Thread-{}: Could not access website : {}".format(self.threadID, e))
             return False
+        except urllib.error.URLError as e:
+            logger("Thread-{}: Could not access website, proxy refused connection: {}".format(self.threadID, e))
+            return False
         logger("Thread-{}: Accessed website successfully".format(self.threadID))
         try:
             self.scroll(self.phantom)
