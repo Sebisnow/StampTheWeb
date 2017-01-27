@@ -566,7 +566,7 @@ def ipfs_get(timestamp):
 
 def get_url_hist(url, user=None, robot_check=False, location=None):
     """
-    Alternative to get_url_history that uses the DownloadThread class for timestamping.
+    Alternative to get_url_history. This function uses the DownloadThread class for timestamping.
 
     :author: Sebastian
     :param url: The URL of the website to timestamp.

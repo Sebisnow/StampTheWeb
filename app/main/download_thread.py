@@ -230,6 +230,7 @@ class DownloadThread(threading.Thread):
         if self.error is None:
             logger("Thread-{}: Encountered no errors, going for submission".format(self.threadID))
             self.handle_submission()
+        self.phantom.quit()
 
     def download(self):
         """
