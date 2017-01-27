@@ -374,13 +374,13 @@ def _get_one_proxy_alternative(country):
     Fetches one active proxy from the specified country from the proxy list.
 
     :author: Sebastian
-    :param country: THe location of the proxy to fetch
+    :param country: The location of the proxy to fetch
     :return: The proxy from the specified location.
     """
     logger("Getting one proxy the alternative way")
     proxies = get_proxy_list()
     for proxy in proxies:
-        if country == proxy[0] and is_proxy_alive(proxy[1]):
+        if country == proxy[0] and is_proxy_alive(proxy[1], 3):
             return proxy[1]
     return None
 
