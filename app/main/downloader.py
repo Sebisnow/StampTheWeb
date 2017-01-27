@@ -770,7 +770,7 @@ def get_links_for_threads(joined_threads, proxy_list, num_threads, robot_check, 
 
                 # For every link create an entry in the thread_dict containing a list of started threads
                 thread_dict[thread.ipfs_hash][link] = link_threads + started_threads
-                #TODO List gets too deep
+                #TODO List gets too deep and complicated, easier solution?
                 app.logger.info("Added {} to thread dict for link {}".format(link_threads, link))
                 cnt += 1
 
@@ -844,7 +844,7 @@ def location_independent_timestamp(url, proxies=None, robot_check=False, num_thr
             }
     """
 
-    proxy_list = proxy_util.get_proxy_list()
+    proxy_list = _clean_proxy_list(proxy_util.get_proxy_list())
     threads = list()
 
     # Get a proxy from the location of the URL
@@ -949,6 +949,7 @@ def start_threads(proxies, threads, url, cnt, num_threads, robot_check, proxy_li
             cnt += 1
 
     for n in range(cnt, num_threads):
+        #start more threads as long as the number of threads is less than specified in num_threads
         threads.append(_run_thread(url, n, proxy_list=proxy_list, robot_check=robot_check))
     app.logger.info("Threads created: {}".format(threads))
     return threads

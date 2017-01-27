@@ -912,7 +912,7 @@ def timestamp_api():
                                doman_name=domain_name_unique, home_page="active")
 
 
-@main.route('/litimestamp/', methods=['GET', 'POST'])
+@main.route('/litimestamp', methods=['GET', 'POST'])
 @login_required
 def loc_indep_timestamp():
     """
@@ -1209,8 +1209,9 @@ def _prepare_return_country_dict(threads, country_list, ret_countries):
                     log("Retrieved a post for Thread-{}  for {} to add to return_country as {}"
                         .format(thread.threadID, thread.ipfs_hash, ret_countries[thread.ipfs_hash]))
                 else:
-                    log("Couldn't retrieve a post for {} for Thread-{} to add to return_country"
-                        .format(thread.ipfs_hash, thread.threadID))
+                    log("Couldn't retrieve a post for {} for Thread-{} from {} to add to return_country"
+                        .format(thread.ipfs_hash, thread.threadID, thread.prox_loc))
+                    continue
             ret_countries[thread.ipfs_hash].countries += [con[0] for con in country_list if con[1] == thread.prox_loc]
             log("Added to return_countries at {}: {}".format(thread.ipfs_hash, ret_countries))
     log("Finished preparing the return_countries: {}".format(ret_countries))

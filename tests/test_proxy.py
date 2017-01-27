@@ -104,6 +104,14 @@ class MyTestCase(unittest.TestCase):
         print(str(proxy))
         self.assertIsNotNone(proxy)
 
+    def test_clean_proxy_list(self):
+        sample_proxy_list = [["DE", "1234"], ["AT", "678"], ["DE", "898989"], ["IT", "78786"], ["DE", "1821"],
+                             ["AT", "1212"], ["DE", "99999"], ["ES", "83838"], ["AT", "1111"], ["IT", "3234"]]
+        result_list = [["DE", "1234"], ["AT", "678"], ["DE", "898989"], ["IT", "78786"],
+                       ["AT", "1212"], ["ES", "83838"], ["IT", "3234"]]
+        proxy_list = p._clean_proxy_list(sample_proxy_list)
+        self.assertListEqual(proxy_list, result_list)
+
     def test_get_country_list(self):
         country_list = p.get_country_list()
         print(country_list)

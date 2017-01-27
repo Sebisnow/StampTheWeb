@@ -476,7 +476,7 @@ class DownloadThread(threading.Thread):
         :return: The path to the WARC file.
         """
         logger("Thread-{}: Adding to warc".format(self.threadID))
-        # TODO only store references to ipfs in warc. binary data is difficult to work with.
+        # TODO only store references to ipfs in warc. binary data is difficult to work with and storage inefficient.
         # TODO store one WARC per URL instead of only one WARC - issue is the IPFS/IPNS publishing.
         originstamp_result = self.originstamp_result
 
@@ -538,6 +538,7 @@ class DownloadThread(threading.Thread):
         """
         logger("Thread-{} submit hash to originstamp.".format(self.threadID))
         if self.prox_loc is None:
+            #TODO define default location as constant
             self.prox_loc = "DE"
         self.originstamp_result = submit(self.ipfs_hash, title="Distributed timestamp of /{}/{} from location {}"
                                          .format(datetime.utcnow().strftime("%Y%m%d%H%M"), self.url, self.prox_loc))

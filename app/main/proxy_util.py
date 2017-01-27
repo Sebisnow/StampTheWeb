@@ -167,7 +167,8 @@ def get_proxy_list(update=False, prox_loc=None):
     :param prox_loc: Defaults to None. If specified only proxies from this location are taken into account.
     :param update: Is set to False by default. If set to True the proxy list will be fetched again.
     This takes quite a while!
-    :return: A list of lists with 3 values representing proxies [1] with their location [0].
+    :return: A list of lists with 3 values representing proxies [1] with their location [0] and
+    None(Waqar uses third value).
     """
     logger("Getting the proxylist")
     proxy_list = []
@@ -205,7 +206,25 @@ def update_proxies():
         # package
         proxy_list = _gather_proxies_alternative()
     logger("All proxies gathered!")
-    return _write_proxies(proxy_list)
+    return _write_proxies(_clean_proxy_list(proxy_list))
+
+
+def _clean_proxy_list(proxy_list):
+    """
+    Cleans the proxy list so that only two proxies per country remain.
+    :param proxy_list: The list of proxies
+    :return: A list of proxies where each country provides max two proxies.
+    """
+    country_dict = dict()
+    cleaned_proxy_list = list()
+    for proxy in proxy_list:
+        if proxy[0] not in country_dict.keys():
+            country_dict[proxy[0]] = 1
+            cleaned_proxy_list.append(proxy)
+        elif country_dict[proxy[0]] == 1:
+            country_dict[proxy[0]] = 2
+            cleaned_proxy_list.append(proxy)
+    return cleaned_proxy_list
 
 
 def update_proxies_with_country(prox_loc=None):
