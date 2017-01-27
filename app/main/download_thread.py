@@ -213,10 +213,11 @@ class DownloadThread(threading.Thread):
             raise e
         except (RuntimeError, ConnectionResetError, TimeoutException, HTTPError) as e:
             # Give it another try
-            self.error = e
-            logger("Thread-{}: {}".format(self.threadID, self.error))
+            logger("Thread-{}: {} ---  We're giving it a second try".format(self.threadID, e))
             try:
-                if proxy_util.is_proxy_alive(self.proxy, 3):
+                if self.prox_loc is None:
+                    self.download()
+                elif not proxy_util.is_proxy_alive(self.proxy, 3):
                     self._get_one_proxy()
                     self.download()
                 else:
