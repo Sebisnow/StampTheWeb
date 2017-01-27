@@ -60,7 +60,7 @@ def get_one_proxy(location=None, level=0):
             logger("No active proxy found, trying a random proxy")
             if level > 0:
                 return None, None
-            loc, prox = get_one_proxy(None, 1)
+            loc, prox = get_one_proxy(level=1)
             if prox is None:
                 logger("Found no proxy at all, trying without")
                 return None, None

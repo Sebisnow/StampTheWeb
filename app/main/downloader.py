@@ -844,7 +844,7 @@ def location_independent_timestamp(url, proxies=None, robot_check=False, num_thr
             }
     """
 
-    proxy_list = _clean_proxy_list(proxy_util.get_proxy_list())
+    proxy_list = proxy_util.get_proxy_list()
     threads = list()
 
     # Get a proxy from the location of the URL
