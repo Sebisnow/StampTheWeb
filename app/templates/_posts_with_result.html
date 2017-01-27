@@ -140,8 +140,13 @@
     {% for hash in return_countries %}
 
     <li class="post">
+        {% if hash == original_post.hashVal %}
+        <h4>Countries with the original hash as timestamp are:
+        </h4>
+        {% else %}
         <h4>Countries with {{hash}} as timestamp are:
         </h4>
+        {% endif %}
             <ul>
             {% for country in return_countries[hash].countries %}
                 <li>{{country}}</li>
