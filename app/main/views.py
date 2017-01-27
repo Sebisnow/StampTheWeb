@@ -1201,20 +1201,24 @@ def _prepare_return_country_dict(threads, country_list, ret_countries):
     """
     for thread in threads:
         if thread.ipfs_hash is not None:
-            log(thread.prox_loc)
+            print(thread.prox_loc)
             if thread.ipfs_hash not in ret_countries.keys():
                 db_post = Post.query.filter(Post.hashVal == thread.ipfs_hash).first()
                 if db_post is not None:
                     ret_countries[thread.ipfs_hash] = ReturnCountries(db_post, [])
                     log("Retrieved a post for Thread-{}  for {} to add to return_country as {}"
                         .format(thread.threadID, thread.ipfs_hash, ret_countries[thread.ipfs_hash]))
+                    ret_countries[thread.ipfs_hash].countries += [con[0] for con in country_list if
+                                                                  con[1] == thread.prox_loc]
+                    log("Added to return_countries at {}: {}".format(thread.ipfs_hash, ret_countries))
                 else:
                     log("Couldn't retrieve a post for {} for Thread-{} from {} to add to return_country"
                         .format(thread.ipfs_hash, thread.threadID, thread.prox_loc))
                     continue
-            ret_countries[thread.ipfs_hash].countries += [con[0] for con in country_list if con[1] == thread.prox_loc]
-            log("Added to return_countries at {}: {}".format(thread.ipfs_hash, ret_countries))
-    log("Finished preparing the return_countries: {}".format(ret_countries))
+            else:
+                ret_countries[thread.ipfs_hash].countries += [con[0] for con in country_list if con[1] == thread.prox_loc]
+                log("Added to return_countries at {}: {}".format(thread.ipfs_hash, ret_countries))
+    print("Finished preparing the return_countries: {}".format(ret_countries))
     return ret_countries
 
 
