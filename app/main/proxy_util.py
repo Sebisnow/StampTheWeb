@@ -480,7 +480,7 @@ def is_proxy_alive(proxy, timeout=8):
             logger("Proxy {} is alive!".format(proxy))
             return True
     except IOError:
-
+        remove_proxy(proxy)
         logger("----Second check failed {} definitely not alive. Returning False".format(proxy))
     return False
 

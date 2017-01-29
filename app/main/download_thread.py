@@ -225,6 +225,9 @@ class DownloadThread(threading.Thread):
                                      .format(self.threadID))
             except (RuntimeError, ConnectionResetError, TimeoutException, HTTPError, ValueError) as e:
                 self.error = e
+                logger("Thread-{} Gave it a second try, still didn't work. URL unreachable because of {}"
+                       .format(self.threadID, e))
+                self.phantom.quit()
                 raise e
         # submit the hash to originstamp to create a lasting timestamp.
         if self.error is None:
