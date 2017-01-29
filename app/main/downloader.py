@@ -1216,7 +1216,7 @@ def main():
 
 def kill_phantom_processes():
     if os.path.exists("/home/ubuntu/stop_phantom.sh"):
-        app.logger.info(str(check_output(["sudo /home/ubuntu/stop_phantom.sh"], stderr=DEVNULL)))
+        app.logger.info(str(check_output(["/home/ubuntu/stop_phantom.sh"], stderr=DEVNULL)))
 
 
 def date_handler(obj):
