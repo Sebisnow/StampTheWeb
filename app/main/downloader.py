@@ -1066,6 +1066,7 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
     :param user: The user that submitted the timestamp request as String of his username.
     :param original_hash: The hash to compare the results with to identify censored/modified content.
     """
+    kill_phantom_processes()
     app.logger.info("Add {} threads to db with original: {}. THe rest: {}".format(len(results), original_hash,
                                                                                   [res.threadID for res in results]))
     error_threads = list()
@@ -1211,6 +1212,11 @@ def main():
           'establishment/2016/01/31/15922f0c-c83b-11e5-a7b2-5a2f824b02c9_story.html?hpid=hp_hp-top-table-main_' \
           'sandersmoment1045p%3Ahomepage%2Fstory'
     print(get_url_history(url))
+
+
+def kill_phantom_processes():
+    if os.path.exists("/home/ubuntu/kill_phantom.sh"):
+        check_output(["sudo /home/ubuntu/kill_phantom.sh"], stderr=DEVNULL)
 
 
 def date_handler(obj):
