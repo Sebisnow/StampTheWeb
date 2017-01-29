@@ -580,7 +580,7 @@ def get_url_hist(url, user=None, robot_check=False, location=None):
     """
     thread = _run_thread(url, randrange(20, 40), robot_check=robot_check, location=location)
     thread.join()
-
+    kill_phantom_processes()
     if thread.error:
         app.logger.error('An error was returned trying to retrieve {}:\n {}'.format(url, str(thread.error)))
         return ReturnResults(None, None, None, thread.error)
@@ -1017,6 +1017,7 @@ def _join_threads(threads, original_present=False):
                 subthread.join()
         app.logger.info("thread to join {}".format(thread))
         thread.join()
+    kill_phantom_processes()
     if original_present:
         return threads, None
     return _check_threads(threads)
@@ -1066,7 +1067,6 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
     :param user: The user that submitted the timestamp request as String of his username.
     :param original_hash: The hash to compare the results with to identify censored/modified content.
     """
-    kill_phantom_processes()
     app.logger.info("Add {} threads to db with original: {}. THe rest: {}".format(len(results), original_hash,
                                                                                   [res.threadID for res in results]))
     error_threads = list()
@@ -1215,8 +1215,8 @@ def main():
 
 
 def kill_phantom_processes():
-    if os.path.exists("/home/ubuntu/kill_phantom.sh"):
-        check_output(["sudo /home/ubuntu/kill_phantom.sh"], stderr=DEVNULL)
+    if os.path.exists("/home/ubuntu/stop_phantom.sh"):
+        app.logger.info(str(check_output(["sudo /home/ubuntu/stop_phantom.sh"], stderr=DEVNULL)))
 
 
 def date_handler(obj):
