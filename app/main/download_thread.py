@@ -173,9 +173,9 @@ class DownloadThread(threading.Thread):
         Prepare proxies, check if alive and get new one if necessary.
 
         """
-        logger("Thread-{}: Setting up proxies".format(self.threadID))
+        logger("Thread-{}: Setting up proxies {} from {}".format(self.threadID, self.proxy, self.prox_loc))
         if self.proxy is not None:
-            alive = proxy_util.is_proxy_alive(self.proxy, 4)
+            alive = proxy_util.is_proxy_alive(self.proxy, timeout=4)
             if self.prox_loc is None:
                 self.prox_loc = proxy_util.ip_lookup_country(self.proxy.split(":")[0])
             if not alive:
