@@ -550,8 +550,9 @@ class DownloadThread(threading.Thread):
         if self.prox_loc is None:
             #TODO define default location as constant
             self.prox_loc = "DE"
-        self.originstamp_result = submit(self.ipfs_hash, title="Distributed timestamp of /{}/{} from location {}"
-                                         .format(datetime.utcnow().strftime("%Y%m%d%H%M"), self.url, self.prox_loc))
+        self.originstamp_result = submit(self.ipfs_hash, title="StampTheWeb decentralized timestamp of article {} at "
+                                                               "{} from location {}"
+                                         .format(self.url, datetime.utcnow().strftime("%Y%m%d%H%M"), self.prox_loc))
         logger("Thread-{}: Originstamp result: {}".format(self.threadID, str(self.originstamp_result.text)))
         if self.originstamp_result.status_code != 200:
             msg = "Thread-{} Originstamp submission returned {} and failed for some reason: {}"\
@@ -569,7 +570,9 @@ class DownloadThread(threading.Thread):
                        "exists already.".format(self.threadID))
                 # hash already submitted
                 self.already_submitted = True
-                self.originstamp_result = get_originstamp_history(self.ipfs_hash).json()
+                history = get_originstamp_history(self.ipfs_hash)
+                if history.status_code == 200:
+                    self.originstamp_result = history.json()
 
             else:
                 logger("Thread-{} successfully submitted hash to originstamp and created a new timestamp."

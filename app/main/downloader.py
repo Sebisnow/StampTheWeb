@@ -14,6 +14,7 @@ from flask import flash
 from flask import current_app as app
 from urllib.parse import urlparse
 
+from requests import Response
 from selenium.common.exceptions import WebDriverException, TimeoutException
 
 from app.main.download_thread import DownloadThread
@@ -1076,6 +1077,8 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
             countries.add(th.prox_loc)
     for thread in results:
         app.logger.info("Adding Thread-{} to db".format(thread.threadID))
+        if thread.originstamp_result is type(Response):
+            thread.originstamp_result = thread.originstamp_result.json()
 
         if thread.error is not None:
             app.logger.info("Add error thread {} from {} to db. Type of Error  was {}\n error was: {}"
