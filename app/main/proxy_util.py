@@ -580,6 +580,7 @@ def get_proxy_from_url(url, proxy_list=None):
             # The Fallback is to use a German proxy as the original
             # logger("Using Fallback to German proxy.")
             #orig_proxy = get_one_proxy("DE")
+            _ = "DE"
             return None, None
 
     logger("Found a proxy {} from {}".format(orig_proxy, original_country))
