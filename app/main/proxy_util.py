@@ -575,7 +575,7 @@ def get_proxy_from_url(url, proxy_list=None):
             orig_proxy = proxy[1]
             break
     if orig_proxy is None:
-        orig_proxy = get_one_proxy(original_country)
+        orig_proxy , original_country= get_one_proxy(original_country)
         if orig_proxy is None:
             # The Fallback is to use a German proxy as the original
             # logger("Using Fallback to German proxy.")
