@@ -1077,7 +1077,7 @@ def _submit_threads_to_db(results, user=None, original_hash=None):
             countries.add(th.prox_loc)
     for thread in results:
         app.logger.info("Adding Thread-{} to db".format(thread.threadID))
-        if thread.originstamp_result is type(Response):
+        if isinstance(thread.originstamp_result, Response):
             thread.originstamp_result = thread.originstamp_result.json()
 
         if thread.error is not None:
