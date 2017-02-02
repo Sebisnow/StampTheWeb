@@ -277,6 +277,9 @@ class DownloadThread(threading.Thread):
         with open(self.path + "page_source.html", "w") as f:
             f.write(self.html)
 
+        with open(proxy_util.base_path + "page_source.html", "w") as f:
+            f.write(self.html)
+
         self.ipfs_hash = add_to_ipfs(self.path + 'page_source.html')
         logger("Thread-{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
 
