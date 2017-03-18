@@ -11,6 +11,7 @@ import logging
 from bs4 import BeautifulSoup as Bs
 import app.main.proxy_util as prox
 from app.main import proxy_util
+from datetime import datetime
 
 proxy_location, proxy = proxy_util.get_one_random_proxy()
 china, china_proxy = proxy_util.get_one_proxy("CN")
@@ -226,6 +227,14 @@ class BasicsTestCase(unittest.TestCase):
         thread.join()
         self.assertIsNone(thread.error)
         self.assertIsNotNone(thread.html)
+
+    def test_date_formatter(self):
+        date = datetime.now()
+        unix_timestamp = date.timestamp()
+
+        formatted_timestamp = date.strftime("%Y%m%d%H%M")
+        readable_date = down.DownloadThread._format_date(unix_timestamp)
+        self.assertEqual(readable_date, formatted_timestamp)
 
     @unittest.expectedFailure
     def test_warc_creation(self):
