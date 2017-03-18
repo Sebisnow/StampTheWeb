@@ -558,7 +558,6 @@ class DownloadThread(threading.Thread):
         self.originstamp_result = submit(self.ipfs_hash, title="StampTheWeb decentralized timestamp of article {} at "
                                                                "{} from location {}"
                                          .format(self.url, datetime.utcnow().strftime("%Y%m%d%H%M"), self.prox_loc))
-        self.originstamp_result["created_at"] = self._format_date(self.originstamp_result["date_created"])
         logger("Thread-{}: Originstamp result: {}".format(self.threadID, str(self.originstamp_result.text)))
         if self.originstamp_result.status_code != 200:
             msg = "Thread-{} Originstamp submission returned {} and failed for some reason: {}"\
@@ -585,6 +584,10 @@ class DownloadThread(threading.Thread):
                 logger("Thread-{} successfully submitted hash to originstamp and created a new timestamp."
                        .format(self.threadID))
                 self.originstamp_result = self.originstamp_result.json()
+                self.originstamp_result["created_at"] = self._format_date(self.originstamp_result["date_created"])
+                logger("Thread-{} returned the following originstamp Result: {}".format(self.threadID,
+                                                                                        self.originstamp_result[
+                                                                                            "created_at"]))
                 # Only add content to warc for new or changed content -> only for new timestamps
                 if self.warc:
                     self._add_to_warc()
