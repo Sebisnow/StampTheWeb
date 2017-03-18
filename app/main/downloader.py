@@ -351,9 +351,9 @@ def submit(sha256, title=None):
     :param title: title of the hashed document
     :returns: resulting request object
     """
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token={}'.format(d_thread.api_key)}
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token={}'.format(d_thread.api_key_v1)}
     data = {'hash_sha256': sha256, 'title': title}
-    return requests.post(d_thread.api_post_url, json=data, headers=headers)
+    return requests.post(d_thread.api_post_url_v1, json=data, headers=headers)
 
 
 def submit_add_to_db(url, sha256, title):
@@ -388,6 +388,7 @@ def submit_add_to_db(url, sha256, title):
         # if not app.config["TESTING"]: flash(u'URL already submitted to OriginStamp'+ url + ' Hash '+sha256)
         # app.logger.error('URL already submitted to OriginStamp')
         return originstamp_result
+    #TODO new OriginStamp API does not return error on second submit
     elif "errors" in originstamp_result.json():
         if not app.config["TESTING"]:
             flash(u'Internal System Error. Error Code: ' + originstamp_result.status_code +
@@ -433,6 +434,7 @@ def submitHash(sha256):
         app.logger.error('300 Internal System Error. Could not submit sha256 to originstamp')
         return ReturnResults(None, sha256, "None")
     elif originstamp_result.status_code == 200:
+        #TODO new OriginStamp API does not return error on second submit
         if "errors" in originstamp_result.json():
             # hash already submitted
             history = d_thread.get_originstamp_history(sha256)

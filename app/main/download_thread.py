@@ -31,8 +31,10 @@ exit_flag = 0
 ipfs_Client = ipfsApi.Client('127.0.0.1', 5001)
 js_path = os.path.abspath(os.path.expanduser("~/") + '/bin/phantomjs/lib/phantom/bin/phantomjs')
 
-api_key = '7be3aa0c7f9c2ae0061c9ad4ac680f5c'
-api_post_url = 'http://www.originstamp.org/api/stamps'
+api_key_v1 = '7be3aa0c7f9c2ae0061c9ad4ac680f5c'
+api_key_v2 = '3b0f883a-1e67-432a-95d9-b54512b6f199'
+api_post_url_v2 = 'https://api.originstamp.org/api/'
+api_post_url_v1 = 'http://www.originstamp.org/api/stamps'
 header = {'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:32.0) Gecko/20100101 Firefox/32.0'}
 
 negative_tags = ["ad", "advertisement", "gads", "iqad", "anzeige", "dfp_ad"]
@@ -442,7 +444,7 @@ class DownloadThread(threading.Thread):
         Creates a pdf file from the preprocessed html with the images embedded in it.
 
         """
-        # TODO preserve links
+        # TO DO preserve links done
         html_path = "{}pdf_source.html".format(self.path)
         pdf_path = "{}{}.pdf".format(self.storage_path, self.ipfs_hash)
         #if not os.path.exists(pdf_path):  # Always create pdf even if overwrite is necessary
@@ -551,7 +553,7 @@ class DownloadThread(threading.Thread):
         """
         logger("Thread-{} submit hash to originstamp.".format(self.threadID))
         if self.prox_loc is None:
-            #TODO define default location as constant
+            #TO DO define default location as constant
             self.prox_loc = "DE"
         self.originstamp_result = submit(self.ipfs_hash, title="StampTheWeb decentralized timestamp of article {} at "
                                                                "{} from location {}"
@@ -568,6 +570,7 @@ class DownloadThread(threading.Thread):
             self._take_screenshot()
             self._make_pdf()
 
+            #TODO in new OriginStamp API there will eb no error on second submit
             if "errors" in self.originstamp_result.text:
                 logger("Thread-{} submitted hash to originstamp but the content has not changed. A timestamp "
                        "exists already.".format(self.threadID))
@@ -779,16 +782,16 @@ def preprocess_doc(html_text):
 
 def submit(sha256, title=None):
     """
-    Submits the given hash to the originstamp API and returns the request object.
+        Submits the given hash to the originstamp API and returns the request object.
 
-    :author: Sebastian
-    :param sha256: hash to submit
-    :param title: title of the hashed document
-    :returns: resulting request object
-    """
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="{}"'.format(api_key)}
+        :author: Sebastian
+        :param sha256: hash to submit
+        :param title: title of the hashed document
+        :returns: resulting request object
+        """
+    headers = {'Content-Type': 'application/json', 'Authorization': api_key_v2}
     data = {'hash_sha256': sha256, 'title': title}
-    return requests.post(api_post_url, json=data, headers=headers)
+    return requests.post(api_post_url_v2 + sha256, json=data, headers=headers)
 
 
 def get_originstamp_history(sha256):
@@ -808,9 +811,45 @@ def get_originstamp_history(sha256):
     :param sha256: hash to submit
     :returns: resulting response object
     """
-    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token={}'.format(api_key)}
+    headers = {'Content-Type': 'application/json', 'Authorization': api_key_v2}
 
-    return requests.get("{}/{}".format(api_post_url, sha256), headers=headers)
+    return requests.get("{}/{}".format(api_post_url_v2, sha256), headers=headers)
+
+
+def submit_v_1(sha256, title=None):
+    """
+    Submits the given hash to the originstamp API and returns the request object.
+
+    :author: Sebastian
+    :param sha256: hash to submit
+    :param title: title of the hashed document
+    :returns: resulting request object
+    """
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token="{}"'.format(api_key_v1)}
+    data = {'hash_sha256': sha256, 'title': title}
+    return requests.post(api_post_url_v1, json=data, headers=headers)
+
+
+def get_originstamp_history_v1(sha256):
+    """
+    Fetches the history of the hash from originstamp. Response object looks like the following. Most important for
+    StampTheWeb is the created_at tag:
+    {'title': '', 'created_at': '2016-06-23T08:36:21.242Z', 'updated_at': '2016-06-24T00:02:28.728Z',
+    'blockchain_transaction': {'created_at': '2016-06-24T00:02:26.796Z', 'updated_at': '2016-06-26T20:04:08.674Z',
+    'public_key': '03a1673f7e06c345e3f8f26160b42616f421041e13b301e561b52aaeaa62f2deda', 'status': 1,
+    'seed': '<very long seed representing the blockchain>',
+    'private_key': 'a3dabafdc73c4b0bcc50191aef89c3fdb5cf9e728af6bcddec3a9905b04a4092',
+    'recipient': '1KLwyN4qoA6yTmdr39Eqj5b1FCW6hxik9R', 'tx_hash':
+    'd9496339662ad07e693605e9e374fb3cc09058f59b7c4ab2a958d713d9232cb2'},
+    'hash_sha256': 'QmXiSkFRT7agFChpLa5BhJkvDAVHEefrekAf7DWjZKnmE8', 'submitted_at': None}
+
+    :author: Sebastian
+    :param sha256: hash to submit
+    :returns: resulting response object
+    """
+    headers = {'Content-Type': 'application/json', 'Authorization': 'Token token={}'.format(api_key_v1)}
+
+    return requests.get("{}/{}".format(api_post_url_v1, sha256), headers=headers)
 
 
 def is_correct_html(html, t_id=None, url=None):
