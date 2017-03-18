@@ -558,6 +558,7 @@ class DownloadThread(threading.Thread):
         self.originstamp_result = submit(self.ipfs_hash, title="StampTheWeb decentralized timestamp of article {} at "
                                                                "{} from location {}"
                                          .format(self.url, datetime.utcnow().strftime("%Y%m%d%H%M"), self.prox_loc))
+        self.originstamp_result["created_at"] = self._format_date(self.originstamp_result["date_created"])
         logger("Thread-{}: Originstamp result: {}".format(self.threadID, str(self.originstamp_result.text)))
         if self.originstamp_result.status_code != 200:
             msg = "Thread-{} Originstamp submission returned {} and failed for some reason: {}"\
@@ -607,6 +608,10 @@ class DownloadThread(threading.Thread):
             logger("Thread-{}: Screenshot present at: {}".format(self.threadID, screenshot_path))"""
         self.screenshot["ipfs_hash"] = add_to_ipfs(screenshot_path)
         self.screenshot["path"] = screenshot_path
+
+    @staticmethod
+    def _format_date(date):
+        return datetime.fromtimestamp(int(date)).strftime('%Y%m%d%H%M')
 
     @staticmethod
     def scroll(phantom):
