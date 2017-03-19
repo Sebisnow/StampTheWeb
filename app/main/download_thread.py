@@ -280,7 +280,7 @@ class DownloadThread(threading.Thread):
         with open(self.path + "page_source.html", "w") as f:
             f.write(self.html)
 
-        self.ipfs_hash = binascii.hexlify(add_to_ipfs(self.path + 'page_source.html').encode('utf-8'))
+        self.ipfs_hash = binascii.hexlify(add_to_ipfs(self.path + 'page_source.html').encode('utf-8')).decode('utf-8')
         logger("Thread-{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
 
         with open(proxy_util.base_path + self.ipfs_hash + ".html", "w") as f:
@@ -722,7 +722,7 @@ def convert_from_hex(hex_string):
     :param hex_string: The timestamp of Originstamp in SHA 256 in HEX
     :return: The IPFS address.
     """
-    return binascii.unhexlify(hex_string).decode('utf-8')
+    return binascii.unhexlify(hex_string.encode('utf-8')).decode('utf-8')
 
 
 def get_from_ipfs(timestamp, file_path=None):
