@@ -139,7 +139,7 @@ def index():
             already_exists = Post.query.filter(Post.hashVal == results.hashValue).first()
             if already_exists is not None and already_exists.count >= 1:
                 flash('The content has not changed since the last timestamp at {} with hash {}'
-                      .format(results.originStampResult["created_at"]), results.hashValue)
+                      .format(results.originStampResult["created_at"], results.hashValue))
             else:
                 flash('At {} new time-stamp has been created. Scroll down to view it.'
                       .format(results.originStampResult["created_at"]))
