@@ -581,13 +581,15 @@ class DownloadThread(threading.Thread):
                 history = get_originstamp_history(self.ipfs_hash)
                 if history.status_code == 200:
                     self.originstamp_result = history.json()
+                    self.originstamp_result["created_at"] = self._format_date(
+                        self.originstamp_result["date_created"]/1000)
 
             else:
                 logger("Thread-{} successfully submitted hash to originstamp and created a new timestamp."
                        .format(self.threadID))
                 self.originstamp_result = self.originstamp_result.json()
                 #TODO format of timestamp? not unix timestamp three 0 at the end
-                self.originstamp_result["created_at"] = self._format_date(self.originstamp_result["date_created"][:-3])
+                self.originstamp_result["created_at"] = self._format_date(self.originstamp_result["date_created"]/1000  )
                 logger("Thread-{} returned the following originstamp Result: {}".format(self.threadID,
                                                                                         self.originstamp_result[
                                                                                             "created_at"]))
