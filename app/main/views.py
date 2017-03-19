@@ -137,7 +137,7 @@ def index():
         results = downloader.get_url_hist(url_site, user=current_user)
         if results.originStampResult is not None:
             already_exists = Post.query.filter(Post.hashVal == results.hashValue).first()
-            if already_exists is not None and already_exists.counter >= 1:
+            if already_exists is not None and already_exists.count >= 1:
                 flash('The content has not changed since the last timestamp at {} with hash {}'
                       .format(results.originStampResult["created_at"]), results.hashValue)
             else:
