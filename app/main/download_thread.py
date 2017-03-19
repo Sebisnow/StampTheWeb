@@ -21,6 +21,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from requests.exceptions import ReadTimeout, HTTPError
 from warc3 import warc
+import binascii
 
 from app.main import proxy_util
 from app.main.proxy_util import logger
@@ -279,7 +280,7 @@ class DownloadThread(threading.Thread):
         with open(self.path + "page_source.html", "w") as f:
             f.write(self.html)
 
-        self.ipfs_hash = add_to_ipfs(self.path + 'page_source.html')
+        self.ipfs_hash = format(add_to_ipfs(self.path + 'page_source.html'), '02X')
         logger("Thread-{} Downloaded and submitted everything to ipfs: \n{}".format(self.threadID, self.ipfs_hash))
 
         with open(proxy_util.base_path + self.ipfs_hash + ".html", "w") as f:
@@ -500,9 +501,10 @@ class DownloadThread(threading.Thread):
         with warc.open(path_to_warc, "ab") as warc_file:
 
             record_header = warc.WARCHeader({'hash_value': self.ipfs_hash, 'title': originstamp_result['title'],
+                                             'ipfs_address': convert_from_hex(self.ipfs_hash), 'country': self.prox_loc,
                                              'creation_time': originstamp_result['created_at'],
                                              'content_type': 'application/warc-fields', 'WARC-Target-URI': self.url,
-                                             'country': self.prox_loc, 'robots_txt': self.robot_check})
+                                             'robots_txt': self.robot_check})
 
             content_block = '"{}"\n'.format(self._create_content()).encode()
             record = warc.WARCRecord(record_header, content_block, defaults=True)
@@ -710,6 +712,17 @@ def add_to_ipfs(fname):
         res = ipfs_Client.add(fname, recursive=False)[0]
         logger("IPFS result for directory: " + str(res))
         return res['Hash']
+
+
+def convert_from_hex(hex_string):
+    """
+    If timestamped contend via ipfs is to be reached the timestamp that is in hex since OriginStamp v2 needs to be
+    reformatted to IPFS address.
+
+    :param hex_string: The timestamp of Originstamp in SHA 256 in HEX
+    :return: The IPFS address.
+    """
+    return binascii.unhexlify(hex_string)
 
 
 def get_from_ipfs(timestamp, file_path=None):
