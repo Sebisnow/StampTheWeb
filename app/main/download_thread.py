@@ -563,14 +563,14 @@ class DownloadThread(threading.Thread):
             msg = "Thread-{} Originstamp submission returned {} and failed for some reason: {}"\
                 .format(self.threadID, str(self.originstamp_result.status_code), self.originstamp_result.text)
             self.error = HTTPError(msg)
-            self.originstamp_result = self.originstamp_result.json()
+            # self.originstamp_result = self.originstamp_result.json()
             logger(msg)
             raise self.error
         else:
             self._take_screenshot()
             self._make_pdf()
 
-            #TODO in new OriginStamp API there will eb no error on second submit
+            #TODO in new OriginStamp API there will eb no error on second submit - no harm done though
             if "errors" in self.originstamp_result.text:
                 logger("Thread-{} submitted hash to originstamp but the content has not changed. A timestamp "
                        "exists already.".format(self.threadID))
@@ -615,7 +615,7 @@ class DownloadThread(threading.Thread):
 
     @staticmethod
     def _format_date(date):
-        return datetime.fromtimestamp(int(date)).strftime('%Y%m%d%H%M')
+        return datetime.fromtimestamp(int(date)).strftime('%Y-%m-%d %H:%M:%S')
 
     @staticmethod
     def scroll(phantom):

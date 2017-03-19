@@ -231,9 +231,13 @@ class BasicsTestCase(unittest.TestCase):
     def test_date_formatter(self):
         date = datetime.now()
         unix_timestamp = date.timestamp()
+        print(unix_timestamp)
+        print(type(unix_timestamp))
+        print(date)
 
         formatted_timestamp = date.strftime("%Y%m%d%H%M")
         readable_date = down.DownloadThread._format_date(unix_timestamp)
+        print(readable_date)
         self.assertEqual(readable_date, formatted_timestamp)
 
     @unittest.expectedFailure
