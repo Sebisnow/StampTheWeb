@@ -624,7 +624,7 @@ class DownloadThread(threading.Thread):
         :param date: unix timestamp in seconds
         :return: The time as String in %Y-%m-%d %H:%M:%S format
         """
-        return datetime.fromtimestamp(int(date)).strftime('%Y-%m-%d %H:%M:%S')
+        return datetime.fromtimestamp(int(date)).strftime('%Y-%m-%dT%H:%M:%S.%fZ')
 
     @staticmethod
     def scroll(phantom):
