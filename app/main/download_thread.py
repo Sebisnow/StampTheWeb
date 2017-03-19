@@ -585,7 +585,7 @@ class DownloadThread(threading.Thread):
                        .format(self.threadID))
                 self.originstamp_result = self.originstamp_result.json()
                 #TODO format of timestamp? not unix timestamp three 0 at the end
-                self.originstamp_result["created_at"] = self._format_date(self.originstamp_result["date_created"])
+                self.originstamp_result["created_at"] = self._format_date(self.originstamp_result["date_created"][:-3])
                 logger("Thread-{} returned the following originstamp Result: {}".format(self.threadID,
                                                                                         self.originstamp_result[
                                                                                             "created_at"]))
@@ -615,7 +615,12 @@ class DownloadThread(threading.Thread):
 
     @staticmethod
     def _format_date(date):
-        return datetime.fromtimestamp(int(date)).strftime('%Y-%m-%d %H:%M:%S')
+        """
+        Expects a unix timestamp
+        :param date: unix timestamp in seconds
+        :return: The time as String in %Y-%m-%d %H:%M:%S format
+        """
+        return datetime.fromtimestamp(int(date[:-3])).strftime('%Y-%m-%d %H:%M:%S')
 
     @staticmethod
     def scroll(phantom):
