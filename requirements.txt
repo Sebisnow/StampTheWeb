@@ -3,7 +3,7 @@ aiohttp==0.22.5
 alembic==0.8.7
 bcdoc==0.16.0
 beautifulsoup4==4.5.1
-bleach==1.4.3
+bleach==3.1.2
 blinker==1.4
 botocore==1.4.51
 bs4==0.0.1
