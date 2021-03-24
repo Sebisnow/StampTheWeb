@@ -72,7 +72,7 @@ readability-lxml==0.6.2
 requests==2.11.1
 requests-oauthlib==0.6.2
 roman==2.0.0
-rsa==3.4.2
+rsa==4.1
 schedule==0.3.2
 selenium==2.53.6
 six==1.10.0
