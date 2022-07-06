@@ -18,6 +18,6 @@ Werkzeug==0.15.3
 alembic==0.6.2
 bleach==1.4.0
 blinker==1.3
-html5lib==1.0b3
+html5lib==0.999999999
 itsdangerous==0.23
 six==1.4.1
